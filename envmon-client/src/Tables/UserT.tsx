@@ -3,6 +3,8 @@ import {
   Button,
   Chip,
   Input,
+  Select,
+  SelectItem,
   Modal,
   ModalBody,
   ModalContent,
@@ -17,16 +19,15 @@ import {
   Tooltip,
   useDisclosure,
 } from "@heroui/react";
-import GenericTable from "./GenericTable";
 import { useUserContext } from "../context/UserContextProvider";
-import { User, TableItem } from "../Types";
-import { useEffect, useState } from "react";
+import { User, userRole } from "../Types";
+import { useState } from "react";
 import { EyeIcon, Pencil, Trash2 } from "lucide-react";
 import axiosClient from "../axiosClient";
 
 const statusColorMap = {
-  admin: "success",
-  user: "primary",
+  Администратор: "success",
+  "Инженер по охране труда": "primary",
   unknown: "default",
 } as const;
 
@@ -42,13 +43,13 @@ const COLUMNS = [
 function UserT() {
   const { users, setUsers } = useUserContext();
   const [selectedItem, setSelectedItem] = useState<User | null>(null);
+  const [editUser, setEditUser] = useState<User | null>();
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const {
     isOpen: isViewOpen,
     onOpen: onViewOpen,
-    onClose: onViewClose,
     onOpenChange: onViewOpenChange,
   } = useDisclosure();
 
@@ -112,6 +113,7 @@ function UserT() {
                 className="text-lg text-default-400 cursor-pointer active:opacity-50"
                 onClick={() => {
                   setSelectedItem(user);
+                  setEditUser(user);
                   onEditOpen();
                 }}
               >
@@ -155,11 +157,82 @@ function UserT() {
   const editModalContent = (user: User) => {
     return (
       <>
-        <Input label="ФИО пользователя" value={user.userName ?? ""}></Input>
-        <Input label="Почта" value={user.uEmail ?? ""}></Input>
-        <Input label="Телефон" value={user.uPhone ?? ""}></Input>
-        <Input label="Роль" value={user.uRole ?? ""}></Input>
-        <Input label="Должность" value={user.uPosition ?? ""}></Input>
+        <Input
+          label="ФИО пользователя"
+          value={user?.userName ?? ""}
+          onChange={(e) =>
+            setEditUser({ ...editUser, userName: e.target.value })
+          }
+        ></Input>
+        <Input
+          label="Почта"
+          value={user?.uEmail ?? ""}
+          onChange={(e) =>
+            setEditUser((prev) => ({ ...prev, uEmail: e.target.value }))
+          }
+        ></Input>
+        <Input
+          label="Телефон"
+          value={editUser?.uPhone ?? ""}
+          type="tel"
+          // startContent={
+          //   <div className="pointer-events-none flex items-center">
+          //     <span className="text-default-300 ">
+          //       <Phone className="text-small" />
+          //     </span>
+          //   </div>
+          // }
+          onChange={(e) => {
+            //remove all non-digit characters
+            const digits = e.target.value.replace(/\D/g, "");
+
+            // Format the phone number
+            let formatted = "";
+            if (digits.length > 0) {
+              formatted = digits;
+
+              //Apply Russian phone number format: +7 (999) 999-99-99
+              if (digits.length > 1) {
+                formatted = `+7 (${digits.substring(1, 4)}) ${digits.substring(
+                  4,
+                  7
+                )}-${digits.substring(7, 9)}-${digits.substring(9, 11)}`;
+              }
+              // Ensure the + is always present
+              if (!e.target.value.startsWith("+")) {
+                formatted = `+${formatted}`;
+              }
+            }
+
+            setEditUser((prev) => ({ ...prev, uPhone: formatted }));
+          }}
+        ></Input>
+        <Select
+          label="Роль"
+          // value={editUser?.uRole}
+          defaultSelectedKeys={[editUser?.uRole ?? ""]}
+          onChange={(e) =>
+            setEditUser((prev) => ({
+              ...prev,
+              uRole: e.target.value as
+                | "Администратор"
+                | "Инженер по охране труда",
+            }))
+          }
+        >
+          {userRole.map((role) => (
+            <SelectItem key={role.key} textValue={role.label}>
+              {role.label}
+            </SelectItem>
+          ))}
+        </Select>
+        <Input
+          label="Должность"
+          value={editUser?.uPosition ?? ""}
+          onChange={(e) =>
+            setEditUser((prev) => ({ ...prev, uPosition: e.target.value }))
+          }
+        ></Input>
       </>
     );
   };
@@ -180,20 +253,23 @@ function UserT() {
     );
   };
   const handleEdit = async () => {
-    if (!selectedItem) return;
+    if (!editUser) return;
+    console.log(editUser);
     try {
       axiosClient
-        .patch(`/api/users/?id=${selectedItem.id}`, {
-          userName: selectedItem.userName,
-          uEmail: selectedItem.uEmail,
-          uPhone: selectedItem.uPhone,
-          uRole: selectedItem.uRole,
-          uPosition: selectedItem.uPosition,
+        .patch(`/api/users/?id=${editUser.user_id}`, {
+          userName: editUser.userName,
+          uEmail: editUser.uEmail,
+          uPhone: editUser.uPhone,
+          uRole: editUser.uRole,
+          uPosition: editUser.uPosition,
         })
         .then(({ data }) => {
-          console.log(data);
-          const index = users.findIndex((user) => user.id === selectedItem.id);
-          users[index] = data;
+          console.log(data.data);
+          const index = users.findIndex(
+            (user) => user.user_id === editUser.user_id
+          );
+          users[index] = data.data;
           setUsers(users);
           setSuccess("Пользователь успешно обновлен");
           setTimeout(() => setSuccess(null), 3000);
@@ -212,10 +288,12 @@ function UserT() {
     if (!selectedItem) return;
     try {
       axiosClient
-        .delete(`/api/users/?id=${selectedItem.id}`)
+        .delete(`/api/users/?id=${selectedItem.user_id}`)
         .then(({ data }) => {
           console.log(data);
-          setUsers(users.filter((user) => user.id !== selectedItem.id));
+          setUsers(
+            users.filter((user) => user.user_id !== selectedItem.user_id)
+          );
           setSuccess("Пользователь успешно удален");
           setTimeout(() => setSuccess(null), 3000);
           onDeleteClose();
@@ -250,7 +328,7 @@ function UserT() {
             <TableRow key={item.user_id}>
               {(columnKey) => (
                 <TableCell>
-                  {renderCell(item, columnKey as string | "actions")}
+                  {renderCell(item, columnKey as keyof User | "actions")}
                 </TableCell>
               )}
             </TableRow>
@@ -284,9 +362,9 @@ function UserT() {
             <>
               <ModalHeader>Редактирование</ModalHeader>
               <ModalBody>
-                {selectedItem && (
+                {editUser && (
                   <>
-                    {editModalContent(selectedItem)}
+                    {editModalContent(editUser)}
                     {error && <Alert color="danger">{error}</Alert>}
                   </>
                 )}
@@ -311,14 +389,7 @@ function UserT() {
             <>
               <ModalHeader>Удалить</ModalHeader>
               <ModalBody>
-                {selectedItem && (
-                  <>
-                    {deleteModalContent(selectedItem)}
-                    <Alert color="warning">
-                      Вы уверены, что хотите удалить этот элемент?
-                    </Alert>
-                  </>
-                )}
+                {selectedItem && <>{deleteModalContent(selectedItem)}</>}
               </ModalBody>
               <ModalFooter>
                 <Button color="danger" onPress={handleDelete}>

@@ -38,11 +38,12 @@ export const UserContextProvider = ({ children }: UserContextProviderType) => {
       })
       .catch((error) => {
         console.log(error);
-      })
-      .finally(() => {
-        console.log(users);
       });
   }, []);
+
+  useEffect(() => {
+    console.log(users);
+  }, [users]);
 
   const setToken = (token: string | null) => {
     console.log("Setting token in localStorage:", token); // Debug log
