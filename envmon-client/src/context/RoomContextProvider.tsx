@@ -1,6 +1,6 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import axiosClient from "../axiosClient";
-import { RoomsT as Rooms, RoomsT } from "../Types";
+import { createContext, useContext, useState } from "react";
+// import axiosClient from "../axiosClient";
+import { Rooms } from "../Types";
 
 interface RoomContextProviderType {
   children: React.ReactNode;
@@ -8,38 +8,31 @@ interface RoomContextProviderType {
 
 interface RoomContextType {
   rooms: Rooms | null;
-  isLoading: boolean;
-  setIsLoading: (value: boolean) => void;
-  setRooms: (value: RoomsT) => void;
+  setRooms: (value: Rooms) => void;
 }
 
 const RoomContext = createContext<RoomContextType>({
   rooms: null,
-  isLoading: false,
-  setIsLoading: () => {},
   setRooms: () => {},
 });
 
 export const RoomContextProvider = ({ children }: RoomContextProviderType) => {
-  const [rooms, setRooms] = useState<RoomsT>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  useEffect(() => {
-    setIsLoading(true);
-    axiosClient
-      .get("/rooms")
-      .then(({ data }) => {
-        console.log(data);
-        setRooms(data.data);
-        // console.log(res.data.data);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-    setIsLoading(false);
-  }, []);
+  const [rooms, setRooms] = useState<Rooms>([]);
+  // useEffect(() => {
+  //   axiosClient
+  //     .get("/rooms")
+  //     .then(({ data }) => {
+  //       // console.log(data);
+  //       setRooms(data.data);
+  //       // console.log(res.data.data);
+  //     })
+  //     .catch((err) => {
+  //       console.log(err);
+  //     });
+  // }, []);
 
   return (
-    <RoomContext.Provider value={{ rooms, setRooms, isLoading, setIsLoading }}>
+    <RoomContext.Provider value={{ rooms, setRooms }}>
       {children}
     </RoomContext.Provider>
   );

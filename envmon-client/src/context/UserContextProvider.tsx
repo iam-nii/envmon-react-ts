@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import axiosClient from "../axiosClient";
+// import axiosClient from "../axiosClient";
 import { User, Users } from "../Types";
+import axiosClient from "../axiosClient";
 
 interface UserContextProviderType {
   children: React.ReactNode;
@@ -30,10 +31,10 @@ export const UserContextProvider = ({ children }: UserContextProviderType) => {
 
   useEffect(() => {
     axiosClient
-      .get("/users")
+      .get("/api/users/")
       .then(({ data }) => {
         setUsers(data.data);
-        console.log(data);
+        console.log(data.data);
       })
       .catch((error) => {
         console.log(error);

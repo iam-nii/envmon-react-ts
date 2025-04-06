@@ -7,12 +7,14 @@ import {
   ModalContent,
   ModalFooter,
   ModalHeader,
+  Spinner,
   // Select,
   // SelectItem,
   // Spinner,
   useDisclosure,
 } from "@heroui/react";
 import { useEffect, useState } from "react";
+import RoomsTable from "../Tables/RoomsTable";
 // import axiosClient from "../axiosClient";
 // import RoomsTable from "../../components/Tables/RoomsTable";
 // import { useDeviceContext } from "../../context/DeviceContexProvider";
@@ -40,7 +42,6 @@ interface roomPayloadType {
 function AddRoom({
   setError,
   setSuccess,
-  setSelected,
   isLoading,
   error,
   success,
@@ -71,11 +72,12 @@ function AddRoom({
     const height = Number(roomPayload.height);
     const width = Number(roomPayload.width);
     const length = Number(roomPayload.length);
+
+    // Reset error and success states
     setError(null);
     setSuccess(null);
-    console.log(isLoading);
-    setSelected("");
-    console.log(error);
+
+    // Calculate area only if height, width, and length are valid numbers
     if (!isNaN(height) && !isNaN(width) && !isNaN(length)) {
       setRoomPayload((prev) => ({
         ...prev,
@@ -279,13 +281,14 @@ function AddRoom({
           )}
         </ModalContent>
       </Modal>
-      {/* {isLoading ? (
+      {isLoading ? (
         <div className="flex justify-center items-center h-screen">
           <Spinner size="lg" />
         </div>
       ) : (
+        // <></>
         <RoomsTable isAdmin={true} />
-      )} */}
+      )}
     </div>
   );
 }

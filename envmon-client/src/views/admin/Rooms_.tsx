@@ -1,5 +1,5 @@
 import { Tab, Tabs } from "@heroui/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 // import { useRoomContext } from "../../context/RoomContextProvider";
 import AddRoom from "../../components/AddRoom";
 // import { RoomsT } from "../../Types";
@@ -10,9 +10,7 @@ const Rooms = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  useEffect(() => {
-    setIsLoading(false);
-  }, []);
+
   return (
     <Tabs
       fullWidth

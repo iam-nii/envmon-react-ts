@@ -1,7 +1,15 @@
-interface User {
+type TableItem = {
+  id?: null | number;
+  device_id?: null | number;
+  room_id?: null | number;
+  user_id?: null | number;
+  [key: string]: unknown;
+};
+interface User extends TableItem {
   user_id?: number | null;
   userName?: string | null;
   uEmail: string | null;
+  uPhone?: string | null;
   uPassword: string | null;
   uRole?: "admin" | "user" | null;
   uPosition?: string | null;
@@ -10,9 +18,20 @@ interface User {
 }
 type Users = User[];
 
-interface Room {
-  room_id: number;
-  roomNumber: string;
+export const userRole = [
+  {
+    key: "user",
+    label: "Инженер по охране труда",
+  },
+  {
+    key: "admin",
+    label: "Администратор",
+  },
+];
+
+interface Room extends TableItem {
+  room_id?: number;
+  roomNumber: number;
   frPerson: string;
   location: string;
   length: number;
@@ -21,14 +40,14 @@ interface Room {
   area: number;
 }
 
-type RoomsT = Room[];
+type Rooms = Room[];
 
 interface device {
-  device_id: string | null;
+  device_id: number;
   deviceName: string | null;
   zoneNum?: number;
   reqInterval?: number;
-  roomID?: number;
+  roomID?: number | null;
 }
 
 type Devices = device[];
@@ -41,4 +60,4 @@ interface Params {
   maxValue: number;
 }
 
-export type { User, Users, Room, RoomsT, device, Devices, Params };
+export type { User, Users, Room, Rooms, device, Devices, Params, TableItem };

@@ -28,15 +28,16 @@ function Welcome() {
     <>
       <Navbar isBordered className="bg-[#dfe9ed]">
         <NavbarBrand>
-          <Link href="/">
+          <Link onPress={() => navigate("/")}>
             <img src={logo} alt="website logo" width={150} height={150} />
           </Link>
         </NavbarBrand>
         <NavbarContent className="hidden sm:flex gap-80">
           <NavbarItem>
             <Link
-              href="/about"
+              // href="/about"
               className="text-black font-semibold hover:text-slate-700 hover:text-lg transition-all duration-300"
+              onPress={() => navigate("/about")}
             >
               О проекте
             </Link>

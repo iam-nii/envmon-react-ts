@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createHashRouter } from "react-router-dom";
 //Auth
 import SignIn from "./views/auth/SignIn";
 import SignUp from "./views/auth/SignUp";
@@ -10,9 +10,9 @@ import AdminLayout from "./layouts/AdminLayout";
 
 //Admin
 import Dashboard from "./views/admin/Dashboard";
-import Users from "./views/admin/Users";
-import Rooms from "./views/admin/Rooms";
-import Settings from "./views/admin/Settings";
+import Users from "./views/admin/Users_";
+import Rooms from "./views/admin/Rooms_";
+import Settings from "./views/admin/Settings_";
 import RoomDetails from "./views/admin/RoomDetails";
 import RoomData from "./views/admin/RoomData";
 
@@ -25,7 +25,7 @@ import About from "./views/About";
 import Welcome from "./views/Welcome";
 import NotFound from "./views/NotFound";
 
-const router = createBrowserRouter([
+const router = createHashRouter([
   {
     path: "/",
     element: <Welcome />,

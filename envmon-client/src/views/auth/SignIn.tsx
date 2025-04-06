@@ -16,26 +16,21 @@ const SignIn = () => {
     // e.preventDefault();
     setError(null);
     setIsLoading(true);
-    console.log(emailRef.current?.value);
-    console.log(passwordRef.current?.value);
+    // console.log(emailRef.current?.value);
+    // console.log(passwordRef.current?.value);
     if (emailRef.current && passwordRef.current) {
       const payload = {
         uEmail: emailRef.current.value,
         uPassword: passwordRef.current.value,
       };
-      console.log(payload);
+      // console.log(payload);
       axiosClient
-        .post("/auth/signin/", payload)
+        .post("/api/auth/signin/", payload)
         .then(({ data }) => {
-          // console.log(data.data.user);
+          console.log(data);
           setUser(data.data.user);
-          console.log("Receieved token: ", data.data.token);
-          console.log("Setting token......");
-          localStorage.setItem("ACCESS_TOKEN", data.data.token);
-          if (localStorage.getItem("ACCESS_TOKEN")) {
-            console.log("Token set...");
-          }
-          console.log("User token: ", data.data.token);
+          localStorage.setItem("USER_DATA", JSON.stringify(data.data.user));
+          // console.log(user);
           setToken(data.data.token);
           if (data.data.user.uRole == "admin") {
             navigate("/admin");
@@ -46,12 +41,13 @@ const SignIn = () => {
         .catch((err) => {
           console.log(err);
           const response = err.response;
+          console.log(response);
           if (
             (response && response.data.status === 422) ||
-            response.data.status === 401
+            response.status === 401
           ) {
             console.log(response.data.message);
-            if (response.data.message === "The selected u email is invalid.") {
+            if (response.data.message === "Unauthorized") {
               setError(
                 "Данные не верные. Попробуйте еще раз или зарегистрируйтесь"
               );
@@ -131,8 +127,8 @@ const SignIn = () => {
             </div>
             <div className="mt-5">
               <h2 className="text-right text-gray-500">
-                Нет аккаунта?
-                <Link href="/signup">
+                Нет аккаунта?{" "}
+                <Link onPress={() => navigate("/signup")}>
                   <span className="text-blue-500 text-sm font-light mr-1">
                     {" "}
                     Зарегистрироваться

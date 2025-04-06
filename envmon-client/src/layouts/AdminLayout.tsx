@@ -12,12 +12,19 @@ import { useUserContext } from "../context/UserContextProvider";
 // import { useDeviceContext } from "../context/DeviceContextProvider";
 // import { useEffect } from "react";
 // import axiosClient from "../axiosClient";
+import { useEffect } from "react";
 
 function AdminLayout() {
-  const { user, setToken, token } = useUserContext();
+  const { user, setUser, setToken, token } = useUserContext();
   // const { rooms } = useRoomContext();
   // console.log(rooms);
   // const { setDevices } = useDeviceContext();
+  useEffect(() => {
+    const userData = localStorage.getItem("USER_DATA");
+    if (userData) {
+      setUser(JSON.parse(userData));
+    }
+  }, []);
 
   const navigate = useNavigate();
   if (!token) {
