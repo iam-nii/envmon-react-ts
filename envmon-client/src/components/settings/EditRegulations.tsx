@@ -38,11 +38,11 @@ function EditRegulations() {
   useEffect(() => {
     setUserData(user);
   }, [user]);
-  useEffect(() => {
-    axiosClient.get("/parameters").then(({ data }) => {
-      setParameters(data);
-    });
-  }, []);
+  //   useEffect(() => {
+  //     axiosClient.get("/parameters").then(({ data }) => {
+  //       setParameters(data);
+  //     });
+  //   }, []);
   //   const handleParamSelection = (keys: Selection) => {
   //     let selectedKeysArray: string[] = [];
   //     if (typeof keys === "string") {

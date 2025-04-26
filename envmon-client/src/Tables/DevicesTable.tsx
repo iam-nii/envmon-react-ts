@@ -1,12 +1,16 @@
 import {
   Alert,
   Button,
+  cn,
   Input,
   Modal,
   ModalBody,
   ModalContent,
   ModalFooter,
   ModalHeader,
+  Select,
+  SelectItem,
+  Switch,
   Table,
   TableBody,
   TableCell,
@@ -17,10 +21,11 @@ import {
   useDisclosure,
 } from "@heroui/react";
 import { device } from "../Types";
-import { useState } from "react";
-import { EyeIcon, Pencil, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import axiosClient from "../axiosClient";
 import { useDeviceContext } from "../context/DeviceContextProvider";
+import { useRoomContext } from "../context/RoomContextProvider";
+import { DeleteIcon, EditIcon, EyeIcon } from "../Icons/Icons";
 
 const COLUMNS = [
   { name: "ID устройства", uid: "device_id" },
@@ -28,16 +33,21 @@ const COLUMNS = [
   { name: "Номер зоны", uid: "zoneNum" },
   { name: "Интервал запроса, с", uid: "reqInterval" },
   { name: "ID помещения", uid: "room_id" },
+  { name: "Статус", uid: "status" },
   { name: "Действие", uid: "actions" },
 ];
 
 function DevicesTable() {
   const { devices, setDevices } = useDeviceContext();
+  const { rooms } = useRoomContext();
   const [selectedItem, setSelectedItem] = useState<device | null>(null);
   const [editDevice, setEditDevice] = useState<device | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    console.log(devices);
+  }, [devices]);
   const {
     isOpen: isViewOpen,
     onOpen: onViewOpen,
@@ -73,6 +83,8 @@ function DevicesTable() {
         return <p className="text-small">{device.reqInterval}</p>;
       case "room_id":
         return <p className="text-small">{device.room_id}</p>;
+      case "status":
+        return <p className="text-small">{device.status}</p>;
       case "actions":
         return (
           <div className="relative flex items-center gap-5 justify-end">
@@ -96,7 +108,7 @@ function DevicesTable() {
                   onEditOpen();
                 }}
               >
-                <Pencil />
+                <EditIcon />
               </span>
             </Tooltip>
             <Tooltip color="danger" content="Удалить">
@@ -107,7 +119,7 @@ function DevicesTable() {
                   onDeleteOpen();
                 }}
               >
-                <Trash2 />
+                <DeleteIcon />
               </span>
             </Tooltip>
           </div>
@@ -121,6 +133,11 @@ function DevicesTable() {
   const viewModalContent = (device: device) => {
     return (
       <>
+        <Input
+          label="ID устройства"
+          value={device.device_id?.toString() ?? ""}
+          disabled
+        ></Input>
         <Input
           label="Название устройства"
           value={device.deviceName ?? ""}
@@ -141,6 +158,10 @@ function DevicesTable() {
           value={device.room_id?.toString() ?? ""}
           disabled
         ></Input>
+        <Switch
+          isDisabled={true}
+          isSelected={Number(device.status) === 1}
+        ></Switch>
       </>
     );
   };
@@ -148,7 +169,14 @@ function DevicesTable() {
     return (
       <>
         <Input
+          label="Идентификатор устройства"
+          variant="bordered"
+          value={device.device_id?.toString() ?? ""}
+          isDisabled
+        ></Input>
+        <Input
           label="Название устройства"
+          variant="bordered"
           value={device?.deviceName ?? ""}
           onChange={(e) =>
             setEditDevice({ ...editDevice, deviceName: e.target.value })
@@ -156,6 +184,7 @@ function DevicesTable() {
         ></Input>
         <Input
           label="Номер зоны"
+          variant="bordered"
           value={device?.zoneNum?.toString() ?? ""}
           type="number"
           onChange={(e) =>
@@ -163,7 +192,8 @@ function DevicesTable() {
           }
         ></Input>
         <Input
-          label="Интервал запроса, сек"
+          label="Интервал запроса, с"
+          variant="bordered"
           value={device?.reqInterval?.toString() ?? ""}
           type="number"
           step={10}
@@ -175,13 +205,66 @@ function DevicesTable() {
             })
           }
         ></Input>
-        <Input
-          label="ID помещения"
-          value={device?.room_id?.toString() ?? ""}
+        <Select
+          label="Номер помещения"
+          placeholder="Выберите помещение"
+          variant="bordered"
           onChange={(e) =>
             setEditDevice({ ...editDevice, room_id: parseInt(e.target.value) })
           }
+        >
+          {rooms?.map((room) => (
+            <SelectItem
+              key={String(room.room_id)}
+              textValue={String(room.roomNumber)}
+            >
+              {room.roomNumber} ({room.location})
+            </SelectItem>
+          ))}
+        </Select>
+        <Input
+          label="ID помещения"
+          value={
+            Number(device?.room_id)
+              ? Number(device?.room_id).toString()
+              : "Номер помещения не указан"
+          }
+          disabled
         ></Input>
+        <Switch
+          classNames={{
+            base: cn(
+              "inline-flex flex-row-reverse w-full max-w-md bg-content1 hover:bg-content2 items-center",
+              "justify-between cursor-pointer rounded-lg gap-2 p-4 border-2 border-transparent",
+              "data-[selected=true]:border-primary"
+            ),
+            wrapper: "p-0 h-4 overflow-visible",
+            thumb: cn(
+              "w-6 h-6 border-2 shadow-lg",
+              "group-data-[hover=true]:border-primary",
+              //selected
+              "group-data-[selected=true]:ms-6",
+              // pressed
+              "group-data-[pressed=true]:w-7",
+              "group-data-[selected]:group-data-[pressed]:ms-4"
+            ),
+          }}
+          onValueChange={(value) => {
+            setEditDevice({ ...editDevice, status: value });
+          }}
+          isSelected={Number(editDevice?.status) === 1}
+        >
+          <div className="flex flex-col gap-1">
+            <p className="text-medium">
+              {Number(editDevice?.status) === 1 ? "Выключить" : " Включить"}
+            </p>
+            <p className="text-tiny text-default-400">
+              {Number(editDevice?.status) === 1
+                ? "Устройство включено"
+                : "Устройство выключено"}
+            </p>
+          </div>
+        </Switch>
       </>
     );
   };
@@ -210,15 +293,23 @@ function DevicesTable() {
     if (!editDevice) return;
     console.log(editDevice);
     try {
+      if (editDevice.status === true) {
+        editDevice.status = 1;
+      } else {
+        editDevice.status = 0;
+      }
       axiosClient
-        .patch(`/api/devices/?id=${editDevice.device_id}`, {
-          deviceName: editDevice.deviceName,
-          zoneNum: editDevice.zoneNum,
-          reqInterval: editDevice.reqInterval,
-          room_id: editDevice.room_id,
+        .get(`/api/devices/?method=PATCH&id=${editDevice.device_id}`, {
+          params: {
+            deviceName: editDevice.deviceName,
+            zoneNum: editDevice.zoneNum,
+            reqInterval: editDevice.reqInterval,
+            room_id: editDevice.room_id,
+            status: editDevice.status,
+          },
         })
         .then(({ data }) => {
-          console.log(data.data);
+          console.log(data);
           const index = devices.findIndex(
             (device) => device.device_id === editDevice.device_id
           );
@@ -241,7 +332,7 @@ function DevicesTable() {
     if (!selectedItem) return;
     try {
       axiosClient
-        .delete(`/api/devices/?id=${selectedItem.device_id}`)
+        .get(`/api/devices/?method=DELETE&id=${selectedItem.device_id}`)
         .then(({ data }) => {
           console.log(data);
           setDevices(

@@ -48,16 +48,17 @@ interface device {
   zoneNum?: number;
   reqInterval?: number;
   room_id?: number | null;
+  status?: boolean | number;
 }
 
 type Devices = device[];
 
 interface Params {
-  param_id: number;
-  parameter_name: string;
-  unitOfMeasurement: string;
-  minValue: number;
-  maxValue: number;
+  param_id?: number;
+  parameter_name?: string;
+  unitOfMeasurement?: string;
+  minValue?: number;
+  maxValue?: number;
 }
 
 type Parameters = Params[];

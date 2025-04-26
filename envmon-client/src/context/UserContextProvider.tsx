@@ -34,7 +34,7 @@ export const UserContextProvider = ({ children }: UserContextProviderType) => {
       .get("/api/users/?method=GET")
       .then(({ data }) => {
         setUsers(data.data);
-        console.log(data.data);
+        // console.log(data.data);
       })
       .catch((error) => {
         console.log(error);
@@ -42,14 +42,14 @@ export const UserContextProvider = ({ children }: UserContextProviderType) => {
   }, []);
 
   const setToken = (token: string | null) => {
-    console.log("Setting token in localStorage:", token); // Debug log
+    // console.log("Setting token in localStorage:", token); // Debug log
     _setToken(token);
     if (token) {
       localStorage.setItem("ACCESS_TOKEN", token);
-      console.log("Token stored in localStorage:", token); // Debug log
+      // console.log("Token stored in localStorage:", token); // Debug log
     } else {
       localStorage.removeItem("ACCESS_TOKEN");
-      console.log("Token removed from localStorage"); // Debug log
+      // console.log("Token removed from localStorage"); // Debug log
     }
   };
   return (

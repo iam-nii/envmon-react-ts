@@ -16,16 +16,17 @@ import {
   Button,
   Input,
   Alert,
-  Select,
-  SelectItem,
+  Autocomplete,
+  AutocompleteItem,
 } from "@heroui/react";
 import { DeleteIcon, EditIcon, EyeIcon } from "../Icons/Icons";
 import { useState } from "react";
 import axiosClient from "../axiosClient";
+import { useUserContext } from "../context/UserContextProvider";
+import { useRoomContext } from "../context/RoomContextProvider";
 import { useDeviceContext } from "../context/DeviceContextProvider";
 import { useNavigate } from "react-router-dom";
-import { useRoomContext } from "../context/RoomContextProvider";
-import { device, Devices, Room } from "../Types";
+import { Room } from "../Types";
 const COLUMNS = [
   { name: "Номер помещения", uid: "roomNumber" },
   { name: "ФИО ответственного", uid: "frPerson" },
@@ -44,27 +45,13 @@ type RoomPropsType = {
 
 function RoomsTable({ isAdmin }: RoomPropsType) {
   const navigate = useNavigate();
-  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
-  const [selectedRoomDevices, setSelectedRoomDevices] = useState<Set<number>>(
-    new Set([])
-  );
-  const [devicesString, setDevicesString] = useState("");
-  const [success, setSuccess] = useState<string | boolean | null>(null);
-  const [error, setError] = useState<string | boolean | null>(null);
-  const { devices, setDevices } = useDeviceContext();
-  const [freeDevices, setFreeDevices] = useState<Devices>([]);
-  const [roomsWithDevices, setRoomsWithDevices] = useState<Set<number>>(
-    new Set()
-  );
+  const { users } = useUserContext();
   const { rooms, setRooms } = useRoomContext();
-  const [roomDevices_IDs, setRoomDevices_IDs] = useState<Set<number | null>>(
-    new Set()
-  );
-  //   const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    console.log("rooms", rooms);
-  }, [rooms]);
+  const { devices, setDevices } = useDeviceContext();
+  const [devicesString, setDevicesString] = useState("");
+  const [error, setError] = useState<string | boolean | null>(null);
+  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
+  const [success, setSuccess] = useState<string | boolean | null>(null);
 
   // View Modal
   const {
@@ -100,31 +87,35 @@ function RoomsTable({ isAdmin }: RoomPropsType) {
     height: 0,
     area: 0,
   });
-  const [devicePayload, setDevicePayload] = useState<device>({
-    device_id: 0,
-    deviceName: null,
-  });
+
+  useEffect(() => {
+    console.log("editedRoom", editedRoom);
+  }, [editedRoom]);
+  // const [devicePayload, setDevicePayload] = useState<device>({
+  //   device_id: 0,
+  //   deviceName: null,
+  // });
   // const [devicesString, setDevicesString] = useState("");
 
-  useEffect(() => {
-    setFreeDevices(devices!.filter((device) => device.room_id === null));
-    console.log("freeDevices", freeDevices);
+  // useEffect(() => {
+  //   setFreeDevices(devices!.filter((device) => device.room_id === null));
+  //   console.log("freeDevices", freeDevices);
 
-    const usedDevices = devices!.filter((device) => device.room_id);
-    console.log("usedDevices", usedDevices);
+  //   const usedDevices = devices!.filter((device) => device.room_id);
+  //   console.log("usedDevices", usedDevices);
 
-    const roomsWithDevicesIds = new Set(
-      usedDevices
-        .map((device) => device.room_id)
-        .filter((room_id): room_id is number => room_id !== undefined) //filter out undefined room_ids
-    );
-    setRoomsWithDevices(roomsWithDevicesIds);
-  }, [devices, rooms]);
+  //   const roomsWithDevicesIds = new Set(
+  //     usedDevices
+  //       .map((device) => device.room_id)
+  //       .filter((room_id): room_id is number => room_id !== undefined) //filter out undefined room_ids
+  //   );
+  //   setRoomsWithDevices(roomsWithDevicesIds);
+  // }, [devices, rooms]);
 
   //console log devicePayload when a device is selected
-  useEffect(() => {
-    console.log(devicePayload);
-  }, [devicePayload]);
+  // useEffect(() => {
+  //   console.log(devicePayload);
+  // }, [devicePayload]);
 
   const renderCell = React.useCallback(
     (room: Room, columnKey: keyof Room | "actions"): React.ReactNode => {
@@ -206,7 +197,7 @@ function RoomsTable({ isAdmin }: RoomPropsType) {
     []
   );
   const handleSelectionChange = (keys: Selection) => {
-    setFreeDevices(devices!.filter((device) => device.room_id === null));
+    // setFreeDevices(devices!.filter((device) => device.room_id === null));
 
     // Convert Selection to string array safely
     let selectedKeysArray: string[] = [];
@@ -234,14 +225,14 @@ function RoomsTable({ isAdmin }: RoomPropsType) {
       );
 
       // Create an array of device IDs
-      const roomDevices_Ids = new Set<number | null>(
-        selectedRoomDevices_array.map(
-          (device) => device.device_id ?? null //Extract device IDs
-        )
-      );
-      setRoomDevices_IDs(roomDevices_Ids);
-      setSelectedRoomDevices(roomDevices_Ids as Set<number>);
-      console.log(roomDevices_Ids);
+      // const roomDevices_Ids = new Set<number | null>(
+      //   selectedRoomDevices_array.map(
+      //     (device) => device.device_id ?? null //Extract device IDs
+      //   )
+      // );
+      // setRoomDevices_IDs(roomDevices_Ids);
+      // setSelectedRoomDevices(roomDevices_Ids as Set<number>);
+      // console.log(roomDevices_Ids);
 
       let deviceString;
       if (selectedRoomDevices_array.length > 0) {
@@ -255,15 +246,15 @@ function RoomsTable({ isAdmin }: RoomPropsType) {
       console.log(deviceString);
       setDevicesString(deviceString);
       setEditedRoom(selectedRoom);
-      setFreeDevices((prev) => [
-        ...prev,
-        ...devices!.filter((device) =>
-          selectedRoomDevices.has(device.device_id!)
-        ),
-      ]);
+      // setFreeDevices((prev) => [
+      //   ...prev,
+      //   ...devices!.filter((device) =>
+      //     selectedRoomDevices.has(device.device_id!)
+      //   ),
+      // ]);
     } else {
       setDevicesString(NO_DEVICES_MESSAGE); //clear the devicesString
-      setSelectedRoomDevices(new Set());
+      // setSelectedRoomDevices(new Set());
       setEditedRoom({
         roomNumber: 0,
         frPerson: "",
@@ -282,7 +273,7 @@ function RoomsTable({ isAdmin }: RoomPropsType) {
   }, [devices]);
 
   const handleEditRoom = () => {
-    console.log(devicePayload);
+    // console.log(devicePayload);
     setEditedRoom({
       ...editedRoom,
       area: editedRoom.height * editedRoom.width * editedRoom.length,
@@ -303,97 +294,8 @@ function RoomsTable({ isAdmin }: RoomPropsType) {
         );
         rooms![index] = response.data.data;
         setRooms(rooms!);
-
-        //update devices if necessary
-        if (
-          devicePayload.device_id !== null &&
-          devicePayload.device_id!.toString().trim() !== ""
-        ) {
-          console.log(devicePayload);
-          //Split deviceID if it contains commas
-          const deviceIDs = devicePayload.device_id!.toString().includes(",")
-            ? devicePayload
-                .device_id!.toString()
-                .split(",")
-                .map((id) => id.trim())
-            : [devicePayload.device_id!.toString()];
-          // const updatedDevices = devices.map((device) =>
-          //     deviceIDs.includes(device.deviceID)
-          //         ? { ...device, room_id: editedRoom.room_id }
-          //         : device
-          // );
-          console.log(deviceIDs);
-          if (deviceIDs.length > 0) {
-            const removedDevices = Array.from(roomDevices_IDs).filter(
-              (device) => {
-                return !deviceIDs.includes(device!.toString());
-              }
-            );
-            console.log("removedDevices", removedDevices);
-            if (removedDevices.length > 0) {
-              Promise.all(
-                removedDevices.map((deviceID) =>
-                  axiosClient
-                    .patch(`/api/devices/?id=${deviceID}`, {
-                      room_id: null,
-                    })
-                    .then((response) => {
-                      console.log(response);
-                      const index = devices!.findIndex(
-                        (device) => device.device_id === deviceID
-                      );
-                      devices![index] = response.data.device;
-                      setDevices(devices!);
-                    })
-                    .catch((error) => {
-                      console.log(error);
-                    })
-                )
-              );
-            }
-          }
-
-          // Send API patch for all selected devices
-          Promise.all(
-            deviceIDs.map((deviceID) =>
-              axiosClient
-                .patch(`/api/devices/?id=${deviceID}`, {
-                  room_id: editedRoom.room_id,
-                })
-                .then((response) => {
-                  console.log(response);
-                  const index = devices!.findIndex(
-                    (device) => device.device_id!.toString() === deviceID
-                  );
-                  devices![index] = response.data.device;
-                  setDevices(devices!);
-                })
-                .catch((error) => {
-                  console.log(error);
-                })
-            )
-          )
-            .then((responses) => {
-              console.log("Devices updated:", responses);
-              setError(null);
-              setSuccess(true);
-              setTimeout(() => {
-                setSuccess(null);
-              }, 3000);
-            })
-            .catch((error) => {
-              console.log("Error updating devices:", error);
-              setError(true);
-              setTimeout(() => {
-                setError(null);
-              }, 3000);
-            });
-        } else {
-          DeleteDevice();
-        }
-
         //show success alert for 3 seconds
-        setSuccess(true);
+        setSuccess("Помещение успешно обновлено");
         setError(null);
         setTimeout(() => {
           setSuccess(null);
@@ -496,6 +398,8 @@ function RoomsTable({ isAdmin }: RoomPropsType) {
   };
   return (
     <div className="-auto mt-5">
+      {success && <Alert color="success">{success}</Alert>}
+      {error && <Alert color="danger">{error}</Alert>}
       <Table
         aria-label="Учетные записи пользователей"
         selectionMode="single"
@@ -583,6 +487,7 @@ function RoomsTable({ isAdmin }: RoomPropsType) {
               <ModalBody>
                 <Input
                   label="Номер помещения"
+                  type="number"
                   value={editedRoom.roomNumber.toString()}
                   onChange={(e) =>
                     setEditedRoom({
@@ -591,16 +496,27 @@ function RoomsTable({ isAdmin }: RoomPropsType) {
                     })
                   }
                 />
-                <Input
-                  label="ФИО"
+                <Autocomplete
+                  label="ФИО ответственного"
                   value={editedRoom.frPerson}
-                  onChange={(e) =>
+                  defaultItems={users}
+                  defaultInputValue={editedRoom.frPerson}
+                  onInputChange={(value) =>
                     setEditedRoom({
                       ...editedRoom,
-                      frPerson: e.target.value,
+                      frPerson: value,
                     })
                   }
-                />
+                >
+                  {users?.map((user) => (
+                    <AutocompleteItem
+                      key={user.user_id}
+                      textValue={user.userName!.trim()}
+                    >
+                      {user.userName}
+                    </AutocompleteItem>
+                  ))}
+                </Autocomplete>
                 <Input
                   label="Местоположение"
                   value={editedRoom.location}
@@ -672,50 +588,6 @@ function RoomsTable({ isAdmin }: RoomPropsType) {
                     }}
                   />
                 </div>
-                {/* Check if the room is in the roomsWithDevices array */}
-                <Select
-                  label="Выберите устройство"
-                  selectionMode="multiple"
-                  selectedKeys={selectedRoomDevices}
-                  onChange={(e) => {
-                    setDevicePayload((prev) => ({
-                      ...prev,
-                      deviceID: parseInt(e.target.value),
-                    }));
-                    setSelectedRoomDevices(new Set([parseInt(e.target.value)]));
-                  }}
-                >
-                  {roomsWithDevices.has(selectedRoom!.room_id!)
-                    ? devices!
-                        .filter(
-                          (device) =>
-                            !roomsWithDevices.has(device.room_id!) ||
-                            device.room_id === selectedRoom!.room_id
-                        )
-                        .map((device) => (
-                          <SelectItem
-                            key={device.device_id}
-                            textValue={device.device_id!.toString()}
-                          >
-                            {device.deviceName}
-                          </SelectItem>
-                        ))
-                    : freeDevices.map((device) => (
-                        <SelectItem
-                          key={device.device_id}
-                          textValue={device.device_id!.toString()}
-                        >
-                          {device.deviceName}
-                        </SelectItem>
-                      ))}
-                </Select>
-
-                {success && (
-                  <Alert color="success">Помещение успешно обновлено</Alert>
-                )}
-                {error && (
-                  <Alert color="danger">Ошибка при обновлении помещения</Alert>
-                )}
               </ModalBody>
               <ModalFooter>
                 <Button onPress={handleEditRoom} color="primary">

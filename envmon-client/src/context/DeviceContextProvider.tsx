@@ -27,9 +27,9 @@ export const DeviceContextProvider = ({
     });
   }, []);
 
-  useEffect(() => {
-    console.log(devices);
-  }, [devices]);
+  // useEffect(() => {
+  //   console.log(devices);
+  // }, [devices]);
 
   return (
     <DeviceContext.Provider value={{ devices, setDevices }}>

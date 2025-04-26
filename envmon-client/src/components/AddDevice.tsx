@@ -1,14 +1,16 @@
 import {
   Alert,
   Button,
+  cn,
   Input,
   Modal,
   ModalBody,
   ModalContent,
   ModalFooter,
   ModalHeader,
-  // Select,
-  // SelectItem,
+  Select,
+  SelectItem,
+  Switch,
   // Spinner,
   useDisclosure,
 } from "@heroui/react";
@@ -20,6 +22,7 @@ import { useRoomContext } from "../context/RoomContextProvider";
 // import { Rooms } from "../Types";
 // import RoomsTable from "../../components/Tables/RoomsTable";
 import { useDeviceContext } from "../context/DeviceContextProvider";
+// import { Power, PowerOff } from "lucide-react";
 // import { device, Devices } from "../Types";
 
 interface AddDeviceType {
@@ -32,10 +35,12 @@ interface AddDeviceType {
 }
 
 interface devicePayloadType {
+  device_id: string;
   deviceName: string;
   zoneNum: number | string;
   reqInterval: number | string;
   room_id: number | string;
+  status: boolean | number;
 }
 
 function AddDevice({
@@ -46,10 +51,12 @@ function AddDevice({
   success,
 }: AddDeviceType) {
   const [devicePayload, setDevicePayload] = useState<devicePayloadType>({
+    device_id: "",
     deviceName: "",
     zoneNum: "",
     reqInterval: "",
     room_id: "",
+    status: false,
   });
   const { rooms } = useRoomContext();
   const { devices, setDevices } = useDeviceContext();
@@ -57,16 +64,8 @@ function AddDevice({
   useEffect(() => {
     console.log("rooms:", rooms);
   }, [rooms]);
-
-  //   const { devices, setDevices } = useDeviceContext();
   //   const [freeDevices, setFreeDevices] = useState<Devices | null>(null);
-  // const [devicePayload, setDevicePayload] = useState({
-  //   deviceID: "null",
-  //   deviceName: "",
-  //   zoneNum: "0",
-  //   status: "0",
-  //   room_id: "0",
-  // });
+
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   //   useEffect(() => {
   //     setFreeDevices(devices.filter((device: device) => device.room_id === null));
@@ -75,6 +74,11 @@ function AddDevice({
   const handleAddDevice = () => {
     setError(null);
     console.log("devicePayload", devicePayload);
+    if (devicePayload.status === true) {
+      devicePayload.status = 1;
+    } else {
+      devicePayload.status = 0;
+    }
     axiosClient.post("/api/devices/", devicePayload).then(({ data }) => {
       console.log(data);
       setDevices([...devices, data.data]);
@@ -179,6 +183,18 @@ function AddDevice({
               <ModalHeader>Добавить устройство</ModalHeader>
               <ModalBody>
                 <Input
+                  label="Идентификатор устройства"
+                  variant="bordered"
+                  value={devicePayload.device_id}
+                  maxLength={16}
+                  onChange={(e) => {
+                    setDevicePayload((prev) => ({
+                      ...prev,
+                      device_id: e.target.value,
+                    }));
+                  }}
+                />
+                <Input
                   label="Название устройства"
                   variant="bordered"
                   value={devicePayload.deviceName}
@@ -216,13 +232,67 @@ function AddDevice({
                     }));
                   }}
                 />
-                <Input
+                <Select
                   label="Номер помещения"
-                  disabled
-                  type="number"
+                  placeholder="Выберите помещение"
                   variant="bordered"
-                  value={devicePayload.room_id.toString()}
-                />
+                  selectedKeys={
+                    devicePayload.room_id ? [devicePayload.room_id] : []
+                  }
+                  onChange={(e) => {
+                    setDevicePayload((prev) => ({
+                      ...prev,
+                      room_id: e.target.value,
+                    }));
+                  }}
+                >
+                  {rooms?.map((room) => (
+                    <SelectItem
+                      key={String(room.room_id)}
+                      textValue={String(room.roomNumber)}
+                    >
+                      {room.roomNumber} ({room.location})
+                    </SelectItem>
+                  ))}
+                </Select>
+                <Switch
+                  classNames={{
+                    base: cn(
+                      "inline-flex flex-row-reverse w-full max-w-md bg-content1 hover:bg-content2 items-center",
+                      "justify-between cursor-pointer rounded-lg gap-2 p-4 border-2 border-transparent",
+                      "data-[selected=true]:border-primary"
+                    ),
+                    wrapper: "p-0 h-4 overflow-visible",
+                    thumb: cn(
+                      "w-6 h-6 border-2 shadow-lg",
+                      "group-data-[hover=true]:border-primary",
+                      //selected
+                      "group-data-[selected=true]:ms-6",
+                      // pressed
+                      "group-data-[pressed=true]:w-7",
+                      "group-data-[selected]:group-data-[pressed]:ms-4"
+                    ),
+                  }}
+                  onValueChange={(value) => {
+                    setDevicePayload((prev) => ({
+                      ...prev,
+                      status: value,
+                    }));
+                  }}
+                >
+                  <div className="flex flex-col gap-1">
+                    <p className="text-medium">
+                      {devicePayload.status === true
+                        ? "Выключить"
+                        : " Включить"}
+                    </p>
+                    <p className="text-tiny text-default-400">
+                      {devicePayload.status === true
+                        ? "Устройство включено"
+                        : "Устройство выключено"}
+                    </p>
+                  </div>
+                </Switch>
                 {error && (
                   <Alert
                     color={"danger"}

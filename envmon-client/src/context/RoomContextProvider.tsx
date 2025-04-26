@@ -23,7 +23,7 @@ export const RoomContextProvider = ({ children }: RoomContextProviderType) => {
     axiosClient
       .get("/api/rooms/?method=GET")
       .then((response) => {
-        console.log("response", response);
+        // console.log("response", response);
         setRooms(response.data.data);
         // console.log(res.data.data);
       })
