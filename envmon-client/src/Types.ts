@@ -29,7 +29,7 @@ export const userRole = [
   },
 ];
 
-interface Room extends TableItem {
+interface Room {
   room_id?: number;
   roomNumber: number;
   frPerson: string;
@@ -43,11 +43,11 @@ interface Room extends TableItem {
 type Rooms = Room[];
 
 interface device {
-  device_id: number;
-  deviceName: string | null;
+  device_id?: number;
+  deviceName?: string | null;
   zoneNum?: number;
   reqInterval?: number;
-  roomID?: number | null;
+  room_id?: number | null;
 }
 
 type Devices = device[];
@@ -60,4 +60,16 @@ interface Params {
   maxValue: number;
 }
 
-export type { User, Users, Room, Rooms, device, Devices, Params, TableItem };
+type Parameters = Params[];
+
+export type {
+  User,
+  Users,
+  Room,
+  Rooms,
+  device,
+  Devices,
+  Params,
+  TableItem,
+  Parameters,
+};

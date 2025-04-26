@@ -62,6 +62,10 @@ function RoomsTable({ isAdmin }: RoomPropsType) {
   );
   //   const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    console.log("rooms", rooms);
+  }, [rooms]);
+
   // View Modal
   const {
     isOpen: isViewOpen,
@@ -90,7 +94,7 @@ function RoomsTable({ isAdmin }: RoomPropsType) {
     roomNumber: 0,
     frPerson: "",
     location: "",
-    roomID: 0,
+    room_id: 0,
     length: 0,
     width: 0,
     height: 0,
@@ -103,16 +107,16 @@ function RoomsTable({ isAdmin }: RoomPropsType) {
   // const [devicesString, setDevicesString] = useState("");
 
   useEffect(() => {
-    setFreeDevices(devices!.filter((device) => device.roomID === null));
+    setFreeDevices(devices!.filter((device) => device.room_id === null));
     console.log("freeDevices", freeDevices);
 
-    const usedDevices = devices!.filter((device) => device.roomID);
+    const usedDevices = devices!.filter((device) => device.room_id);
     console.log("usedDevices", usedDevices);
 
     const roomsWithDevicesIds = new Set(
       usedDevices
-        .map((device) => device.roomID)
-        .filter((roomID): roomID is number => roomID !== undefined) //filter out undefined roomIDs
+        .map((device) => device.room_id)
+        .filter((room_id): room_id is number => room_id !== undefined) //filter out undefined room_ids
     );
     setRoomsWithDevices(roomsWithDevicesIds);
   }, [devices, rooms]);
@@ -123,8 +127,8 @@ function RoomsTable({ isAdmin }: RoomPropsType) {
   }, [devicePayload]);
 
   const renderCell = React.useCallback(
-    (room: Room, columnKey: keyof Room): React.ReactNode => {
-      const cellValue = room[columnKey];
+    (room: Room, columnKey: keyof Room | "actions"): React.ReactNode => {
+      const cellValue = room[columnKey as keyof Room];
       switch (columnKey) {
         case "roomNumber":
           return (
@@ -167,7 +171,7 @@ function RoomsTable({ isAdmin }: RoomPropsType) {
                           roomNumber: room.roomNumber,
                           frPerson: room.frPerson,
                           location: room.location,
-                          roomID: room.roomID,
+                          room_id: room.room_id,
                           length: room.length || 0,
                           width: room.width || 0,
                           height: room.height || 0,
@@ -202,7 +206,7 @@ function RoomsTable({ isAdmin }: RoomPropsType) {
     []
   );
   const handleSelectionChange = (keys: Selection) => {
-    setFreeDevices(devices!.filter((device) => device.roomID === null));
+    setFreeDevices(devices!.filter((device) => device.room_id === null));
 
     // Convert Selection to string array safely
     let selectedKeysArray: string[] = [];
@@ -226,17 +230,17 @@ function RoomsTable({ isAdmin }: RoomPropsType) {
 
       // find devices associated with the selected room
       const selectedRoomDevices_array = devices!.filter(
-        (device) => device.roomID === selectedRoom.roomID
+        (device) => device.room_id === selectedRoom.room_id
       );
 
       // Create an array of device IDs
-      const roomDevices_Ids = new Set(
+      const roomDevices_Ids = new Set<number | null>(
         selectedRoomDevices_array.map(
-          (device) => device.device_id //Extract device IDs
+          (device) => device.device_id ?? null //Extract device IDs
         )
       );
       setRoomDevices_IDs(roomDevices_Ids);
-      setSelectedRoomDevices(roomDevices_Ids);
+      setSelectedRoomDevices(roomDevices_Ids as Set<number>);
       console.log(roomDevices_Ids);
 
       let deviceString;
@@ -254,7 +258,7 @@ function RoomsTable({ isAdmin }: RoomPropsType) {
       setFreeDevices((prev) => [
         ...prev,
         ...devices!.filter((device) =>
-          selectedRoomDevices.has(device.device_id)
+          selectedRoomDevices.has(device.device_id!)
         ),
       ]);
     } else {
@@ -264,7 +268,7 @@ function RoomsTable({ isAdmin }: RoomPropsType) {
         roomNumber: 0,
         frPerson: "",
         location: "",
-        roomID: 0,
+        room_id: 0,
         length: 0,
         width: 0,
         height: 0,
@@ -276,6 +280,7 @@ function RoomsTable({ isAdmin }: RoomPropsType) {
   useEffect(() => {
     console.log(devices);
   }, [devices]);
+
   const handleEditRoom = () => {
     console.log(devicePayload);
     setEditedRoom({
@@ -284,33 +289,37 @@ function RoomsTable({ isAdmin }: RoomPropsType) {
     });
     console.log("Edited Room:", editedRoom);
     axiosClient
-      .patch(`/api/rooms/?id=${editedRoom.roomID}`, editedRoom)
+      .get(
+        `/api/rooms/?method=PATCH&id=${editedRoom.room_id}&roomNumber=${editedRoom.roomNumber}
+        &frPerson=${editedRoom.frPerson}&location=${editedRoom.location}&length=${editedRoom.length}
+        &width=${editedRoom.width}&height=${editedRoom.height}&area=${editedRoom.area}`
+      )
       .then((response) => {
         // log the response
         console.log(response);
         //update only the edited room
         const index = rooms!.findIndex(
-          (room) => room.roomID === editedRoom.roomID
+          (room) => room.room_id === editedRoom.room_id
         );
-        rooms![index] = response.data.room;
+        rooms![index] = response.data.data;
         setRooms(rooms!);
 
         //update devices if necessary
         if (
           devicePayload.device_id !== null &&
-          devicePayload.device_id.toString().trim() !== ""
+          devicePayload.device_id!.toString().trim() !== ""
         ) {
           console.log(devicePayload);
           //Split deviceID if it contains commas
-          const deviceIDs = devicePayload.device_id.toString().includes(",")
-            ? devicePayload.device_id
-                .toString()
+          const deviceIDs = devicePayload.device_id!.toString().includes(",")
+            ? devicePayload
+                .device_id!.toString()
                 .split(",")
                 .map((id) => id.trim())
-            : [devicePayload.device_id.toString()];
+            : [devicePayload.device_id!.toString()];
           // const updatedDevices = devices.map((device) =>
           //     deviceIDs.includes(device.deviceID)
-          //         ? { ...device, roomID: editedRoom.roomID }
+          //         ? { ...device, room_id: editedRoom.room_id }
           //         : device
           // );
           console.log(deviceIDs);
@@ -326,7 +335,7 @@ function RoomsTable({ isAdmin }: RoomPropsType) {
                 removedDevices.map((deviceID) =>
                   axiosClient
                     .patch(`/api/devices/?id=${deviceID}`, {
-                      roomID: null,
+                      room_id: null,
                     })
                     .then((response) => {
                       console.log(response);
@@ -349,7 +358,7 @@ function RoomsTable({ isAdmin }: RoomPropsType) {
             deviceIDs.map((deviceID) =>
               axiosClient
                 .patch(`/api/devices/?id=${deviceID}`, {
-                  roomID: editedRoom.roomID,
+                  room_id: editedRoom.room_id,
                 })
                 .then((response) => {
                   console.log(response);
@@ -416,15 +425,17 @@ function RoomsTable({ isAdmin }: RoomPropsType) {
   };
   const handleShowParams = () => {
     onViewClose();
-    navigate(`/admin/data/${selectedRoom!.roomID}`);
+    navigate(`/admin/data/${selectedRoom!.room_id}`);
   };
   const handleDeleteRoom = () => {
     axiosClient
-      .delete(`/api/rooms/?id=${selectedRoom!.roomID}`)
+      .get(`/api/rooms/?method=DELETE&id=${selectedRoom!.room_id}`)
       .then((response) => {
         console.log(response);
 
-        setRooms(rooms!.filter((room) => room.roomID !== selectedRoom!.roomID));
+        setRooms(
+          rooms!.filter((room) => room.room_id !== selectedRoom!.room_id)
+        );
         DeleteDevice();
         setSuccess(true);
         setTimeout(() => {
@@ -446,20 +457,22 @@ function RoomsTable({ isAdmin }: RoomPropsType) {
       const targetRoom = selectedRoom.room_id;
       //find all devices linked to the selected room
       const linkedDevices = devices!.filter(
-        (device) => device.roomID === targetRoom
+        (device) => device.room_id === targetRoom
       );
       console.log(linkedDevices);
       if (linkedDevices) {
         //create a new array with updated devices
         setDevices(
           devices!.map((device) =>
-            device.roomID === targetRoom ? { ...device, roomID: null } : device
+            device.room_id === targetRoom
+              ? { ...device, room_id: null }
+              : device
           )
         );
         linkedDevices.forEach((device) => {
           axiosClient
             .patch(`/api/devices/?id=${device.device_id}`, {
-              roomID: null,
+              room_id: null,
             })
             .then((response) => {
               console.log(response);
@@ -482,7 +495,7 @@ function RoomsTable({ isAdmin }: RoomPropsType) {
     }
   };
   return (
-    <div className="w-[90%] mx-auto mt-5">
+    <div className="-auto mt-5">
       <Table
         aria-label="Учетные записи пользователей"
         selectionMode="single"
@@ -499,13 +512,16 @@ function RoomsTable({ isAdmin }: RoomPropsType) {
           )}
         </TableHeader>
         <TableBody
-          items={rooms!.sort((a, b) => a.roomNumber - b.roomNumber)}
+          // items={rooms!.sort((a, b) => a.roomNumber - b.roomNumber)}
+          items={rooms}
           emptyContent={"Справочник помещений пустой"}
         >
           {(item) => (
             <TableRow key={item.room_id}>
               {(columnKey) => (
-                <TableCell>{renderCell(item, columnKey)}</TableCell>
+                <TableCell>
+                  {renderCell(item, columnKey as keyof Room)}
+                </TableCell>
               )}
             </TableRow>
           )}
@@ -597,50 +613,62 @@ function RoomsTable({ isAdmin }: RoomPropsType) {
                 />
                 <div className="flex flex-row gap-2">
                   <Input
-                    label="Площадь"
+                    label="Площадь, м2"
                     type="number"
                     disabled
                     value={editedRoom.area.toString()}
                   />
                   <Input
-                    label="Длина"
+                    label="Длина, м"
                     value={editedRoom.length.toString()}
                     type="number"
                     onChange={(e) => {
                       const length = parseFloat(e.target.value) || 0;
-                      setEditedRoom((prev) => ({
-                        ...prev,
-                        length: length,
-                        area: prev.height * prev.width * length,
-                      }));
+                      setEditedRoom((prev) => {
+                        const newState = {
+                          ...prev,
+                          length: length,
+                        };
+                        newState.area =
+                          newState.height * newState.width * newState.length;
+                        return newState;
+                      });
                     }}
                   />
                 </div>
                 <div className="flex flex-row gap-2">
                   <Input
-                    label="Ширина"
+                    label="Ширина, м"
                     value={editedRoom.width.toString()}
                     type="number"
                     onChange={(e) => {
                       const width = parseFloat(e.target.value) || 0;
-                      setEditedRoom((prev) => ({
-                        ...prev,
-                        width: width,
-                        area: prev.height * prev.width * prev.length,
-                      }));
+                      setEditedRoom((prev) => {
+                        const newState = {
+                          ...prev,
+                          width: width,
+                        };
+                        newState.area =
+                          newState.height * newState.width * newState.length;
+                        return newState;
+                      });
                     }}
                   />
                   <Input
-                    label="Высота"
+                    label="Высота, м"
                     value={editedRoom.height.toString()}
                     type="number"
                     onChange={(e) => {
                       const height = parseFloat(e.target.value) || 0;
-                      setEditedRoom((prev) => ({
-                        ...prev,
-                        height: height,
-                        area: prev.height * prev.width * prev.length,
-                      }));
+                      setEditedRoom((prev) => {
+                        const newState = {
+                          ...prev,
+                          height: height,
+                        };
+                        newState.area =
+                          newState.height * newState.width * newState.length;
+                        return newState;
+                      });
                     }}
                   />
                 </div>
@@ -661,13 +689,13 @@ function RoomsTable({ isAdmin }: RoomPropsType) {
                     ? devices!
                         .filter(
                           (device) =>
-                            !roomsWithDevices.has(device.roomID!) ||
-                            device.roomID === selectedRoom!.room_id
+                            !roomsWithDevices.has(device.room_id!) ||
+                            device.room_id === selectedRoom!.room_id
                         )
                         .map((device) => (
                           <SelectItem
                             key={device.device_id}
-                            textValue={device.device_id.toString()}
+                            textValue={device.device_id!.toString()}
                           >
                             {device.deviceName}
                           </SelectItem>
@@ -675,7 +703,7 @@ function RoomsTable({ isAdmin }: RoomPropsType) {
                     : freeDevices.map((device) => (
                         <SelectItem
                           key={device.device_id}
-                          textValue={device.device_id.toString()}
+                          textValue={device.device_id!.toString()}
                         >
                           {device.deviceName}
                         </SelectItem>

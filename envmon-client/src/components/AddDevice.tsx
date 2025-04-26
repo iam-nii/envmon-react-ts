@@ -1,208 +1,252 @@
-// import {
-//   Alert,
-//   Button,
-//   Form,
-//   Input,
-//   Modal,
-//   ModalBody,
-//   ModalContent,
-//   ModalFooter,
-//   ModalHeader,
-//   Spinner,
-//   useDisclosure,
-// } from "@heroui/react";
-// import { useState } from "react";
-// import axiosClient from "../axiosClient";
-// // import DevicesTable from "../Tables/DevicesTable";
-// // import { useDeviceContext } from "../../context/DeviceContexProvider";
+import {
+  Alert,
+  Button,
+  Input,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  // Select,
+  // SelectItem,
+  // Spinner,
+  useDisclosure,
+} from "@heroui/react";
+import { useEffect, useState } from "react";
+import DevicesTable from "../Tables/DevicesTable";
+import axiosClient from "../axiosClient";
+import { useRoomContext } from "../context/RoomContextProvider";
 
-// interface AddDeviceType {
-//   setError: (error: string | null) => void;
-//   setSuccess: (success: string | null) => void;
-// }
+// import { Rooms } from "../Types";
+// import RoomsTable from "../../components/Tables/RoomsTable";
+import { useDeviceContext } from "../context/DeviceContextProvider";
+// import { device, Devices } from "../Types";
 
-// function AddDevice({ rooms, setError, setSuccess, isLoading, error, success }) {
-//   const [devicePayload, setDevicePayload] = useState({
-//     id: "null",
-//     deviceID: "",
-//     deviceName: "",
-//     zoneNum: "",
-//     status: "",
-//     roomID: "",
-//     reqInterval: "",
-//   });
-//   const [isAddingDevice, setIsAddingDevice] = useState(false);
-//   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-//   const { setDevices } = useDeviceContext();
+interface AddDeviceType {
+  setError: (error: string | null) => void;
+  setSuccess: (success: string | null) => void;
+  setSelected: (selected: string) => void;
+  //   isLoading: boolean;
+  error: string | null;
+  success: string | null;
+}
 
-//   const handleAddDevice = (e) => {
-//     e.preventDefault();
+interface devicePayloadType {
+  deviceName: string;
+  zoneNum: number | string;
+  reqInterval: number | string;
+  room_id: number | string;
+}
 
-//     setIsAddingDevice(true);
+function AddDevice({
+  setError,
+  setSuccess,
+  //   isLoading,
+  error,
+  success,
+}: AddDeviceType) {
+  const [devicePayload, setDevicePayload] = useState<devicePayloadType>({
+    deviceName: "",
+    zoneNum: "",
+    reqInterval: "",
+    room_id: "",
+  });
+  const { rooms } = useRoomContext();
+  const { devices, setDevices } = useDeviceContext();
 
-//     axiosClient
-//       .post("/insertDevice", devicePayload)
-//       .then(({ data }) => {
-//         //log response
-//         console.log(data);
+  useEffect(() => {
+    console.log("rooms:", rooms);
+  }, [rooms]);
 
-//         //set the states
-//         setDevices((devices) => [...devices, data.device]);
-//         setError(null);
-//         setSuccess(data.message);
+  //   const { devices, setDevices } = useDeviceContext();
+  //   const [freeDevices, setFreeDevices] = useState<Devices | null>(null);
+  // const [devicePayload, setDevicePayload] = useState({
+  //   deviceID: "null",
+  //   deviceName: "",
+  //   zoneNum: "0",
+  //   status: "0",
+  //   room_id: "0",
+  // });
+  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+  //   useEffect(() => {
+  //     setFreeDevices(devices.filter((device: device) => device.room_id === null));
+  //   }, [devices]);
 
-//         setTimeout(() => {
-//           setSuccess(null);
-//         }, 3000);
-//         //reset the device payload
-//         setDevicePayload({
-//           deviceID: "",
-//           deviceName: "",
-//           zoneNum: "",
-//           status: "",
-//           roomID: "",
-//           reqInterval: "",
-//         });
+  const handleAddDevice = () => {
+    setError(null);
+    console.log("devicePayload", devicePayload);
+    axiosClient.post("/api/devices/", devicePayload).then(({ data }) => {
+      console.log(data);
+      setDevices([...devices, data.data]);
+      setError(null);
+      setSuccess(data.message);
+      setTimeout(() => {
+        setSuccess(null);
+      }, 3000);
+      onClose();
+    });
 
-//         setIsAddingDevice(false);
-//       })
-//       .catch((error) => {
-//         setError(error.response.data.message);
-//         setTimeout(() => {
-//           setError(null);
-//         }, 3000);
-//         setSuccess(null);
-//       })
-//       .finally(() => {
-//         setIsAddingDevice(false);
-//       });
-//   };
+    // const newPayload = {
+    //   ...roomPayload,
+    //   area: roomPayload.area,
+    // };
+    // console.log(devicePayload.deviceID);
+    // if (devicePayload.deviceID !== "null") {
+    //   axiosClient
+    //     .post("/insertRoom", newPayload)
+    //     .then(({ data }) => {
+    //       setDevicePayload((prev) => ({
+    //         ...prev,
+    //         room_id: data.room.room_id,
+    //       }));
+    //       setError(null);
+    //       setSuccess(data.message);
+    //       setTimeout(() => {
+    //         setSuccess(null);
+    //       }, 3000);
 
-//   return (
-//     <div>
-//       <div className="flex justify-center items-center">
-//         <Button onPress={onOpen} color="primary" className="text-lg w-[80%]">
-//           Добавить устройство
-//         </Button>
-//       </div>
+    //       const updatedDevices = devices.map((device: device) =>
+    //         devicePayload.deviceID.includes(device.device_id)
+    //           ? { ...device, room_id: data.room.room_id }
+    //           : device
+    //       );
+    //       setDevices(updatedDevices);
 
-//       <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
-//         <ModalContent>
-//           {(onClose) => (
-//             <>
-//               <ModalHeader>Добавить устройство</ModalHeader>
-//               <ModalBody>
-//                 <Form onSubmit={handleAddDevice} validationBehavior="native">
-//                   <Input
-//                     label="Идентификатор устройства"
-//                     variant="bordered"
-//                     value={devicePayload.deviceID}
-//                     maxLength={16}
-//                     isRequired
-//                     onChange={(e) => {
-//                       setDevicePayload((prev) => ({
-//                         ...prev,
-//                         deviceID: e.target.value,
-//                       }));
-//                     }}
-//                   />
-//                   <Input
-//                     label="Название устройства"
-//                     variant="bordered"
-//                     value={devicePayload.deviceName}
-//                     isRequired
-//                     onChange={(e) => {
-//                       setDevicePayload((prev) => ({
-//                         ...prev,
-//                         deviceName: e.target.value,
-//                       }));
-//                     }}
-//                   />
-//                   <div className="flex flex-row gap-2 w-full">
-//                     <Input
-//                       label="Номер зоны"
-//                       variant="bordered"
-//                       type="number"
-//                       value={devicePayload.zoneNum}
-//                       isRequired
-//                       onChange={(e) => {
-//                         setDevicePayload((prev) => ({
-//                           ...prev,
-//                           zoneNum: e.target.value,
-//                         }));
-//                       }}
-//                     />
-//                     <Input
-//                       label="Статус устройства"
-//                       variant="bordered"
-//                       type="number"
-//                       min={0}
-//                       max={1}
-//                       value={devicePayload.status}
-//                       isRequired
-//                       onChange={(e) => {
-//                         setDevicePayload((prev) => ({
-//                           ...prev,
-//                           status: e.target.value,
-//                         }));
-//                       }}
-//                     />
-//                   </div>
-//                   <Input
-//                     label="Интервал запроса (сек)"
-//                     variant="bordered"
-//                     type="number"
-//                     className="w-56"
-//                     value={devicePayload.reqInterval}
-//                     isRequired
-//                     onChange={(e) => {
-//                       setDevicePayload((prev) => ({
-//                         ...prev,
-//                         reqInterval: e.target.value,
-//                       }));
-//                     }}
-//                   />
-//                   <div className="flex flex-row gap-2 w-full justify-end">
-//                     <Button
-//                       color="success"
-//                       type="submit"
-//                       disabled={isAddingDevice}
-//                     >
-//                       {isAddingDevice ? <Spinner size="sm" /> : "Добавить"}
-//                     </Button>
-//                     <Button color="primary" onPress={onClose}>
-//                       Отменить
-//                     </Button>
-//                   </div>
-//                 </Form>
+    //       axiosClient
+    //         .patch(
+    //           `/updateDevice/${devicePayload.deviceID}`,
+    //           updatedDevices.find(
+    //             (device: device) => device.device_id === devicePayload.deviceID
+    //           )
+    //         )
+    //         .then(({ data }) => {
+    //           console.log(data);
+    //           setError(null);
+    //           setSuccess("Помещение и устройство добавлены");
+    //           setTimeout(() => {
+    //             setSuccess(null);
+    //           }, 3000);
+    //         })
+    //         .catch((error) => {
+    //           console.log(error);
+    //           setError("Ошибка при добавлении устройства");
+    //           setSuccess(null);
+    //           setTimeout(() => {
+    //             setError(null);
+    //           }, 3000);
+    //         });
+    //     })
+    //     .catch((error) => {
+    //       const errorMessage = error;
+    //       console.log(errorMessage);
+    //       const errorError = error.response.data.error;
 
-//                 {error && <Alert color="danger">{error}</Alert>}
-//                 {success && <Alert color="success">{success}</Alert>}
-//               </ModalBody>
-//               <ModalFooter></ModalFooter>
-//             </>
-//           )}
-//         </ModalContent>
-//       </Modal>
-//       {isLoading ? (
-//         <div className="flex justify-center items-center h-screen">
-//           <Spinner size="lg" />
-//         </div>
-//       ) : (
-//         <DevicesTable />
-//       )}
-//     </div>
-//   );
-// }
+    //       if (errorError.includes("Duplicate entry")) {
+    //         // Extract the room number from the error message
+    //         const duplicateRoomNumber = errorError.match(/'([^']+)'/)[1];
+    //         setError(`Номер помещения ${duplicateRoomNumber} уже существует.`);
+    //         setTimeout(() => {
+    //           setError(null);
+    //         }, 3000);
+    //         return;
+    //       } else {
+    //         setError("Ошибка добавления помещения.");
+    //         setTimeout(() => {
+    //           setError(null);
+    //         }, 3000);
+    //         return;
+    //       }
+    //     });
+    // } else {
+    //   setError("Укажите устройство");
+    //   setTimeout(() => {
+    //     setError(null);
+    //   }, 3000);
+    // }
+  };
+  return (
+    <div>
+      <div className="flex justify-center items-center">
+        <Button onPress={onOpen} color="primary" className="text-lg w-full">
+          Добавить устройство
+        </Button>
+      </div>
 
-// AddDevice.propTypes = {
-//   rooms: PropTypes.array.isRequired,
-//   setError: PropTypes.func.isRequired,
-//   setSuccess: PropTypes.func.isRequired,
-//   isLoading: PropTypes.bool.isRequired,
-//   error: PropTypes.string,
-//   success: PropTypes.string,
-//   setSelected: PropTypes.func.isRequired,
-// };
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader>Добавить устройство</ModalHeader>
+              <ModalBody>
+                <Input
+                  label="Название устройства"
+                  variant="bordered"
+                  value={devicePayload.deviceName}
+                  onChange={(e) => {
+                    setDevicePayload((prev) => ({
+                      ...prev,
+                      deviceName: e.target.value,
+                    }));
+                  }}
+                />
+                <Input
+                  label="Номер зоны"
+                  variant="bordered"
+                  value={devicePayload.zoneNum.toString()}
+                  type="number"
+                  min={0}
+                  onChange={(e) => {
+                    setDevicePayload((prev) => ({
+                      ...prev,
+                      zoneNum: e.target.value,
+                    }));
+                  }}
+                />
+                <Input
+                  label="Интервал запроса"
+                  variant="bordered"
+                  value={devicePayload.reqInterval.toString()}
+                  type="number"
+                  min={10}
+                  step={10}
+                  onChange={(e) => {
+                    setDevicePayload((prev) => ({
+                      ...prev,
+                      reqInterval: e.target.value,
+                    }));
+                  }}
+                />
+                <Input
+                  label="Номер помещения"
+                  disabled
+                  type="number"
+                  variant="bordered"
+                  value={devicePayload.room_id.toString()}
+                />
+                {error && (
+                  <Alert
+                    color={"danger"}
+                    title={"Ошибка добавления устройства"}
+                    description={error}
+                  />
+                )}
+                {success && <Alert color={"success"} title={success} />}
+              </ModalBody>
+              <ModalFooter>
+                <Button color="success" onPress={handleAddDevice}>
+                  Добавить
+                </Button>
+                <Button color="primary" onPress={onClose}>
+                  Отменить
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+      <DevicesTable />
+    </div>
+  );
+}
 
-// export default AddDevice;
+export default AddDevice;

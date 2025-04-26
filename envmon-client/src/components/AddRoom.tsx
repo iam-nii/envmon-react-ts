@@ -7,7 +7,6 @@ import {
   ModalContent,
   ModalFooter,
   ModalHeader,
-  Spinner,
   // Select,
   // SelectItem,
   // Spinner,
@@ -15,7 +14,9 @@ import {
 } from "@heroui/react";
 import { useEffect, useState } from "react";
 import RoomsTable from "../Tables/RoomsTable";
-// import axiosClient from "../axiosClient";
+import axiosClient from "../axiosClient";
+import { useRoomContext } from "../context/RoomContextProvider";
+// import { Rooms } from "../Types";
 // import RoomsTable from "../../components/Tables/RoomsTable";
 // import { useDeviceContext } from "../../context/DeviceContexProvider";
 // import { device, Devices } from "../Types";
@@ -24,7 +25,7 @@ interface AddRoomType {
   setError: (error: string | null) => void;
   setSuccess: (success: string | null) => void;
   setSelected: (selected: string) => void;
-  isLoading: boolean;
+  // isLoading: boolean;
   error: string | null;
   success: string | null;
 }
@@ -42,7 +43,7 @@ interface roomPayloadType {
 function AddRoom({
   setError,
   setSuccess,
-  isLoading,
+  // isLoading,
   error,
   success,
 }: AddRoomType) {
@@ -55,6 +56,7 @@ function AddRoom({
     length: "",
     area: "",
   });
+  const { rooms, setRooms } = useRoomContext();
   //   const { devices, setDevices } = useDeviceContext();
   //   const [freeDevices, setFreeDevices] = useState<Devices | null>(null);
   // const [devicePayload, setDevicePayload] = useState({
@@ -62,11 +64,11 @@ function AddRoom({
   //   deviceName: "",
   //   zoneNum: "0",
   //   status: "0",
-  //   roomID: "0",
+  //   room_id: "0",
   // });
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   //   useEffect(() => {
-  //     setFreeDevices(devices.filter((device: device) => device.roomID === null));
+  //     setFreeDevices(devices.filter((device: device) => device.room_id === null));
   //   }, [devices]);
   useEffect(() => {
     const height = Number(roomPayload.height);
@@ -88,6 +90,18 @@ function AddRoom({
 
   const handleAddRoom = () => {
     setError(null);
+    console.log("roomPayload", roomPayload);
+    axiosClient.post("/api/rooms/", roomPayload).then(({ data }) => {
+      console.log(data);
+      setRooms([...rooms, data.data]);
+      setError(null);
+      setSuccess(data.message);
+      setTimeout(() => {
+        setSuccess(null);
+      }, 3000);
+      onClose();
+    });
+
     // const newPayload = {
     //   ...roomPayload,
     //   area: roomPayload.area,
@@ -99,7 +113,7 @@ function AddRoom({
     //     .then(({ data }) => {
     //       setDevicePayload((prev) => ({
     //         ...prev,
-    //         roomID: data.room.roomID,
+    //         room_id: data.room.room_id,
     //       }));
     //       setError(null);
     //       setSuccess(data.message);
@@ -109,7 +123,7 @@ function AddRoom({
 
     //       const updatedDevices = devices.map((device: device) =>
     //         devicePayload.deviceID.includes(device.device_id)
-    //           ? { ...device, roomID: data.room.roomID }
+    //           ? { ...device, room_id: data.room.room_id }
     //           : device
     //       );
     //       setDevices(updatedDevices);
@@ -169,7 +183,7 @@ function AddRoom({
   return (
     <div>
       <div className="flex justify-center items-center">
-        <Button onPress={onOpen} color="primary" className="text-lg w-[90%]">
+        <Button onPress={onOpen} color="primary" className="text-lg w-full">
           Добавить помещение
         </Button>
       </div>
@@ -281,14 +295,7 @@ function AddRoom({
           )}
         </ModalContent>
       </Modal>
-      {isLoading ? (
-        <div className="flex justify-center items-center h-screen">
-          <Spinner size="lg" />
-        </div>
-      ) : (
-        // <></>
-        <RoomsTable isAdmin={true} />
-      )}
+      <RoomsTable isAdmin={true} />
     </div>
   );
 }

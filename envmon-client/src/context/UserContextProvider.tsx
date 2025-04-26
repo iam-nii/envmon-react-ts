@@ -31,7 +31,7 @@ export const UserContextProvider = ({ children }: UserContextProviderType) => {
 
   useEffect(() => {
     axiosClient
-      .get("/api/users/")
+      .get("/api/users/?method=GET")
       .then(({ data }) => {
         setUsers(data.data);
         console.log(data.data);
@@ -40,10 +40,6 @@ export const UserContextProvider = ({ children }: UserContextProviderType) => {
         console.log(error);
       });
   }, []);
-
-  useEffect(() => {
-    console.log(users);
-  }, [users]);
 
   const setToken = (token: string | null) => {
     console.log("Setting token in localStorage:", token); // Debug log

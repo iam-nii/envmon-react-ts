@@ -41,7 +41,7 @@ function AdminLayout() {
   };
   return (
     <div className="flex">
-      <aside className="min-w-72 h-screen flex flex-col gap-4 bg-slate-100">
+      <aside className="min-w-72 h-screen flex flex-col gap-4 bg-blue-50">
         <img src={Logo} alt="University Logo" className="w-52 mx-4 mt-4" />
         <Link
           to="/admin"
@@ -69,7 +69,7 @@ function AdminLayout() {
         </Link>
       </aside>
       <div className="w-full">
-        <Navbar className="bg-slate-100 border-b-2 border-slate-200">
+        <Navbar className="bg-blue-50 border-b-2 border-slate-200">
           <NavbarBrand>
             <p className="text-xl font-bold">EnvMon</p>
           </NavbarBrand>

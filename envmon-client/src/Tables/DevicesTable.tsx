@@ -1,10 +1,7 @@
 import {
   Alert,
   Button,
-  Chip,
   Input,
-  Select,
-  SelectItem,
   Modal,
   ModalBody,
   ModalContent,
@@ -19,25 +16,25 @@ import {
   Tooltip,
   useDisclosure,
 } from "@heroui/react";
-import { useUserContext } from "../context/UserContextProvider";
-import { User, userRole } from "../Types";
+import { device } from "../Types";
 import { useState } from "react";
 import { EyeIcon, Pencil, Trash2 } from "lucide-react";
 import axiosClient from "../axiosClient";
+import { useDeviceContext } from "../context/DeviceContextProvider";
 
 const COLUMNS = [
-  { name: "ФИО пользователя", uid: "userName" },
-  { name: "Почта", uid: "uEmail" },
-  { name: "Телефон", uid: "uPhone" },
-  { name: "Роль", uid: "uRole" },
-  { name: "Должность", uid: "uPosition" },
+  { name: "ID устройства", uid: "device_id" },
+  { name: "Название устройства", uid: "deviceName" },
+  { name: "Номер зоны", uid: "zoneNum" },
+  { name: "Интервал запроса, с", uid: "reqInterval" },
+  { name: "ID помещения", uid: "room_id" },
   { name: "Действие", uid: "actions" },
 ];
 
-function UserT() {
-  const { users, setUsers } = useUserContext();
-  const [selectedItem, setSelectedItem] = useState<User | null>(null);
-  const [editUser, setEditUser] = useState<User | null>();
+function DevicesTable() {
+  const { devices, setDevices } = useDeviceContext();
+  const [selectedItem, setSelectedItem] = useState<device | null>(null);
+  const [editDevice, setEditDevice] = useState<device | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -62,39 +59,20 @@ function UserT() {
   } = useDisclosure();
 
   const renderCell = (
-    user: User,
-    columnKey: keyof User | "actions"
+    device: device,
+    columnKey: keyof device | "actions"
   ): React.ReactNode => {
     switch (columnKey) {
-      case "userName":
-        return (
-          <p className="font-bold text-small capitalize">{user.userName}</p>
-        );
-      case "uEmail":
-        return <p className="text-small">{user.uEmail}</p>;
-      case "uPhone":
-        return <p className="text-small">{user?.uPhone ?? "-"}</p>;
-      case "uRole": {
-        console.log(user.uRole);
-        return (
-          <Chip
-            className="capitalize"
-            color={
-              user.uRole?.trim() == "Администратор"
-                ? "success"
-                : user.uRole?.trim() == "Инженер по охране труда"
-                ? "primary"
-                : "danger"
-            }
-            variant="flat"
-            size="sm"
-          >
-            {user.uRole}
-          </Chip>
-        );
-      }
-      case "uPosition":
-        return <p className="text-small">{user.uPosition}</p>;
+      case "device_id":
+        return <p className="text-small">{device.device_id}</p>;
+      case "deviceName":
+        return <p className="text-small">{device.deviceName}</p>;
+      case "zoneNum":
+        return <p className="text-small">{device.zoneNum}</p>;
+      case "reqInterval":
+        return <p className="text-small">{device.reqInterval}</p>;
+      case "room_id":
+        return <p className="text-small">{device.room_id}</p>;
       case "actions":
         return (
           <div className="relative flex items-center gap-5 justify-end">
@@ -102,7 +80,7 @@ function UserT() {
               <span
                 className="text-lg text-default-400 cursor-pointer active:opacity-50"
                 onClick={() => {
-                  setSelectedItem(user);
+                  setSelectedItem(device);
                   onViewOpen();
                 }}
               >
@@ -113,8 +91,8 @@ function UserT() {
               <span
                 className="text-lg text-default-400 cursor-pointer active:opacity-50"
                 onClick={() => {
-                  setSelectedItem(user);
-                  setEditUser(user);
+                  setSelectedItem(device);
+                  setEditDevice(device);
                   onEditOpen();
                 }}
               >
@@ -125,7 +103,7 @@ function UserT() {
               <span
                 className="text-lg text-danger cursor-pointer active:opacity-50"
                 onClick={() => {
-                  setSelectedItem(user);
+                  setSelectedItem(device);
                   onDeleteOpen();
                 }}
               >
@@ -140,137 +118,113 @@ function UserT() {
     }
   };
 
-  const viewModalContent = (user: User) => {
+  const viewModalContent = (device: device) => {
     return (
       <>
         <Input
-          label="ФИО пользователя"
-          value={user.userName ?? ""}
+          label="Название устройства"
+          value={device.deviceName ?? ""}
           disabled
         ></Input>
-        <Input label="Почта" value={user.uEmail ?? ""} disabled></Input>
-        <Input label="Телефон" value={user.uPhone ?? ""} disabled></Input>
-        <Input label="Роль" value={user.uRole ?? ""} disabled></Input>
-        <Input label="Должность" value={user.uPosition ?? ""} disabled></Input>
+        <Input
+          label="Номер зоны"
+          value={device.zoneNum?.toString() ?? ""}
+          disabled
+        ></Input>
+        <Input
+          label="Интервал запроса"
+          value={device.reqInterval?.toString() ?? ""}
+          disabled
+        ></Input>
+        <Input
+          label="ID помещения"
+          value={device.room_id?.toString() ?? ""}
+          disabled
+        ></Input>
       </>
     );
   };
-  const editModalContent = (user: User) => {
+  const editModalContent = (device: device) => {
     return (
       <>
         <Input
-          label="ФИО пользователя"
-          value={user?.userName ?? ""}
+          label="Название устройства"
+          value={device?.deviceName ?? ""}
           onChange={(e) =>
-            setEditUser({ ...editUser, userName: e.target.value })
+            setEditDevice({ ...editDevice, deviceName: e.target.value })
           }
         ></Input>
         <Input
-          label="Почта"
-          value={user?.uEmail ?? ""}
+          label="Номер зоны"
+          value={device?.zoneNum?.toString() ?? ""}
+          type="number"
           onChange={(e) =>
-            setEditUser((prev) => ({ ...prev, uEmail: e.target.value }))
+            setEditDevice({ ...editDevice, zoneNum: parseInt(e.target.value) })
           }
         ></Input>
         <Input
-          label="Телефон"
-          value={editUser?.uPhone ?? ""}
-          type="tel"
-          // startContent={
-          //   <div className="pointer-events-none flex items-center">
-          //     <span className="text-default-300 ">
-          //       <Phone className="text-small" />
-          //     </span>
-          //   </div>
-          // }
-          onChange={(e) => {
-            //remove all non-digit characters
-            const digits = e.target.value.replace(/\D/g, "");
-
-            // Format the phone number
-            let formatted = "";
-            if (digits.length > 0) {
-              formatted = digits;
-
-              //Apply Russian phone number format: +7 (999) 999-99-99
-              if (digits.length > 1) {
-                formatted = `+7 (${digits.substring(1, 4)}) ${digits.substring(
-                  4,
-                  7
-                )}-${digits.substring(7, 9)}-${digits.substring(9, 11)}`;
-              }
-              // Ensure the + is always present
-              if (!e.target.value.startsWith("+")) {
-                formatted = `+${formatted}`;
-              }
-            }
-
-            setEditUser((prev) => ({ ...prev, uPhone: formatted }));
-          }}
-        ></Input>
-        <Select
-          label="Роль"
-          // value={editUser?.uRole}
-          defaultSelectedKeys={[editUser?.uRole ?? ""]}
+          label="Интервал запроса, сек"
+          value={device?.reqInterval?.toString() ?? ""}
+          type="number"
+          step={10}
+          min={10}
           onChange={(e) =>
-            setEditUser((prev) => ({
-              ...prev,
-              uRole: e.target.value as
-                | "Администратор"
-                | "Инженер по охране труда",
-            }))
+            setEditDevice({
+              ...editDevice,
+              reqInterval: parseInt(e.target.value),
+            })
           }
-        >
-          {userRole.map((role) => (
-            <SelectItem key={role.key} textValue={role.label}>
-              {role.label}
-            </SelectItem>
-          ))}
-        </Select>
+        ></Input>
         <Input
-          label="Должность"
-          value={editUser?.uPosition ?? ""}
+          label="ID помещения"
+          value={device?.room_id?.toString() ?? ""}
           onChange={(e) =>
-            setEditUser((prev) => ({ ...prev, uPosition: e.target.value }))
+            setEditDevice({ ...editDevice, room_id: parseInt(e.target.value) })
           }
         ></Input>
       </>
     );
   };
 
-  const deleteModalContent = (user: User) => {
+  const deleteModalContent = (device: device) => {
     return (
       <>
         <Input
-          label="ФИО пользователя"
-          value={user.userName ?? ""}
+          label="ID устройства"
+          value={device.device_id?.toString() ?? ""}
           disabled
         ></Input>
-        <Input label="Почта" value={user.uEmail ?? ""} disabled></Input>
+        <Input
+          label="Название устройства"
+          value={device.deviceName ?? ""}
+          disabled
+        ></Input>
+
         <Alert color="warning">
-          Вы действительно хотите удалить этого пользователя?
+          Вы действительно хотите удалить это устройство?
         </Alert>
       </>
     );
   };
   const handleEdit = async () => {
-    if (!editUser) return;
-    console.log(editUser);
+    if (!editDevice) return;
+    console.log(editDevice);
     try {
       axiosClient
-        .get(
-          `/api/users/?method=PATCH&id=${editUser.user_id}&userName=${editUser.userName}
-          &uEmail=${editUser.uEmail}&uPhone=${editUser.uPhone}&uRole=${editUser.uRole}
-          &uPosition=${editUser.uPosition}`
-        )
+        .patch(`/api/devices/?id=${editDevice.device_id}`, {
+          deviceName: editDevice.deviceName,
+          zoneNum: editDevice.zoneNum,
+          reqInterval: editDevice.reqInterval,
+          room_id: editDevice.room_id,
+        })
         .then(({ data }) => {
           console.log(data.data);
-          const index = users.findIndex(
-            (user) => user.user_id === editUser.user_id
+          const index = devices.findIndex(
+            (device) => device.device_id === editDevice.device_id
           );
-          users[index] = data.data;
-          setUsers(users);
-          setSuccess("Пользователь успешно обновлен");
+          devices[index] = data.data;
+          setDevices(devices);
+          setSuccess("Устройство успешно обновлено");
           setTimeout(() => setSuccess(null), 3000);
           onEditClose();
         })
@@ -287,13 +241,15 @@ function UserT() {
     if (!selectedItem) return;
     try {
       axiosClient
-        .get(`/api/users/?method=DELETE&id=${selectedItem.user_id}`)
+        .delete(`/api/devices/?id=${selectedItem.device_id}`)
         .then(({ data }) => {
           console.log(data);
-          setUsers(
-            users.filter((user) => user.user_id !== selectedItem.user_id)
+          setDevices(
+            devices.filter(
+              (device) => device.device_id !== selectedItem.device_id
+            )
           );
-          setSuccess("Пользователь успешно удален");
+          setSuccess("Устройство успешно удалено");
           setTimeout(() => setSuccess(null), 3000);
           onDeleteClose();
         })
@@ -307,7 +263,7 @@ function UserT() {
     }
   };
   return (
-    <div className="w-[90%] mx-auto my-5">
+    <div className="w-full mx-auto my-5">
       {success && <Alert color="success">{success}</Alert>}
       {error && <Alert color="danger">{error}</Alert>}
 
@@ -322,12 +278,12 @@ function UserT() {
             </TableColumn>
           )}
         </TableHeader>
-        <TableBody items={users} emptyContent="Данные не найдены">
+        <TableBody items={devices} emptyContent="Данные не найдены">
           {(item) => (
-            <TableRow key={item.user_id}>
+            <TableRow key={item.device_id}>
               {(columnKey) => (
                 <TableCell>
-                  {renderCell(item, columnKey as keyof User | "actions")}
+                  {renderCell(item, columnKey as keyof device | "actions")}
                 </TableCell>
               )}
             </TableRow>
@@ -361,9 +317,9 @@ function UserT() {
             <>
               <ModalHeader>Редактирование</ModalHeader>
               <ModalBody>
-                {editUser && (
+                {editDevice && (
                   <>
-                    {editModalContent(editUser)}
+                    {editModalContent(editDevice)}
                     {error && <Alert color="danger">{error}</Alert>}
                   </>
                 )}
@@ -406,4 +362,4 @@ function UserT() {
   );
 }
 
-export default UserT;
+export default DevicesTable;

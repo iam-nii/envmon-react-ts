@@ -24,6 +24,7 @@ import EngineerRooms from "./views/engineer/Rooms";
 import About from "./views/About";
 import Welcome from "./views/Welcome";
 import NotFound from "./views/NotFound";
+import RoomDevices from "./views/admin/RoomDevices";
 
 const router = createHashRouter([
   {
@@ -65,8 +66,12 @@ const router = createHashRouter([
         element: <Rooms />,
       },
       {
-        path: "/admin/data/:roomID",
+        path: "/admin/data/:room_id",
         element: <RoomData />,
+      },
+      {
+        path: "/admin/room/devices/:room_id",
+        element: <RoomDevices />,
       },
       {
         path: "/admin/settings",

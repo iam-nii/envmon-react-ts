@@ -10,6 +10,7 @@ export default defineConfig(({ mode }) => {
       proxy: {
         "/api": {
           target: "http://localhost/pdn1",
+          // target: "https://sapr3.lti-gti.ru/pdn1/",
         },
       },
     },

@@ -32,9 +32,9 @@ const SignIn = () => {
           localStorage.setItem("USER_DATA", JSON.stringify(data.data.user));
           // console.log(user);
           setToken(data.data.token);
-          if (data.data.user.uRole == "admin") {
+          if (data.data.user.uRole == "Администратор") {
             navigate("/admin");
-          } else if (data.data.user.uRole == "user") {
+          } else if (data.data.user.uRole == "Пользователь") {
             navigate("/engineer");
           }
         })
@@ -136,6 +136,7 @@ const SignIn = () => {
                 </Link>
               </h2>
             </div>
+            <div>{isLoading && <Spinner size="lg" color="success" />}</div>
           </form>
         </>
       )}
