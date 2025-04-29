@@ -56,12 +56,21 @@ type Devices = device[];
 interface Params {
   param_id?: number;
   parameter_name?: string;
-  unitOfMeasurement?: string;
-  minValue?: number;
-  maxValue?: number;
+  unitOfMeasure?: string;
+  pminValue?: number;
+  pmaxValue?: number;
 }
 
 type Parameters = Params[];
+
+interface Regulation {
+  techReg_id?: number;
+  param_id?: number;
+  parameter_name?: string;
+  minValue?: number;
+  maxValue?: number;
+  device_id?: number | Set<string>;
+}
 
 export type {
   User,
@@ -73,4 +82,5 @@ export type {
   Params,
   TableItem,
   Parameters,
+  Regulation,
 };

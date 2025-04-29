@@ -52,10 +52,16 @@ function AdminLayout() {
             Пользователи
           </Link>
           <Link
-            to="/admin/rooms"
+            to="/admin/rooms_devices"
             className="hover:bg-slate-200 p-4 text-start font-bold rounded-lg"
           >
-            Помещение/Устройства
+            Помещение / Устройства
+          </Link>
+          <Link
+            to="/admin/params_regulations"
+            className="hover:bg-slate-200 p-4 text-start font-bold rounded-lg"
+          >
+            Параметры / Регламенты
           </Link>
           <Link
             to="/admin/settings"

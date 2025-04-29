@@ -1,14 +1,11 @@
 import { Tab, Tabs } from "@heroui/react";
 import { useState } from "react";
-// import { useRoomContext } from "../../context/RoomContextProvider";
-import AddRoom from "../../components/AddRoom";
-import AddDevice from "../../components/AddDevice";
-// import { RoomsT } from "../../Types";
+import AddParam from "../../components/AddParam";
+import AddRegulation from "../../components/AddRegulation";
 
-const Rooms = () => {
-  const [selected, setSelected] = useState("addRoom");
-  // const { rooms, setRooms } = useRoomContext();
-  // const [isLoading, setIsLoading] = useState(false);
+
+const ParamsRegulations = () => {
+  const [selected, setSelected] = useState<string>("addParam");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -23,22 +20,20 @@ const Rooms = () => {
         selectedKey={selected}
         onSelectionChange={(key) => setSelected(key as string)}
       >
-        <Tab key="addRoom" title="Добавить помещение">
-          <AddRoom
+        <Tab key="addParam" title="Добавить параметр">
+          <AddParam
             setSelected={setSelected}
             setError={setError}
             setSuccess={setSuccess}
-            // isLoading={isLoading}
             error={error}
             success={success}
           />
         </Tab>
-        <Tab key="addDevice" title="Добавить устройство">
-          <AddDevice
+        <Tab key="addRegulation" title="Добавить регламент">
+          <AddRegulation
             setSelected={setSelected}
             setError={setError}
             setSuccess={setSuccess}
-            // isLoading={isLoading}
             error={error}
             success={success}
           />
@@ -48,4 +43,4 @@ const Rooms = () => {
   );
 };
 
-export default Rooms;
+export default ParamsRegulations;

@@ -5,20 +5,21 @@ import SignUp from "./views/auth/SignUp";
 
 //Layouts
 import AuthLayout from "./layouts/AuthLayout";
-import UserLayout from "./layouts/EngineerLayout";
 import AdminLayout from "./layouts/AdminLayout";
+import UserLayout from "./layouts/EngineerLayout";
 
 //Admin
-import Dashboard from "./views/admin/Dashboard";
 import Users from "./views/admin/Users_";
-import Rooms from "./views/admin/Rooms_";
-import Settings from "./views/admin/Settings_";
-import RoomDetails from "./views/admin/RoomDetails";
+import Rooms from "./views/admin/Rooms_Devices";
 import RoomData from "./views/admin/RoomData";
+import Settings from "./views/admin/Settings_";
+import Dashboard from "./views/admin/Dashboard";
+import RoomDetails from "./views/admin/RoomDetails";
+import ParamsRegulations from "./views/admin/ParamsRegulations";
 
 //Engineer
-import EngineerDashboard from "./views/engineer/Dashboard";
 import EngineerRooms from "./views/engineer/Rooms";
+import EngineerDashboard from "./views/engineer/Dashboard";
 
 //Views
 import About from "./views/About";
@@ -62,8 +63,12 @@ const router = createHashRouter([
         element: <Users />,
       },
       {
-        path: "/admin/rooms",
+        path: "/admin/rooms_devices",
         element: <Rooms />,
+      },
+      {
+        path: "admin/params_regulations",
+        element: <ParamsRegulations />,
       },
       {
         path: "/admin/data/:room_id",
