@@ -32,9 +32,9 @@ const SignIn = () => {
           localStorage.setItem("USER_DATA", JSON.stringify(data.data.user));
           // console.log(user);
           setToken(data.data.token);
-          if (data.data.user.uRole == "Администратор") {
+          if (data.data.user.uRole.trim() === "Администратор") {
             navigate("/admin");
-          } else if (data.data.user.uRole == "Пользователь") {
+          } else if (data.data.user.uRole.trim() === "Пользователь") {
             navigate("/engineer");
           }
         })

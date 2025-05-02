@@ -9,6 +9,7 @@ import {
   ModalFooter,
   ModalHeader,
   Select,
+  Selection,
   SelectItem,
   Switch,
   // Spinner,
@@ -18,6 +19,7 @@ import { useEffect, useState } from "react";
 import DevicesTable from "../Tables/DevicesTable";
 import axiosClient from "../axiosClient";
 import { useRoomContext } from "../context/RoomContextProvider";
+import { useParameterContext } from "../context/ParameterContextProvider";
 
 // import { Rooms } from "../Types";
 // import RoomsTable from "../../components/Tables/RoomsTable";
@@ -67,9 +69,8 @@ function AddDevice({
   //   const [freeDevices, setFreeDevices] = useState<Devices | null>(null);
 
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
-  //   useEffect(() => {
-  //     setFreeDevices(devices.filter((device: device) => device.room_id === null));
-  //   }, [devices]);
+  const { parameters } = useParameterContext();
+  const [selectedParameters, setSelectedParameters] = useState<Selection>();
 
   const handleAddDevice = () => {
     setError(null);
@@ -89,85 +90,10 @@ function AddDevice({
       }, 3000);
       onClose();
     });
-
-    // const newPayload = {
-    //   ...roomPayload,
-    //   area: roomPayload.area,
-    // };
-    // console.log(devicePayload.deviceID);
-    // if (devicePayload.deviceID !== "null") {
-    //   axiosClient
-    //     .post("/insertRoom", newPayload)
-    //     .then(({ data }) => {
-    //       setDevicePayload((prev) => ({
-    //         ...prev,
-    //         room_id: data.room.room_id,
-    //       }));
-    //       setError(null);
-    //       setSuccess(data.message);
-    //       setTimeout(() => {
-    //         setSuccess(null);
-    //       }, 3000);
-
-    //       const updatedDevices = devices.map((device: device) =>
-    //         devicePayload.deviceID.includes(device.device_id)
-    //           ? { ...device, room_id: data.room.room_id }
-    //           : device
-    //       );
-    //       setDevices(updatedDevices);
-
-    //       axiosClient
-    //         .patch(
-    //           `/updateDevice/${devicePayload.deviceID}`,
-    //           updatedDevices.find(
-    //             (device: device) => device.device_id === devicePayload.deviceID
-    //           )
-    //         )
-    //         .then(({ data }) => {
-    //           console.log(data);
-    //           setError(null);
-    //           setSuccess("Помещение и устройство добавлены");
-    //           setTimeout(() => {
-    //             setSuccess(null);
-    //           }, 3000);
-    //         })
-    //         .catch((error) => {
-    //           console.log(error);
-    //           setError("Ошибка при добавлении устройства");
-    //           setSuccess(null);
-    //           setTimeout(() => {
-    //             setError(null);
-    //           }, 3000);
-    //         });
-    //     })
-    //     .catch((error) => {
-    //       const errorMessage = error;
-    //       console.log(errorMessage);
-    //       const errorError = error.response.data.error;
-
-    //       if (errorError.includes("Duplicate entry")) {
-    //         // Extract the room number from the error message
-    //         const duplicateRoomNumber = errorError.match(/'([^']+)'/)[1];
-    //         setError(`Номер помещения ${duplicateRoomNumber} уже существует.`);
-    //         setTimeout(() => {
-    //           setError(null);
-    //         }, 3000);
-    //         return;
-    //       } else {
-    //         setError("Ошибка добавления помещения.");
-    //         setTimeout(() => {
-    //           setError(null);
-    //         }, 3000);
-    //         return;
-    //       }
-    //     });
-    // } else {
-    //   setError("Укажите устройство");
-    //   setTimeout(() => {
-    //     setError(null);
-    //   }, 3000);
-    // }
   };
+  useEffect(() => {
+    console.log(selectedParameters);
+  }, [selectedParameters]);
   return (
     <div>
       <div className="flex justify-center items-center">
@@ -252,6 +178,22 @@ function AddDevice({
                       textValue={String(room.roomNumber)}
                     >
                       {room.roomNumber} ({room.location})
+                    </SelectItem>
+                  ))}
+                </Select>
+                <Select
+                  label="Выберите параметры"
+                  placeholder="Отслеживаемые параметры"
+                  variant="bordered"
+                  selectionMode="multiple"
+                  onSelectionChange={setSelectedParameters}
+                >
+                  {parameters!.map((parameter) => (
+                    <SelectItem
+                      key={parameter.param_id}
+                      textValue={parameter.parameter_name}
+                    >
+                      {parameter.parameter_name}
                     </SelectItem>
                   ))}
                 </Select>

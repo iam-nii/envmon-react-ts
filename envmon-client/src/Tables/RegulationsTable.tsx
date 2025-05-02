@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { Dispatch, SetStateAction, useEffect } from "react";
 import {
   Table,
   TableHeader,
@@ -25,7 +25,7 @@ import { useState } from "react";
 import axiosClient from "../axiosClient";
 import { Regulation } from "../Types";
 import { useDeviceContext } from "../context/DeviceContextProvider";
-import { useParameterContext } from "../context/ParameterContextProvider";
+// import { useParameterContext } from "../context/ParameterContextProvider";
 
 const COLUMNS = [
   { name: "Идентификатор регламента", uid: "techReg_id" },
@@ -39,12 +39,16 @@ const COLUMNS = [
 
 type RegulationPropsType = {
   isAdmin: boolean;
+  setRegulations: Dispatch<SetStateAction<Regulation[]>>;
+  regulations: Regulation[];
 };
 
-function RegulationTable({ isAdmin }: RegulationPropsType) {
-  const [regulations, setRegulations] = useState<Regulation[]>([]);
+function RegulationTable({
+  isAdmin,
+  regulations,
+  setRegulations,
+}: RegulationPropsType) {
   const { devices } = useDeviceContext();
-  const { parameters } = useParameterContext();
   const [error, setError] = useState<string | boolean | null>(null);
   const [selectedRegulation, setSelectedRegulation] =
     useState<Regulation | null>(null);
@@ -86,21 +90,6 @@ function RegulationTable({ isAdmin }: RegulationPropsType) {
     onOpenChange: onDeleteOpenChange,
     onClose: onDeleteClose,
   } = useDisclosure();
-
-  //get all regulations
-  useEffect(() => {
-    axiosClient
-      .get("/api/settings/?method=GET&query=settings")
-      .then(({ data }) => {
-        data.data.forEach((regulation: Regulation) => {
-          const parameter = parameters.find(
-            (param) => param.param_id === regulation.param_id
-          );
-          regulation["parameter_name"] = parameter?.parameter_name?.trim();
-        });
-        setRegulations(data.data);
-      });
-  }, []);
 
   const renderCell = React.useCallback(
     (
