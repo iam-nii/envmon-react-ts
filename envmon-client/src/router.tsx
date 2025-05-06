@@ -12,7 +12,6 @@ import UserLayout from "./layouts/EngineerLayout";
 import Users from "./views/admin/Users_";
 import Rooms from "./views/admin/Rooms_Devices";
 import RoomData from "./views/admin/RoomData";
-import Settings from "./views/admin/Settings_";
 import Dashboard from "./views/admin/Dashboard";
 import RoomDetails from "./views/admin/RoomDetails";
 import ParamsRegulations from "./views/admin/ParamsRegulations";
@@ -77,10 +76,6 @@ const router = createHashRouter([
       {
         path: "/admin/room/devices/:room_id",
         element: <RoomDevices />,
-      },
-      {
-        path: "/admin/settings",
-        element: <Settings />,
       },
       {
         path: "/admin/rooms/:id",

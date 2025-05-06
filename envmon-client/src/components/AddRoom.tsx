@@ -1,5 +1,7 @@
 import {
   Alert,
+  Autocomplete,
+  AutocompleteItem,
   Button,
   Input,
   Modal,
@@ -16,6 +18,7 @@ import { useEffect, useState } from "react";
 import RoomsTable from "../Tables/RoomsTable";
 import axiosClient from "../axiosClient";
 import { useRoomContext } from "../context/RoomContextProvider";
+import { useUserContext } from "../context/UserContextProvider";
 // import { Rooms } from "../Types";
 // import RoomsTable from "../../components/Tables/RoomsTable";
 // import { useDeviceContext } from "../../context/DeviceContexProvider";
@@ -40,13 +43,7 @@ interface roomPayloadType {
   area: number | string;
 }
 
-function AddRoom({
-  setError,
-  setSuccess,
-  // isLoading,
-  error,
-  success,
-}: AddRoomType) {
+function AddRoom({ setError, setSuccess, error, success }: AddRoomType) {
   const [roomPayload, setRoomPayload] = useState<roomPayloadType>({
     roomNumber: "",
     frPerson: "",
@@ -57,19 +54,9 @@ function AddRoom({
     area: "",
   });
   const { rooms, setRooms } = useRoomContext();
-  //   const { devices, setDevices } = useDeviceContext();
-  //   const [freeDevices, setFreeDevices] = useState<Devices | null>(null);
-  // const [devicePayload, setDevicePayload] = useState({
-  //   deviceID: "null",
-  //   deviceName: "",
-  //   zoneNum: "0",
-  //   status: "0",
-  //   room_id: "0",
-  // });
+  const { users } = useUserContext();
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
-  //   useEffect(() => {
-  //     setFreeDevices(devices.filter((device: device) => device.room_id === null));
-  //   }, [devices]);
+
   useEffect(() => {
     const height = Number(roomPayload.height);
     const width = Number(roomPayload.width);
@@ -101,84 +88,6 @@ function AddRoom({
       }, 3000);
       onClose();
     });
-
-    // const newPayload = {
-    //   ...roomPayload,
-    //   area: roomPayload.area,
-    // };
-    // console.log(devicePayload.deviceID);
-    // if (devicePayload.deviceID !== "null") {
-    //   axiosClient
-    //     .post("/insertRoom", newPayload)
-    //     .then(({ data }) => {
-    //       setDevicePayload((prev) => ({
-    //         ...prev,
-    //         room_id: data.room.room_id,
-    //       }));
-    //       setError(null);
-    //       setSuccess(data.message);
-    //       setTimeout(() => {
-    //         setSuccess(null);
-    //       }, 3000);
-
-    //       const updatedDevices = devices.map((device: device) =>
-    //         devicePayload.deviceID.includes(device.device_id)
-    //           ? { ...device, room_id: data.room.room_id }
-    //           : device
-    //       );
-    //       setDevices(updatedDevices);
-
-    //       axiosClient
-    //         .patch(
-    //           `/updateDevice/${devicePayload.deviceID}`,
-    //           updatedDevices.find(
-    //             (device: device) => device.device_id === devicePayload.deviceID
-    //           )
-    //         )
-    //         .then(({ data }) => {
-    //           console.log(data);
-    //           setError(null);
-    //           setSuccess("Помещение и устройство добавлены");
-    //           setTimeout(() => {
-    //             setSuccess(null);
-    //           }, 3000);
-    //         })
-    //         .catch((error) => {
-    //           console.log(error);
-    //           setError("Ошибка при добавлении устройства");
-    //           setSuccess(null);
-    //           setTimeout(() => {
-    //             setError(null);
-    //           }, 3000);
-    //         });
-    //     })
-    //     .catch((error) => {
-    //       const errorMessage = error;
-    //       console.log(errorMessage);
-    //       const errorError = error.response.data.error;
-
-    //       if (errorError.includes("Duplicate entry")) {
-    //         // Extract the room number from the error message
-    //         const duplicateRoomNumber = errorError.match(/'([^']+)'/)[1];
-    //         setError(`Номер помещения ${duplicateRoomNumber} уже существует.`);
-    //         setTimeout(() => {
-    //           setError(null);
-    //         }, 3000);
-    //         return;
-    //       } else {
-    //         setError("Ошибка добавления помещения.");
-    //         setTimeout(() => {
-    //           setError(null);
-    //         }, 3000);
-    //         return;
-    //       }
-    //     });
-    // } else {
-    //   setError("Укажите устройство");
-    //   setTimeout(() => {
-    //     setError(null);
-    //   }, 3000);
-    // }
   };
   return (
     <div>
@@ -206,7 +115,7 @@ function AddRoom({
                     }));
                   }}
                 />
-                <Input
+                {/* <Input
                   label="ФИО ответственного лица"
                   variant="bordered"
                   value={roomPayload.frPerson}
@@ -216,7 +125,28 @@ function AddRoom({
                       frPerson: e.target.value,
                     }));
                   }}
-                />
+                /> */}
+                <Autocomplete
+                  label="ФИО ответственного"
+                  value={roomPayload.frPerson}
+                  defaultItems={users}
+                  defaultInputValue={roomPayload.frPerson}
+                  onInputChange={(value) =>
+                    setRoomPayload((prev) => ({
+                      ...prev,
+                      frPerson: value,
+                    }))
+                  }
+                >
+                  {users?.map((user) => (
+                    <AutocompleteItem
+                      key={user.user_id}
+                      textValue={user.userName!.trim()}
+                    >
+                      {user.userName}
+                    </AutocompleteItem>
+                  ))}
+                </Autocomplete>
                 <Input
                   label="Местоположение"
                   variant="bordered"

@@ -16,15 +16,14 @@ import {
   Button,
   Input,
   Alert,
-  Select,
   Selection,
-  SelectItem,
+  Switch,
 } from "@heroui/react";
 import { DeleteIcon, EditIcon, EyeIcon } from "../Icons/Icons";
 import { useState } from "react";
 import axiosClient from "../axiosClient";
 import { Regulation } from "../Types";
-import { useDeviceContext } from "../context/DeviceContextProvider";
+// import { useDeviceContext } from "../context/DeviceContextProvider";
 // import { useParameterContext } from "../context/ParameterContextProvider";
 
 const COLUMNS = [
@@ -48,13 +47,13 @@ function RegulationTable({
   regulations,
   setRegulations,
 }: RegulationPropsType) {
-  const { devices } = useDeviceContext();
+  // const { devices } = useDeviceContext();
   const [error, setError] = useState<string | boolean | null>(null);
   const [selectedRegulation, setSelectedRegulation] =
     useState<Regulation | null>(null);
-  const [editedRegulation, setEditedRegulation] = useState<Regulation | null>(
-    null
-  );
+  const [editedRegulation, setEditedRegulation] = useState<Regulation | null>({
+    sendMsg: false,
+  });
 
   const [success, setSuccess] = useState<string | boolean | null>(null);
   const [selectedDeviceValues, setSelectedDeviceValues] = useState<Selection>(
@@ -66,6 +65,7 @@ function RegulationTable({
         new Set([selectedRegulation.device_id!.toString()])
       );
     }
+    console.log(selectedRegulation);
   }, [selectedRegulation]);
 
   // View Modal
@@ -161,27 +161,49 @@ function RegulationTable({
     []
   );
 
+  // useEffect(() => {
+  //   if (selectedRegulation?.sendMsg) {
+  //     setEditedRegulation((prev) => ({
+  //       ...prev,
+  //       sendMsg: true,
+  //     }));
+  //   } else if (selectedRegulation?.sendMsg === true) {
+  //     setEditedRegulation((prev) => ({
+  //       ...prev,
+  //       sendMsg: true,
+  //     }));
+  //   } else {
+  //     setEditedRegulation((prev) => ({
+  //       ...prev,
+  //       sendMsg: false,
+  //     }));
+  //   }
+  // }, [selectedRegulation]);
+
   useEffect(() => {
-    console.log(regulations);
-  }, [regulations]);
+    console.log(editedRegulation?.sendMsg);
+  }, [editedRegulation?.sendMsg]);
 
   const handleEditRegulations = () => {
     setEditedRegulation({
       ...editedRegulation,
       device_id: parseInt(selectedDeviceValues.toString()),
     });
-    console.log(editedRegulation);
 
-    console.log("Edited Regulation:", editedRegulation);
+    let sendMsg;
+    if (editedRegulation?.sendMsg === true) sendMsg = 1;
+    else sendMsg = 0;
+
     console.log("Edited Regulation:", editedRegulation);
     axiosClient
       .get(
-        `/api/settings/?method=PATCH&id=${
+        `/api/settings/?method=PATCH&techReg_id=${
           editedRegulation!.techReg_id
-        }&parameter_name=${editedRegulation!.parameter_name}
+        }&param_id=${editedRegulation!.param_id}
         &minValue=${editedRegulation!.minValue}&maxValue=${
           editedRegulation!.maxValue
-        }&device_id=${editedRegulation!.device_id}`
+        }&device_id=${editedRegulation!.device_id}
+        &sendMsg=${sendMsg}`
       )
       .then(({ data }) => {
         // log the response
@@ -190,6 +212,7 @@ function RegulationTable({
         const index = regulations!.findIndex(
           (reg) => reg.techReg_id === editedRegulation!.techReg_id
         );
+        data.data["parameter_name"] = editedRegulation?.parameter_name;
         regulations![index] = data.data;
         setRegulations(regulations!);
         //show success alert for 3 seconds
@@ -206,6 +229,7 @@ function RegulationTable({
         if (errorError.includes("Duplicate entry")) {
           const duplicateRoomNumber = errorError.match(/'([^']+)'/)[1];
           setError(`Параметр ${duplicateRoomNumber} уже существует.`);
+
           //show error alert for 3 seconds
           setError(true);
           setSuccess(null);
@@ -214,6 +238,7 @@ function RegulationTable({
           }, 3000);
         } else {
           setError("Ошибка при обновлении параметра");
+
           //show error alert for 3 seconds
           setError(true);
           setSuccess(null);
@@ -332,6 +357,12 @@ function RegulationTable({
                   value={selectedRegulation!.device_id!.toString()}
                   disabled
                 />
+                <Switch
+                  disabled
+                  isSelected={selectedRegulation?.sendMsg || false}
+                >
+                  <p className="text-sm">Отправить сообщение</p>
+                </Switch>
               </ModalBody>
               <ModalFooter>
                 <Button onPress={onViewClose} color="success">
@@ -354,6 +385,7 @@ function RegulationTable({
               <ModalBody>
                 <Input
                   label="Идентификатор регламента"
+                  disabled
                   value={editedRegulation!.techReg_id!.toString()}
                   onChange={(e) =>
                     setEditedRegulation({
@@ -362,16 +394,25 @@ function RegulationTable({
                     })
                   }
                 />
+                <div>
+                  <Input
+                    label={"Идентификатор устройства"}
+                    variant="bordered"
+                    disabled
+                    value={editedRegulation!.device_id!.toString()}
+                    onChange={(e) => {
+                      setEditedRegulation({
+                        ...editedRegulation,
+                        device_id: parseInt(e.target.value),
+                      });
+                    }}
+                  />
+                </div>
 
                 <Input
                   label="Параметр"
                   value={editedRegulation!.parameter_name}
-                  onChange={(e) =>
-                    setEditedRegulation({
-                      ...editedRegulation,
-                      parameter_name: e.target.value,
-                    })
-                  }
+                  disabled
                 />
                 <div className="flex flex-row gap-2">
                   <Input
@@ -407,30 +448,19 @@ function RegulationTable({
                     }}
                   />
                 </div>
-                <div>
-                  <Select
-                    label="Идентификатор устройства"
-                    placeholder="Выберите устройство"
-                    variant="bordered"
-                    selectedKeys={selectedDeviceValues}
-                    onSelectionChange={(e) => {
-                      setSelectedDeviceValues(e);
-                      //   setEditedRegulation({
-                      //     ...editedRegulation,
-                      //     device_id: parseInt(e.toString()),
-                      //   });
-                    }}
-                  >
-                    {devices.map((device) => (
-                      <SelectItem
-                        key={device.device_id}
-                        textValue={device.device_id!.toString()}
-                      >
-                        {device.device_id}
-                      </SelectItem>
-                    ))}
-                  </Select>
-                </div>
+                <Switch
+                  disabled
+                  // isSelected={editedRegulation!.sendMsg! === 1 ? true : false}
+                  isSelected={Boolean(editedRegulation!.sendMsg)}
+                  onValueChange={(value) => {
+                    setEditedRegulation((prev) => ({
+                      ...prev,
+                      sendMsg: value,
+                    }));
+                  }}
+                >
+                  <p className="text-sm">Отправить сообщение</p>
+                </Switch>
               </ModalBody>
               <ModalFooter>
                 <Button onPress={handleEditRegulations} color="primary">

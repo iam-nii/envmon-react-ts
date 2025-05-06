@@ -18,7 +18,7 @@ interface AddParamType {
   setError: (error: string | null) => void;
   setSuccess: (success: string | null) => void;
   setSelected: (selected: string) => void;
-  // isLoading: boolean;
+
   error: string | null;
   success: string | null;
 }
@@ -28,6 +28,7 @@ interface paramPayloadType {
   unitOfMeasurement: string;
   minValue: number | string;
   maxValue: number | string;
+  parameter_alias: string;
 }
 
 function AddParam({ setError, setSuccess, error, success }: AddParamType) {
@@ -36,6 +37,7 @@ function AddParam({ setError, setSuccess, error, success }: AddParamType) {
     unitOfMeasurement: "",
     minValue: "",
     maxValue: "",
+    parameter_alias: "",
   });
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const { parameters, setParameters } = useParameterContext();
@@ -63,7 +65,11 @@ function AddParam({ setError, setSuccess, error, success }: AddParamType) {
     console.log("paramPayload", paramPayload);
     axiosClient
       .get(
-        `/api/parameters/?method=POST&parameter_name=${paramPayload.paramName}&unitOfMeasure=${paramPayload.unitOfMeasurement}&pminValue=${paramPayload.minValue}&pmaxValue=${paramPayload.maxValue}`
+        `/api/parameters/?method=POST&parameter_name=${paramPayload.paramName}
+        &unitOfMeasure=${paramPayload.unitOfMeasurement}
+        &pminValue=${paramPayload.minValue}
+        &pmaxValue=${paramPayload.maxValue}
+        &parameter_alias=${paramPayload.parameter_alias}`
       )
       .then(({ data }) => {
         console.log(data);
@@ -113,6 +119,19 @@ function AddParam({ setError, setSuccess, error, success }: AddParamType) {
                     setParamPayload((prev) => ({
                       ...prev,
                       paramName: e.target.value,
+                    }));
+                  }}
+                />
+                <Input
+                  label="Псевдоним параметра"
+                  variant="bordered"
+                  description="5 символов как максимум"
+                  maxLength={5}
+                  value={paramPayload.parameter_alias}
+                  onChange={(e) => {
+                    setParamPayload((prev) => ({
+                      ...prev,
+                      parameter_alias: e.target.value,
                     }));
                   }}
                 />

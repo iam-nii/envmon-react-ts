@@ -59,6 +59,7 @@ interface Params {
   unitOfMeasure?: string;
   pminValue?: number;
   pmaxValue?: number;
+  parameter_alias?: string;
 }
 
 type Parameters = Params[];
@@ -70,6 +71,7 @@ interface Regulation {
   minValue?: number;
   maxValue?: number;
   device_id?: number | Set<string>;
+  sendMsg?: boolean;
 }
 
 export type {

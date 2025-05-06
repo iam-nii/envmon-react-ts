@@ -8,6 +8,7 @@ import {
   ModalFooter,
   ModalHeader,
   Select,
+  // Selection,
   SelectItem,
   Switch,
   useDisclosure,
@@ -23,7 +24,7 @@ import { useParameterContext } from "../context/ParameterContextProvider";
 function AddRegulation() {
   type Payload = {
     user_id: string;
-    param_id: string;
+    param_id: string | number;
     send_msg: boolean | number;
     minValue: string;
     maxValue: string;
@@ -44,9 +45,11 @@ function AddRegulation() {
 
   const [userData, setUserData] = useState<User | null>(null);
   const [parameters, setParameters] = useState<Params[]>([{}]);
+  const [paramNames, setParamNames] = useState<(string | undefined)[]>([]);
   const [error, setError] = useState<string | boolean>(false);
   const [success, setSuccess] = useState<string | boolean>(false);
   const [regulations, setRegulations] = useState<Regulation[]>([]);
+  // const [testParam, setTestParam] = useState<Selection>(new Set([]));
 
   //get all regulations
   useEffect(() => {
@@ -64,9 +67,12 @@ function AddRegulation() {
   }, []);
 
   useEffect(() => {
+    setParamNames(parameters_.map((param) => param.parameter_name?.trim()));
+  }, [parameters_]);
+  useEffect(() => {
     // console.log("Current payload", payload);
     getDeviceParameters(payload.device_id);
-  }, [payload.device_id, payload.param_id]);
+  }, [payload.device_id]);
   useEffect(() => {
     // console.log("Current user", user);
     setUserData(user);
@@ -77,9 +83,12 @@ function AddRegulation() {
       }));
     }
   }, [user]);
+  useEffect(() => {
+    // console.log(paramNames[parseInt(payload.param_id)]);
+    console.log(payload.param_id);
+  }, [payload.param_id]);
 
   const getDeviceParameters = async (device_id: string) => {
-    const paramNames = parameters_.map((param) => param.parameter_name?.trim());
     const response = await axiosClient.get(
       `/api/settings/?method=GET&id=${device_id}&query=parameters`
     );
@@ -99,7 +108,7 @@ function AddRegulation() {
         parameter_name: string;
       };
       const deviceParams = response.data.data.map((devParam: recievedData) =>
-        devParam.parameter_name.trim()
+        devParam.parameter_name?.trim()
       );
 
       console.log("Device params:", deviceParams);
@@ -126,6 +135,11 @@ function AddRegulation() {
       setParameters(missingParams);
     }
   };
+  useEffect(() => {
+    // const paramsSet = new Set(parameters_);
+    // console.log(paramsSet);
+    console.log(payload.param_id);
+  }, [payload.param_id]);
 
   const invalidPayload = () => {
     setError(false);
@@ -255,9 +269,10 @@ function AddRegulation() {
                   onChange={(e) => {
                     setPayload((prev) => ({
                       ...prev,
-                      param_id: e.target.value,
+                      param_id: parseInt(e.target.value) + 1,
                     }));
                   }}
+                  // onSelectionChange={setTestParam}
                 >
                   {parameters!.map((parameter) => (
                     <SelectItem key={parameter.param_id}>
