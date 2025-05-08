@@ -3,7 +3,6 @@ import { useState } from "react";
 import AddParam from "../../components/AddParam";
 import AddRegulation from "../../components/AddRegulation";
 
-
 const ParamsRegulations = () => {
   const [selected, setSelected] = useState<string>("addParam");
   const [error, setError] = useState<string | null>(null);
@@ -30,13 +29,7 @@ const ParamsRegulations = () => {
           />
         </Tab>
         <Tab key="addRegulation" title="Добавить регламент">
-          <AddRegulation
-            setSelected={setSelected}
-            setError={setError}
-            setSuccess={setSuccess}
-            error={error}
-            success={success}
-          />
+          <AddRegulation />
         </Tab>
       </Tabs>
     </div>
