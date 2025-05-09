@@ -22,9 +22,11 @@ export const DeviceContextProvider = ({
   const [devices, setDevices] = useState<Devices>([]);
 
   useEffect(() => {
-    axiosClient.get("/api/devices/?method=GET").then(({ data }) => {
-      setDevices(data.data);
-    });
+    axiosClient
+      .get("/api/devices/?method=GET&query=getDevices")
+      .then(({ data }) => {
+        setDevices(data.data);
+      });
   }, []);
 
   // useEffect(() => {

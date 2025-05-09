@@ -135,7 +135,7 @@ function DevicesTable() {
       <>
         <Input
           label="ID устройства"
-          value={device.device_id?.toString() ?? ""}
+          value={device.device_id ?? ""}
           disabled
         ></Input>
         <Input
@@ -171,7 +171,7 @@ function DevicesTable() {
         <Input
           label="Идентификатор устройства"
           variant="bordered"
-          value={device.device_id?.toString() ?? ""}
+          value={device.device_id ?? ""}
           isDisabled
         ></Input>
         <Input
@@ -274,7 +274,7 @@ function DevicesTable() {
       <>
         <Input
           label="ID устройства"
-          value={device.device_id?.toString() ?? ""}
+          value={device.device_id ?? ""}
           disabled
         ></Input>
         <Input

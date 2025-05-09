@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Chart from "../../components/Chart";
 import RoomDetails from "./RoomDetails";
 
@@ -119,6 +119,16 @@ const co2Data = [
 
 function RoomData() {
   const chartRefs = useRef<(HTMLDivElement & ChartRef)[]>([]);
+  //An array of objects of arrays of data
+  type DataPoint = {
+    y: number;
+    dateTime: string;
+  };
+  type Data = {
+    [key: string]: DataPoint[];
+  };
+  type DataArray = Data[];
+  const [data, setData] = useState<DataArray>([]);
 
   useEffect(() => {
     const handleFullScreenChange = () => {

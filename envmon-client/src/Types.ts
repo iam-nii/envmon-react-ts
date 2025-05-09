@@ -43,7 +43,7 @@ interface Room {
 type Rooms = Room[];
 
 interface device {
-  device_id?: number;
+  device_id?: string;
   deviceName?: string | null;
   zoneNum?: number;
   reqInterval?: number;

@@ -9,12 +9,20 @@ function RoomDevices() {
   const navigate = useNavigate();
   const { devices } = useDeviceContext();
   const { rooms } = useRoomContext();
-  const { room_id } = useParams();
+  const { room_id, device_id, reqInterval } = useParams();
   const [room_id_, setRoom_id_] = useState<number>(Number(room_id));
+  const [device_id_, setDevice_id_] = useState<string>(device_id!);
+  const [reqInterval_, setReqInterval_] = useState<number>(Number(reqInterval));
   const [roomDevices, setRoomDevices] = useState<Devices>([]);
   useEffect(() => {
     setRoom_id_(Number(room_id));
   }, [room_id]);
+  useEffect(() => {
+    setDevice_id_(device_id!);
+  }, [device_id]);
+  useEffect(() => {
+    setReqInterval_(Number(reqInterval));
+  }, [reqInterval]);
 
   useEffect(() => {
     console.log(room_id_);
@@ -29,7 +37,7 @@ function RoomDevices() {
 
   const handleDevicePress = (device: device) => {
     console.log(device);
-    navigate(`/admin/data/${device.device_id}`);
+    navigate(`/admin/data/${room_id_}/${device_id_}/${reqInterval_}`);
   };
   return (
     <>
