@@ -74,7 +74,7 @@ const router = createHashRouter([
         element: <RoomData />,
       },
       {
-        path: "/admin/room/devices/:room_id/:device_id/:reqInterval",
+        path: "/admin/room/devices/:room_id/:device_id",
         element: <RoomDevices />,
       },
       {

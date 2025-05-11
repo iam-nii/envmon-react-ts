@@ -1,90 +1,125 @@
 import HighchartsReact from "highcharts-react-official";
-import Highcharts from "highcharts";
+import Highcharts from "highcharts/highstock";
+
+interface SeriesData {
+  y: number;
+  dateTime: string;
+}
 
 type ChartProps = {
-  type: string;
-  title: string;
-  data: Array<{ y: number; dateTime: string }>;
-  max: number;
-  min: number;
-  yAxisTitle: string;
+  data: SeriesData[] | SeriesData[][];
+  max: number | number[];
+  min: number | number[];
+  yAxisTitle?: string | string[];
+  roomNumber: string;
+  colors?: string[];
 };
-interface CustomTooltipContext extends Highcharts.Point {
-  x: number;
-  y: number;
-  point: {
-    index: number;
-  };
-}
-function Chart({ type, title, data, max, min, yAxisTitle }: ChartProps) {
+function Chart({ data, max, min, yAxisTitle, roomNumber, colors }: ChartProps) {
+  const seriesData = Array.isArray(data[0])
+    ? (data as SeriesData[][])
+    : ([data] as SeriesData[][]);
+
+  // Noramilze other parameters
+  const maxValues = Array.isArray(max) ? max : [max];
+  const minValues = Array.isArray(min) ? min : [min];
+  const yAxisTitles = Array.isArray(yAxisTitle) ? yAxisTitle : [yAxisTitle];
+
   const options = {
     chart: {
-      type: type,
+      type: "spline",
       height: "65%",
-      legend: {
-        enabled: false,
+      events: {
+        load: function () {
+          // seriesData[0] = this.
+        },
       },
     },
     title: {
-      text: title,
-      align: "left",
+      text: `Тренд измерения параметров микроклимата производственного помещения ${roomNumber}`,
     },
     xAxis: {
-      title: {
-        text: "Номер замера",
-      },
-      tickInterval: 1, // Ensure the x-axis shows integers
-      min: 1, // Start from 1
-      max: data.length, // End at the length of the data
+      type: "linear",
+      allowDecimals: false,
+      tickPixelInterval: 1.0,
     },
-    yAxis: {
-      title: {
-        text: yAxisTitle,
-      },
-      max: max + 1,
-      min: min - 1,
-      plotLines: [
-        {
-          color: "red",
-          value: max,
-          width: 2,
-          zIndex: 5,
-          label: {
-            text: "Максимальное значение",
-            align: "left",
-            style: {
-              color: "red",
-            },
-          },
-        },
-        {
-          color: "red",
-          value: min,
-          width: 2,
-          zIndex: 5,
-          label: {
-            text: "Минимальное значение",
-            align: "left",
-            style: {
-              color: "red",
-            },
-          },
-        },
-      ],
-    },
-    series: [
+    yAxis: [
       {
-        data: data.map((point) => point.y),
+        title: {
+          text: "",
+          top: "25%",
+          height: "24%",
+          offset: 0,
+          lineWidth: 1,
+          min: 0,
+          max: 80,
+          plotLines: [
+            {
+              value: 0,
+              width: 1,
+              color: "#a5a5a5",
+            },
+          ],
+          plotBands: [
+            {
+              color: "#FCFFC5",
+              from: 0,
+              to: 80,
+              id: "",
+              label: {
+                text: "",
+                y: -5,
+                style: {
+                  color: " blue",
+                  fontWeight: "bold",
+                  "z-index": 1,
+                },
+              },
+            },
+          ],
+        },
       },
     ],
-    tooltip: {
-      formatter: function (this: CustomTooltipContext) {
-        const dateTime = data[this.point.index].dateTime;
-        return `<b>Замер ${this.x}</b><br/>${yAxisTitle}: ${this.y}<br/>Дата/Время: ${dateTime}`;
+    // the series will be a list of objects passed in the props with the following properties
+    series: [
+      {
+        name: "parameter_alias, unit of measurement",
+        width: 3,
+        color: "",
+        data: seriesData[0],
+        yAxis: 0, //0,1,2,3,4
       },
+    ],
+    legend: {
+      enabled: true,
+      itemStyle: {
+        color: "#333",
+        fontWeight: "bold",
+      },
+      itemHoverStyle: {
+        color: "#000",
+      },
+      layout: "horizontal",
+      align: "center",
+      verticalAlign: "bottom",
+    },
+    exporting: {
+      enabled: false,
+    },
+    credits: {
+      enabled: false,
+    },
+    tooltip: {
+      headerFormat: "",
+      pointFormat: "{point.x:%H:%M:%S} <b>{point.y:.2f}</b>",
     },
   };
-  return <HighchartsReact highcharts={Highcharts} options={options} />;
+  return (
+    <HighchartsReact
+      highcharts={Highcharts}
+      constructorType={"stockChart"}
+      options={options}
+    />
+  );
 }
 
 export default Chart;

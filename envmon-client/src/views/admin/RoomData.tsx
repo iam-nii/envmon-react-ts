@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import Chart from "../../components/Chart";
 import RoomDetails from "./RoomDetails";
 
@@ -120,15 +120,15 @@ const co2Data = [
 function RoomData() {
   const chartRefs = useRef<(HTMLDivElement & ChartRef)[]>([]);
   //An array of objects of arrays of data
-  type DataPoint = {
-    y: number;
-    dateTime: string;
-  };
-  type Data = {
-    [key: string]: DataPoint[];
-  };
-  type DataArray = Data[];
-  const [data, setData] = useState<DataArray>([]);
+  // type DataPoint = {
+  //   y: number;
+  //   dateTime: string;
+  // };
+  // type Data = {
+  //   [key: string]: DataPoint[];
+  // };
+  // type DataArray = Data[];
+  // const [data, setData] = useState<DataArray>([]);
 
   useEffect(() => {
     const handleFullScreenChange = () => {
@@ -177,19 +177,25 @@ function RoomData() {
           }
         }}
         className="w-[75vw] h-[800px] cursor-pointer"
-        onClick={() => toggleFullScreen(chartRefs.current[0])}
+        // onClick={() => toggleFullScreen(chartRefs.current[0])}
+        onDoubleClick={() => toggleFullScreen(chartRefs.current[0])}
       >
         <Chart
-          type="spline"
-          title="График изменения температуры"
-          data={tempData}
-          max={25}
-          min={22}
-          yAxisTitle="Температура, °C"
+          roomNumber="1"
+          data={[tempData, humidityData, lightData, vocData, co2Data]}
+          max={[25, 60, 110, 10, 500]}
+          min={[22, 40, 100, 0, 400]}
+          yAxisTitle={[
+            "Температура, °C",
+            "Влажность, %",
+            "Освещенность, лк",
+            "VOC, ppm",
+            "CO₂, ppm",
+          ]}
         />
       </div>
 
-      {/* Humidity Chart */}
+      {/* Humidity Chart
       <div
         ref={(el) => {
           if (el) {
@@ -210,7 +216,7 @@ function RoomData() {
       </div>
 
       {/* Light Chart */}
-      <div
+      {/* <div
         ref={(el) => {
           if (el) {
             chartRefs.current[2] = el;
@@ -227,10 +233,10 @@ function RoomData() {
           min={100}
           yAxisTitle="Освещенность, лк"
         />
-      </div>
+      </div> */}
 
       {/* Wind Speed Chart */}
-      <div
+      {/* <div
         ref={(el) => {
           if (el) {
             chartRefs.current[3] = el;
@@ -247,10 +253,10 @@ function RoomData() {
           min={0}
           yAxisTitle="VOC, ppm"
         />
-      </div>
+      </div> */}
 
       {/* CO2 Chart */}
-      <div
+      {/* <div
         ref={(el) => {
           if (el) {
             chartRefs.current[4] = el;
@@ -267,7 +273,7 @@ function RoomData() {
           min={400}
           yAxisTitle="CO2, ppm"
         />
-      </div>
+      </div> */}
     </div>
   );
 }

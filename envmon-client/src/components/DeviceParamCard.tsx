@@ -6,7 +6,6 @@ import { Card, CardBody, CardHeader } from "@heroui/react";
 import { useEffect, useState } from "react";
 import axiosClient from "../axiosClient";
 import ParameterReading from "./ParameterReading";
-import { DeviceLogData } from "./classes/DeviceLogData";
 
 type DeviceParamCardTypes = {
   room: Room;
@@ -17,7 +16,6 @@ function DeviceParamCard({ room }: DeviceParamCardTypes) {
   const { users } = useUserContext();
   const { devices } = useDeviceContext();
   const [deviceID, setDeviceID] = useState<string>();
-  const [reqInterval, setReqInterval] = useState<number>();
   const [deviceParams, setDeviceParams] = useState<
     (recievedData | undefined)[]
   >([]);
@@ -62,27 +60,27 @@ function DeviceParamCard({ room }: DeviceParamCardTypes) {
       });
     console.log("device_id", device_id);
     // api/devices/?method=GET&query=getInterval&id=n0G79nWmp6sm3ZYO
-    if (device_id) {
-      axiosClient
-        .get(`/api/devices/?method=GET&query=getInterval&id=${device_id}`)
-        .then(({ data }) => {
-          console.log("reqInterval", data, device_id);
-          const reqInterval = data.data.reqInterval;
-          setReqInterval(reqInterval);
-        });
-    }
+    // if (device_id) {
+    //   axiosClient
+    //     .get(`/api/devices/?method=GET&query=getInterval&id=${device_id}`)
+    //     .then(({ data }) => {
+    //       console.log("reqInterval", data, device_id);
+    //       const reqInterval = data.data.reqInterval;
+    //       setReqInterval(reqInterval);
+    //     });
+    // }
   };
 
-  useEffect(() => {
-    console.log("reqInterval", reqInterval);
-    const logData = new DeviceLogData(deviceID!, room.roomNumber, reqInterval!);
-    if (reqInterval && reqInterval > 0) {
-      logData.getLogData();
-    }
-  }, [reqInterval, deviceID]);
+  // useEffect(() => {
+  //   console.log("reqInterval", reqInterval);
+  //   const logData = new DeviceLogData(deviceID!, room.roomNumber, reqInterval!);
+  //   if (reqInterval && reqInterval > 0) {
+  //     logData.getLogData();
+  //   }
+  // }, [reqInterval, deviceID]);
 
   const handlePress = (room: Room) => {
-    navigate(`/admin/room/devices/${room.room_id}/${deviceID}/${reqInterval}`);
+    navigate(`/admin/room/devices/${room.room_id}/${deviceID}`);
   };
   return (
     <div>

@@ -14,6 +14,7 @@ function RoomDevices() {
   const [device_id_, setDevice_id_] = useState<string>(device_id!);
   const [reqInterval_, setReqInterval_] = useState<number>(Number(reqInterval));
   const [roomDevices, setRoomDevices] = useState<Devices>([]);
+
   useEffect(() => {
     setRoom_id_(Number(room_id));
   }, [room_id]);

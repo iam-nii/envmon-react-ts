@@ -12,6 +12,12 @@ export default defineConfig(({ mode }) => {
           target: "http://localhost/pdn1",
           // target: "https://sapr3.lti-gti.ru/pdn1/",
         },
+        "/envmon": {
+          target: "http://localhost/pdn1/",
+          // target: "https://sapr3.lti-gti.ru/pdn1/",
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/envmon/, "/envmon"),
+        },
       },
     },
     base: env.VITE_IS_PRODUCTION
