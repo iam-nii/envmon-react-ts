@@ -70,7 +70,7 @@ const router = createHashRouter([
         element: <ParamsRegulations />,
       },
       {
-        path: "/admin/data/:room_id/:device_id/:reqInterval",
+        path: "/admin/data/:room_id/:device_id",
         element: <RoomData />,
       },
       {

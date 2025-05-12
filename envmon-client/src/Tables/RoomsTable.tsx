@@ -25,7 +25,7 @@ import axiosClient from "../axiosClient";
 import { useUserContext } from "../context/UserContextProvider";
 import { useRoomContext } from "../context/RoomContextProvider";
 import { useDeviceContext } from "../context/DeviceContextProvider";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { Room } from "../Types";
 const COLUMNS = [
   { name: "Номер помещения", uid: "roomNumber" },
@@ -44,7 +44,7 @@ type RoomPropsType = {
 };
 
 function RoomsTable({ isAdmin }: RoomPropsType) {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const { users } = useUserContext();
   const { rooms, setRooms } = useRoomContext();
   const { devices, setDevices } = useDeviceContext();
@@ -58,7 +58,7 @@ function RoomsTable({ isAdmin }: RoomPropsType) {
     isOpen: isViewOpen,
     onOpen: onViewOpen,
     onOpenChange: onViewOpenChange,
-    onClose: onViewClose,
+    // onClose: onViewClose,
   } = useDisclosure();
 
   // Edit Modal
@@ -325,10 +325,10 @@ function RoomsTable({ isAdmin }: RoomPropsType) {
         }
       });
   };
-  const handleShowParams = () => {
-    onViewClose();
-    navigate(`/admin/data/${selectedRoom!.room_id}`);
-  };
+  // const handleShowParams = () => {
+  //   onViewClose();
+  //   navigate(`/admin/data/${selectedRoom!.room_id}`);
+  // };
   const handleDeleteRoom = () => {
     axiosClient
       .get(`/api/rooms/?method=DELETE&id=${selectedRoom!.room_id}`)
@@ -457,16 +457,20 @@ function RoomsTable({ isAdmin }: RoomPropsType) {
                   disabled
                 />
                 <Input
-                  label="Площадь, м2"
+                  label={
+                    <>
+                      Площадь, м<sup>2</sup>
+                    </>
+                  }
                   value={selectedRoom!.area.toString()}
                   disabled
                 />
                 <Input label="Устройства" value={devicesString} disabled />
               </ModalBody>
               <ModalFooter>
-                <Button color="primary" onPress={handleShowParams}>
+                {/* <Button color="primary" onPress={handleShowParams}>
                   Показать изменения параметров
-                </Button>
+                </Button> */}
                 <Button onPress={onViewClose} color="success">
                   Закрыть
                 </Button>
@@ -529,7 +533,11 @@ function RoomsTable({ isAdmin }: RoomPropsType) {
                 />
                 <div className="flex flex-row gap-2">
                   <Input
-                    label="Площадь, м2"
+                    label={
+                      <>
+                        Площадь, м<sup>2</sup>
+                      </>
+                    }
                     type="number"
                     disabled
                     value={editedRoom.area.toString()}
@@ -624,13 +632,17 @@ function RoomsTable({ isAdmin }: RoomPropsType) {
                 />
                 <div className="flex flex-row gap-2">
                   <Input
-                    label="Площадь"
+                    label={
+                      <>
+                        Площадь, м<sup>2</sup>
+                      </>
+                    }
                     type="number"
                     disabled
                     value={selectedRoom!.area.toString()}
                   />
                   <Input
-                    label="Длина"
+                    label="Длина, м"
                     value={selectedRoom!.length.toString()}
                     type="number"
                     disabled
@@ -638,13 +650,13 @@ function RoomsTable({ isAdmin }: RoomPropsType) {
                 </div>
                 <div className="flex flex-row gap-2">
                   <Input
-                    label="Ширина"
+                    label="Ширина, м"
                     value={selectedRoom!.width.toString()}
                     type="number"
                     disabled
                   />
                   <Input
-                    label="Высота"
+                    label="Высота, м"
                     value={selectedRoom!.height.toString()}
                     type="number"
                     disabled

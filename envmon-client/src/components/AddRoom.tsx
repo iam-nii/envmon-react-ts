@@ -160,13 +160,17 @@ function AddRoom({ setError, setSuccess, error, success }: AddRoomType) {
                 />
                 <div className="flex flex-row gap-2">
                   <Input
-                    label="Площадь"
+                    label={
+                      <>
+                        Площадь, м<sup>2</sup>
+                      </>
+                    }
                     disabled
                     variant="bordered"
                     value={roomPayload.area.toString()}
                   />
                   <Input
-                    label="Высота"
+                    label="Высота, м"
                     type="number"
                     variant="bordered"
                     value={roomPayload.height.toString()}
@@ -180,7 +184,7 @@ function AddRoom({ setError, setSuccess, error, success }: AddRoomType) {
                 </div>
                 <div className="flex flex-row gap-2">
                   <Input
-                    label="Ширина"
+                    label="Ширина, м"
                     type="number"
                     variant="bordered"
                     value={roomPayload.width.toString()}
@@ -192,7 +196,7 @@ function AddRoom({ setError, setSuccess, error, success }: AddRoomType) {
                     }}
                   />
                   <Input
-                    label="Длина"
+                    label="Длина, м"
                     type="number"
                     variant="bordered"
                     value={roomPayload.length.toString()}

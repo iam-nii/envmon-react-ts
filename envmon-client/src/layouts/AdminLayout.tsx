@@ -63,12 +63,6 @@ function AdminLayout() {
           >
             Параметры / Регламенты
           </Link>
-          <Link
-            to="/admin/settings"
-            className="hover:bg-slate-200 p-4 text-start font-bold rounded-lg"
-          >
-            Настройки
-          </Link>
         </aside>
         <div className="w-full">
           <Navbar className="bg-blue-50 border-b-2 border-slate-200">
