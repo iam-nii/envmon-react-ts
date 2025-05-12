@@ -389,7 +389,10 @@ function RoomDetails() {
             const newData = {
               ...filteredData!,
               batch_num: num,
-              dateTime: new Date().toLocaleString(),
+              dateTime: new Date()
+                .toISOString()
+                .replace("T", " ")
+                .split(".")[0],
             };
             setLogData((prev) => [...prev, newData as DataItem]);
             // this.logData.push(filteredData);
