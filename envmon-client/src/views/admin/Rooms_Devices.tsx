@@ -19,7 +19,7 @@ const Rooms = () => {
         selectedKey={selected}
         onSelectionChange={(key) => setSelected(key as string)}
       >
-        <Tab key="addRoom" title="Добавить помещение">
+        <Tab key="addRoom" title="Помещения">
           <AddRoom
             setSelected={setSelected}
             setError={setError}
@@ -28,7 +28,7 @@ const Rooms = () => {
             success={success}
           />
         </Tab>
-        <Tab key="addDevice" title="Добавить устройство">
+        <Tab key="addDevice" title="Устройства мониторинга">
           <AddDevice
             setSelected={setSelected}
             setError={setError}

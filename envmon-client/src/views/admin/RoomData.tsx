@@ -180,19 +180,19 @@ function RoomData() {
         // onClick={() => toggleFullScreen(chartRefs.current[0])}
         onDoubleClick={() => toggleFullScreen(chartRefs.current[0])}
       >
-        <Chart
+        {/* <Chart
           roomNumber="1"
           data={[tempData, humidityData, lightData, vocData, co2Data]}
-          max={[25, 60, 110, 10, 500]}
-          min={[22, 40, 100, 0, 400]}
-          yAxisTitle={[
-            "Температура, °C",
-            "Влажность, %",
-            "Освещенность, лк",
-            "VOC, ppm",
-            "CO₂, ppm",
-          ]}
-        />
+          // max={[25, 60, 110, 10, 500]}
+          // min={[22, 40, 100, 0, 400]}
+          // yAxisTitle={[
+          //   "Температура, °C",
+          //   "Влажность, %",
+          //   "Освещенность, лк",
+          //   "VOC, ppm",
+          //   "CO₂, ppm",
+          // ]}
+        /> */}
       </div>
 
       {/* Humidity Chart

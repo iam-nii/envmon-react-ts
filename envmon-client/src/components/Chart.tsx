@@ -1,215 +1,80 @@
 import HighchartsReact from "highcharts-react-official";
 import Highcharts from "highcharts/highstock";
+import { useEffect, useRef, useState } from "react";
 
-interface SeriesData {
+type DataPoint = {
   y: number;
-  dateTime: string;
-}
+  batch_num: number;
+};
+type GraphData = {
+  [title: string]: {
+    data?: DataPoint[] | null;
+    max: number;
+    min: number;
+  };
+};
 type ChartProps = {
-  data: SeriesData[] | SeriesData[][];
-  max: number | number[];
-  min: number | number[];
-  yAxisTitle?: string | string[];
+  data: GraphData[];
+  // max: number | number[];
+  // min: number | number[];
+  // yAxisTitle?: string | string[];
   roomNumber: string;
-  colors?: string[];
+  // colors?: string[];
 };
 function Chart({ data, roomNumber }: ChartProps) {
-  const seriesData = Array.isArray(data[0])
-    ? (data as SeriesData[][])
-    : ([data] as SeriesData[][]);
+  const [DATA, setDATA] = useState<GraphData[]>([]);
+  const chartRef = useRef<HighchartsReact.RefObject>(null);
+  useEffect(() => {
+    console.log(data);
+  }, []);
+  useEffect(() => {
+    if (!DATA.length) return;
 
-  // const DATA: DataItem[] = [
-  //   // {
-  //   //     id: 20,
-  //   //     dateTime: "2023-10-01 12:00",
-  //   //     temperature: 23.2,
-  //   //     humidity: 51,
-  //   //     light: 105,
-  //   //     voc: 0,
-  //   //     co2: 414,
-  //   // },
-  //   {
-  //     batch_num: 19,
-  //     dateTime: "2023-10-01 12:00",
-  //     temperature: 23.2,
-  //     humidity: 51,
-  //     light: 105,
-  //     voc: 3,
-  //     co2: 414,
-  //   },
-  //   {
-  //     batch_num: 18,
-  //     dateTime: "2023-10-01 12:00",
-  //     temperature: 23.0,
-  //     humidity: 51,
-  //     light: 105,
-  //     voc: 1,
-  //     co2: 414,
-  //   },
-  //   {
-  //     batch_num: 17,
-  //     dateTime: "2023-10-01 12:00",
-  //     temperature: 23.1,
-  //     humidity: 51,
-  //     light: 105,
-  //     voc: 4,
-  //     co2: 414,
-  //   },
-  //   {
-  //     batch_num: 16,
-  //     dateTime: "2023-10-01 12:00",
-  //     temperature: 22.9,
-  //     humidity: 51,
-  //     light: 105,
-  //     voc: 1,
-  //     co2: 414,
-  //   },
-  //   {
-  //     batch_num: 15,
-  //     dateTime: "2023-10-01 12:00",
-  //     temperature: 23.2,
-  //     humidity: 51,
-  //     light: 105,
-  //     voc: 0,
-  //     co2: 414,
-  //   },
-  //   {
-  //     batch_num: 14,
-  //     dateTime: "2023-10-01 12:00",
-  //     temperature: 23.0,
-  //     humidity: 51,
-  //     light: 105,
-  //     voc: 4,
-  //     co2: 414,
-  //   },
-  //   {
-  //     batch_num: 13,
-  //     dateTime: "2023-10-01 12:00",
-  //     temperature: 23.1,
-  //     humidity: 51,
-  //     light: 105,
-  //     voc: 3,
-  //     co2: 414,
-  //   },
-  //   {
-  //     batch_num: 12,
-  //     dateTime: "2023-10-01 12:00",
-  //     temperature: 22.8,
-  //     humidity: 51,
-  //     light: 105,
-  //     voc: 7,
-  //     co2: 414,
-  //   },
-  //   {
-  //     batch_num: 11,
-  //     dateTime: "2023-10-01 12:00",
-  //     temperature: 23.0,
-  //     humidity: 51,
-  //     light: 105,
-  //     voc: 4,
-  //     co2: 414,
-  //   },
-  //   {
-  //     batch_num: 10,
-  //     dateTime: "2023-10-01 12:00",
-  //     temperature: 23.1,
-  //     humidity: 51,
-  //     light: 105,
-  //     voc: 2,
-  //     co2: 414,
-  //   },
-  //   {
-  //     batch_num: 9,
-  //     dateTime: "2023-10-01 12:00",
-  //     temperature: 23.2,
-  //     humidity: 50,
-  //     light: 105,
-  //     voc: 5,
-  //     co2: 414,
-  //   },
-  //   {
-  //     batch_num: 8,
-  //     dateTime: "2023-10-01 12:00",
-  //     temperature: 23.3,
-  //     humidity: 51,
-  //     light: 105,
-  //     voc: 1,
-  //     co2: 414,
-  //   },
-  //   {
-  //     batch_num: 7,
-  //     dateTime: "2023-10-01 12:00",
-  //     temperature: 23.0,
-  //     humidity: 51,
-  //     light: 105,
-  //     voc: 0,
-  //     co2: 414,
-  //   },
-  //   {
-  //     batch_num: 6,
-  //     dateTime: "2023-10-01 12:00",
-  //     temperature: 23.1,
-  //     humidity: 51,
-  //     light: 105,
-  //     voc: 0,
-  //     co2: 414,
-  //   },
-  //   {
-  //     batch_num: 5,
-  //     dateTime: "2023-10-01 12:00",
-  //     temperature: 23.2,
-  //     humidity: 52,
-  //     light: 105,
-  //     voc: 2,
-  //     co2: 414,
-  //   },
-  //   {
-  //     batch_num: 4,
-  //     dateTime: "2023-10-01 12:00",
-  //     temperature: 22.9,
-  //     humidity: 52,
-  //     light: 105,
-  //     voc: 5,
-  //     co2: 414,
-  //   },
-  //   {
-  //     batch_num: 3,
-  //     dateTime: "2023-10-01 12:00",
-  //     temperature: 23.0,
-  //     humidity: 53,
-  //     light: 105,
-  //     voc: 7,
-  //     co2: 414,
-  //   },
-  //   {
-  //     batch_num: 2,
-  //     dateTime: "2023-10-01 12:00",
-  //     temperature: 23.1,
-  //     humidity: 53,
-  //     light: 105,
-  //     voc: 7,
-  //     co2: 414,
-  //   },
-  //   {
-  //     batch_num: 1,
-  //     dateTime: "2023-10-01 12:00",
-  //     temperature: 23.0,
-  //     humidity: 52,
-  //     light: 105,
-  //     voc: 0,
-  //     co2: 414,
-  //   },
-  // ];
+    // Find max batch_num across all series
+    const maxBatch = Math.max(
+      ...DATA.flatMap((item) => {
+        const title = Object.keys(item)[0];
+        return item[title[0]]?.data?.map((dp) => dp.batch_num) || [];
+      }).flat()
+    );
+
+    // Access chart instance via ref (you need to add a ref to HighchartsReact)
+    if (chartRef.current) {
+      const chart = chartRef.current.chart;
+      const xAxis = chart.xAxis[0];
+      const visibleCount = 10; // or 20, 30 depending on your default
+
+      xAxis.setExtremes(maxBatch - visibleCount + 1, maxBatch);
+    }
+  }, [DATA]);
+
+  useEffect(() => {
+    setDATA(data);
+  }, [data]);
+
   const options = {
     chart: {
       type: "spline",
       animation: false,
       height: "65%",
-      // events: {
-      //   load: function () {
-      //     // seriesData[0] = this.
-      //   },
-      // },
+      events: {
+        load: function (this: Highcharts.Chart) {
+          // Defensive checks
+          if (!this.series || this.series.length === 0) return;
+
+          // Filter series that have data and non-empty data arrays
+          const allDataPoints = this.series
+            .filter((s) => s && s.data && s.data.length > 0)
+            .flatMap((s) => s.data.map((point) => point.x));
+
+          if (allDataPoints.length === 0) return;
+
+          const maxBatch = Math.max(...allDataPoints);
+          const minBatch = maxBatch - 10 + 1;
+
+          this.xAxis[0].setExtremes(minBatch, maxBatch);
+        },
+      },
     },
     title: {
       text: `Тренд измерения параметров микроклимата производственного помещения ${roomNumber}`,
@@ -219,14 +84,21 @@ function Chart({ data, roomNumber }: ChartProps) {
       allowDecimals: false,
       tickPixelInterval: 1.0,
     },
-    yAxis: [
-      {
+    yAxis: DATA.map((item, index) => {
+      const title = Object.keys(item);
+      const numberOfAxes = DATA.length;
+      const spacing = 0;
+      const totalSpacing = spacing * (numberOfAxes - 1);
+      const heightPerAxis = (100 - totalSpacing) / numberOfAxes;
+
+      // console.log(title);
+      return {
         title: {
-          text: "Parameter 1",
-          align: "middle", // Vertically center the title
-          rotation: 270, // Rotate text vertically
-          offset: 100, // Distance from axis line
-          x: -40, // Shift title left (increase if needed)
+          text: title,
+          align: "middle",
+          rotation: 270,
+          offset: 100,
+          x: -40,
           style: {
             color: "#333",
             fontWeight: "bold",
@@ -235,12 +107,28 @@ function Chart({ data, roomNumber }: ChartProps) {
         plotLines: [
           {
             color: "red", // Red line
-            value: 23, // Value at which to draw the line
+            value: item[title[0]].min, // Value at which to draw the line
             width: 2, // Line thickness
             zIndex: 5, // Keep above gridlines
             dashStyle: "Solid", // Optional: can be "Dash", "Dot", etc.
             label: {
-              text: "min: 20",
+              text: `min: ${item[title[0]].min}`,
+              align: "left",
+              x: 10,
+              style: {
+                color: "red",
+                // fontWeight: "bold",
+              },
+            },
+          },
+          {
+            color: "red", // Red line
+            value: item[title[0]].max, // Value at which to draw the line
+            width: 2, // Line thickness
+            zIndex: 5, // Keep above gridlines
+            dashStyle: "Solid", // Optional: can be "Dash", "Dot", etc.
+            label: {
+              text: `max: ${item[title[0]].max}`,
               align: "left",
               x: 10,
               style: {
@@ -250,46 +138,13 @@ function Chart({ data, roomNumber }: ChartProps) {
             },
           },
         ],
-        top: "0%",
-        height: "30%",
+        top: `${index * (heightPerAxis + spacing)}%`,
+        height: heightPerAxis + 60,
         offset: 0,
         lineWidth: 1,
-      },
-      {
-        title: {
-          text: "Parameter 2",
-          align: "middle", // Vertically center the title
-          rotation: 270, // Rotate text vertically
-          offset: 0, // Distance from axis line
-          x: -40, // Shift title left (increase if needed)
-          style: {
-            color: "#333",
-            fontWeight: "bold",
-          },
-        },
-        top: "33%",
-        height: "30%",
-        offset: 0,
-        lineWidth: 1,
-      },
-      {
-        title: {
-          text: "Parameter 3",
-          align: "middle", // Vertically center the title
-          rotation: 270, // Rotate text vertically
-          offset: 0, // Distance from axis line
-          x: -40,
-          style: {
-            color: "#333",
-            fontWeight: "bold",
-          },
-        },
-        top: "66%",
-        height: "30%",
-        offset: 0,
-        lineWidth: 1,
-      },
-    ],
+      };
+    }),
+
     plotOptions: {
       spline: {
         lineWidth: 2,
@@ -305,30 +160,21 @@ function Chart({ data, roomNumber }: ChartProps) {
     },
 
     // the series will be a list of objects passed in the props with the following properties
-    series: [
-      {
-        name: "parameter_alias, unit of measurement",
+    series: DATA.map((item, index) => {
+      const title = Object.keys(item);
+      console.log(item[title[0]]);
+      return {
+        name: `${title}`,
         width: 3,
         color: "",
-        data: seriesData[0],
-        yAxis: 0, //0,1,2,3,4
-      },
-      {
-        name: "parameter_alias, unit of measurement",
-        width: 3,
-        color: "",
-        data: seriesData[1],
-        yAxis: 1, //0,1,2,3,4
-      },
-
-      {
-        name: "parameter_alias, unit of measurement",
-        width: 3,
-        color: "",
-        data: seriesData[2],
-        yAxis: 2, //0,1,2,3,4
-      },
-    ],
+        data:
+          item[title[0]]?.data?.map((dp: DataPoint) => ({
+            x: dp.batch_num,
+            y: dp.y,
+          })) || [],
+        yAxis: index,
+      };
+    }),
     legend: {
       enabled: true,
       itemStyle: {
@@ -348,9 +194,43 @@ function Chart({ data, roomNumber }: ChartProps) {
     credits: {
       enabled: false,
     },
+    navigator: {
+      enabled: false,
+    },
     tooltip: {
       headerFormat: "",
-      pointFormat: "{point.x:%H:%M:%S} <b>{point.y:.2f}</b>",
+      pointFormat: "Batch: {point.x} <b>{point.y:.2f}</b>",
+    },
+    rangeSelector: {
+      enabled: true,
+      allButtonsEnabled: true,
+      selected: 0, // Default selected button (0 = first button)
+      buttons: [
+        {
+          type: "x",
+          count: 10,
+          text: "10",
+        },
+        {
+          type: "x",
+          count: 20,
+          text: "20",
+        },
+        {
+          type: "x",
+          count: 30,
+          text: "30",
+        },
+        {
+          type: "all",
+          text: "All",
+        },
+      ],
+      buttonTheme: {
+        // Optional: style your buttons
+        width: 40,
+      },
+      inputEnabled: false, // Hide date inputs if not needed
     },
   };
   return (

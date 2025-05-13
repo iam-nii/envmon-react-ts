@@ -19,7 +19,7 @@ const ParamsRegulations = () => {
         selectedKey={selected}
         onSelectionChange={(key) => setSelected(key as string)}
       >
-        <Tab key="addParam" title="Добавить параметр">
+        <Tab key="addParam" title="Параметры">
           <AddParam
             setSelected={setSelected}
             setError={setError}
@@ -28,7 +28,7 @@ const ParamsRegulations = () => {
             success={success}
           />
         </Tab>
-        <Tab key="addRegulation" title="Добавить регламент">
+        <Tab key="addRegulation" title="Регламенты">
           <AddRegulation />
         </Tab>
       </Tabs>

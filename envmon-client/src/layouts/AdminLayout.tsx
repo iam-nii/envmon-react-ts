@@ -67,7 +67,9 @@ function AdminLayout() {
         <div className="w-full">
           <Navbar className="bg-blue-50 border-b-2 border-slate-200">
             <NavbarBrand>
-              <p className="text-xl font-bold">EnvMon</p>
+              <p className="text-xl font-bold">
+                АИС мониторинга микроклимата производственных помещений
+              </p>
             </NavbarBrand>
             <NavbarContent className="hidden sm:flex gap-6 " justify="end">
               <NavbarItem className="flex flex-row gap-2 items-center ">

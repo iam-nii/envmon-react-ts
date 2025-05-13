@@ -145,7 +145,7 @@ function AddDevice({
                   }}
                 />
                 <Input
-                  label="Интервал запроса"
+                  label="Интервал опроса"
                   variant="bordered"
                   value={devicePayload.reqInterval.toString()}
                   type="number"
@@ -159,7 +159,7 @@ function AddDevice({
                   }}
                 />
                 <Select
-                  label="Номер помещения"
+                  label="Помещение"
                   placeholder="Выберите помещение"
                   variant="bordered"
                   selectedKeys={

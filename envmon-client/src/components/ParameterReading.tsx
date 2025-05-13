@@ -31,7 +31,7 @@ function ParameterReading({ techReg_id }: ParameterReadingType) {
           reading: reading.logValue,
           color:
             reading.logValue > maxReading! || reading.logValue < minReading!
-              ? "text-red-500"
+              ? "text-red-700"
               : "text-green-500",
         }));
         // console.log(readings);

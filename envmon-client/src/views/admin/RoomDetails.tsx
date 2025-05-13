@@ -13,6 +13,7 @@ import { useParams } from "react-router-dom";
 import axiosClient from "../../axiosClient";
 import { Params } from "../../Types";
 import { useRoomContext } from "../../context/RoomContextProvider";
+import Chart from "../../components/Chart";
 
 interface DataItem {
   // batch_num: number;
@@ -279,7 +280,7 @@ function RoomDetails() {
       .then(async ({ data }) => {
         const response = data.data;
         const newParameters = response.map((param: Params) => ({
-          name: `${param.parameter_name} (${param.unitOfMeasure})`,
+          name: `${param.parameter_alias} (${param.unitOfMeasure})`,
           uid: param.parameter_alias,
           techReg_id: param.techReg_id,
         }));
@@ -336,7 +337,7 @@ function RoomDetails() {
       //check if "id" and "dateTime" are in the parameters array
       if (!parameters.some((param) => param.uid === "batch_num")) {
         parameters.unshift({
-          name: "Номер замера",
+          name: "№ замера",
           uid: "batch_num",
         });
       }
@@ -383,6 +384,46 @@ function RoomDetails() {
       }
     }
   }, [parameters, maxMinData]);
+
+  interface ChartRef {
+    chart?: {
+      reflow: () => void;
+    };
+  }
+  const chartRefs = useRef<(HTMLDivElement & ChartRef)[]>([]);
+
+  useEffect(() => {
+    const handleFullScreenChange = () => {
+      if (!document.fullscreenElement) {
+        // Reflow charts when exiting fullscreen
+        chartRefs.current.forEach((chartRef) => {
+          if (chartRef?.chart) {
+            chartRef.chart.reflow();
+          }
+        });
+        document.body.style.overflow = ""; // Restore scrolling
+      }
+    };
+
+    document.addEventListener("fullscreenchange", handleFullScreenChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullScreenChange);
+    };
+  }, []);
+
+  const toggleFullScreen = (current: HTMLDivElement | null) => {
+    if (current) {
+      if (!document.fullscreenElement) {
+        // Enter fullscreen mode
+        current.requestFullscreen().catch((err) => {
+          console.error("Error entering fullscreen mode", err);
+        });
+      } else {
+        // Exit fullscreen mode
+        document.exitFullscreen();
+      }
+    }
+  };
 
   function startLogging(param_aliases: Array<string>, reqInterval: number) {
     let num = 0;
@@ -501,6 +542,7 @@ function RoomDetails() {
           </h1>
           <Table
             aria-label="Table with log data"
+            className="mb-5"
             bottomContent={
               <div className="flex w-full justify-center">
                 <Pagination
@@ -530,6 +572,26 @@ function RoomDetails() {
               ))}
             </TableBody>
           </Table>
+
+          <h1 className="text-center font-bold mb-5">
+            Графики измерения параметров помещения номер{" "}
+            {roomDetails?.roomNumber} ({roomDetails?.roomLocation})
+          </h1>
+          <div
+            ref={(el) => {
+              if (el) {
+                chartRefs.current[0] = el;
+              }
+            }}
+            className="w-[75vw] h-[800px] cursor-pointer"
+            // onClick={() => toggleFullScreen(chartRefs.current[0])}
+            onDoubleClick={() => toggleFullScreen(chartRefs.current[0])}
+          >
+            <Chart
+              data={graphData}
+              roomNumber={roomDetails?.roomNumber?.toString() || ""}
+            />
+          </div>
         </>
       )}
     </div>

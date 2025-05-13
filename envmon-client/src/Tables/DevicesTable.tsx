@@ -31,7 +31,7 @@ const COLUMNS = [
   { name: "ID устройства", uid: "device_id" },
   { name: "Название устройства", uid: "deviceName" },
   { name: "Номер зоны", uid: "zoneNum" },
-  { name: "Интервал запроса, с", uid: "reqInterval" },
+  { name: "Интервал опроса, с", uid: "reqInterval" },
   { name: "ID помещения", uid: "room_id" },
   { name: "Статус", uid: "status" },
   { name: "Действие", uid: "actions" },
@@ -149,7 +149,7 @@ function DevicesTable() {
           disabled
         ></Input>
         <Input
-          label="Интервал запроса"
+          label="Интервал опроса"
           value={device.reqInterval?.toString() ?? ""}
           disabled
         ></Input>
@@ -192,7 +192,7 @@ function DevicesTable() {
           }
         ></Input>
         <Input
-          label="Интервал запроса, с"
+          label="Интервал опроса, с"
           variant="bordered"
           value={device?.reqInterval?.toString() ?? ""}
           type="number"

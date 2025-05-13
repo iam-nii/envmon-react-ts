@@ -34,7 +34,9 @@ const SignIn = () => {
           setToken(data.data.token);
           if (data.data.user.uRole.trim() === "Администратор") {
             navigate("/admin");
-          } else if (data.data.user.uRole.trim() === "Пользователь") {
+          } else if (
+            data.data.user.uRole.trim() === "Инженер по охране труда"
+          ) {
             navigate("/engineer");
           }
         })
