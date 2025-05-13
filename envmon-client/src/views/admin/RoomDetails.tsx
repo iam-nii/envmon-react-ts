@@ -24,7 +24,14 @@ interface TableColumn {
   name: string;
   uid: string; // Ensures uid must be a key of DataItem
   techReg_id?: number;
+  max?: number;
+  min?: number;
 }
+type MaxMinData = {
+  max: number;
+  min: number;
+  techReg_id?: number;
+};
 
 // const COLUMNS: TableColumn[] = [
 //   { name: "Номер замера", uid: "id" },
@@ -232,18 +239,18 @@ interface TableColumn {
 //     min: 15,
 //   },
 // };
-// type GraphData = {
-//   [title: string]: {
-//     data: [
-//       {
-//         y: number;
-//         dateTime: string;
-//       }
-//     ];
-//     max: number;
-//     min: number;
-//   };
-// };
+
+type DataPoint = {
+  y: number;
+  batch_num: number;
+};
+type GraphData = {
+  [title: string]: {
+    data?: DataPoint[] | null;
+    max: number;
+    min: number;
+  };
+};
 function RoomDetails() {
   const { rooms } = useRoomContext();
   const [roomDetails, setRoomDetails] = useState<{
@@ -253,18 +260,13 @@ function RoomDetails() {
   const { room_id, device_id } = useParams();
   const [isLoading, setIsLoading] = useState(false);
   const [reqInterval, setReqInterval] = useState<number>();
-  // const [graphData, setGraphData] = useState<GraphData[]>([]);
-  const [maxMinData, setMaxMinData] = useState<
-    {
-      max: number;
-      min: number;
-    }[]
-  >([]);
+  const [graphData, setGraphData] = useState<GraphData[]>([]);
+  const graphDataRef = useRef<GraphData[]>(graphData);
+  const [maxMinData, setMaxMinData] = useState<MaxMinData[]>([]);
   const effectRan = useRef(false);
   const [page, setPage] = useState(1);
   const pageSize = 15;
   const [logData, setLogData] = useState<DataItem[]>([]);
-  // const [dataWithTechRegId, setDataWithTechRegId] = useState();
   const [parameters, setParameters] = useState<TableColumn[]>([
     // { name: "Номер замера", uid: "id" },
     // { name: "Дата и время", uid: "dateTime" },
@@ -282,11 +284,6 @@ function RoomDetails() {
           techReg_id: param.techReg_id,
         }));
         console.log("newParameters", newParameters);
-        // const dataWithTechRegId = newParameters.map((param: Params) => ({
-        //   name: param.parameter_name,
-        //   techReg_id: param.techReg_id,
-        // }));
-        // setDataWithTechRegId(dataWithTechRegId);
         type itemType = {
           techReg_id: number;
         };
@@ -328,84 +325,6 @@ function RoomDetails() {
     console.log("maxMinData", maxMinData);
   }, [maxMinData]);
 
-  // useEffect(() => {
-  //   const param_aliases = parameters.map((param) => param.uid);
-  //   console.log("parameters", parameters);
-  //   console.log("param_aliases", param_aliases);
-  //   // const graphData = param_aliases.map((param) => ({
-  //   //   [param]: {
-  //   //     data: [],
-  //   //     max: 0,
-  //   //     min: 0,
-  //   //   },
-  //   // }));
-
-  //   // if (reqInterval && reqInterval > 0) {
-  //   //   logData.getLogData();
-  //   // }
-  // }, [reqInterval]);
-  // }, [reqInterval, device_id, room_id]);
-
-  // useEffect(() => {
-  //   console.log("Current logData:", logData);
-  //   console.log("Current parameters:", parameters);
-  // }, [logData, parameters]);
-
-  function startLogging(param_aliases: Array<string>, reqInterval: number) {
-    let num = 0;
-    setInterval(() => {
-      axiosClient
-        .get(`/envmon/?id=${device_id}`)
-        .then(({ data }) => {
-          // Destructure only the data that is in the param_aliases array
-          // const { data: filteredData } = data;
-          // console.log("filteredData", filteredData);
-          // console.log("rest", rest);
-          // param_aliases.forEach((param) => {
-          //   console.log("param", param);
-          //   for (const key in filteredData) {
-          //     if (key === param) {
-          //       console.log("key", key);
-          //     }
-          //   }
-          // });
-
-          type LogData = {
-            [key: string]: number | string;
-          };
-          // get only the parameters that are in the param_aliases array
-          try {
-            const filteredData = param_aliases.reduce(
-              (result: LogData, prop: string) => {
-                const value = data?.data?.[prop];
-                if (value !== undefined) {
-                  result[prop] = value;
-                }
-                return result;
-              },
-              {} as LogData
-            );
-            // add id and dateTime to the filteredData
-            const newData = {
-              ...filteredData!,
-              batch_num: num,
-              dateTime: new Date()
-                .toISOString()
-                .replace("T", " ")
-                .split(".")[0],
-            };
-            setLogData((prev) => [...prev, newData as DataItem]);
-            // this.logData.push(filteredData);
-          } catch (error) {
-            console.log(error);
-          }
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-      num++;
-    }, reqInterval * 1000);
-  }
   useEffect(() => {
     setIsLoading(false);
     console.log("logData", logData);
@@ -430,15 +349,115 @@ function RoomDetails() {
     }
     if (parameters.length > 2) {
       // console.log("parameters", parameters);
+
       if (effectRan.current) return;
       effectRan.current = true;
+      parameters.forEach((param) => {
+        try {
+          const maxMinData_: MaxMinData | undefined = maxMinData.find(
+            (item) => item.techReg_id === param.techReg_id
+          );
+          if (maxMinData_) {
+            param.max = maxMinData_.max;
+            param.min = maxMinData_.min;
+          }
+        } catch {
+          // continue;
+        }
+      });
+      console.log("parameters", parameters);
       const param_aliases = parameters.map((param) => param.uid);
 
+      for (let i = 2; i < parameters.length; i++) {
+        const paramDataInit = {
+          [parameters[i].uid]: {
+            data: [],
+            max: parameters[i].max || 0,
+            min: parameters[i].min || 0,
+          },
+        };
+        setGraphData((prev) => [...prev, paramDataInit]);
+      }
       if (reqInterval && reqInterval > 0) {
         startLogging(param_aliases, reqInterval);
       }
     }
-  }, [parameters]);
+  }, [parameters, maxMinData]);
+
+  function startLogging(param_aliases: Array<string>, reqInterval: number) {
+    let num = 0;
+    setInterval(() => {
+      axiosClient
+        .get(`/envmon/?id=${device_id}`)
+        .then(({ data }) => {
+          type LogData = {
+            [key: string]: number | string;
+          };
+          // get only the parameters that are in the param_aliases array
+          try {
+            const filteredData = param_aliases.reduce(
+              (result: LogData, prop: string) => {
+                const value = data?.data?.[prop];
+                if (value !== undefined) {
+                  result[prop] = value;
+                }
+                return result;
+              },
+              {} as LogData
+            );
+            console.log("filteredData", filteredData);
+            const graphData_ = graphDataRef.current;
+            for (const key in filteredData) {
+              const paramData = graphData_.find((item) => item[key]);
+
+              // console.log("paramData", paramData);
+              if (paramData) {
+                for (const key_ in paramData) {
+                  const data = paramData[key_].data;
+                  if (data) {
+                    paramData[key_].data?.push({
+                      y: Number(filteredData[key]),
+                      batch_num: Number(filteredData.batch_num),
+                    });
+                  }
+                }
+              }
+              console.log("paramData", paramData);
+
+              // if (paramData) {
+              //   paramData.data?.data?.push({
+              //     y: Number(filteredData[key]),
+              //     batch_num: Number(filteredData.batch_num),
+              //   });
+              // }
+              // console.log("paramData", paramData);
+            }
+
+            // add id and dateTime to the filteredData
+            const newData = {
+              ...filteredData!,
+              batch_num: num,
+              dateTime: new Date()
+                .toISOString()
+                .replace("T", " ")
+                .split(".")[0],
+            };
+            setLogData((prev) => [...prev, newData as DataItem]);
+            // this.logData.push(filteredData);
+          } catch (error) {
+            console.log(error);
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+      num++;
+    }, reqInterval * 1000);
+  }
+
+  useEffect(() => {
+    graphDataRef.current = graphData;
+  }, [graphData]);
 
   useEffect(() => {
     const room = rooms.find((room) => room.room_id === Number(room_id));

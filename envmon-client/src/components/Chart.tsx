@@ -205,11 +205,11 @@ function Chart({ data, roomNumber }: ChartProps) {
       type: "spline",
       animation: false,
       height: "65%",
-      events: {
-        load: function () {
-          // seriesData[0] = this.
-        },
-      },
+      // events: {
+      //   load: function () {
+      //     // seriesData[0] = this.
+      //   },
+      // },
     },
     title: {
       text: `Тренд измерения параметров микроклимата производственного помещения ${roomNumber}`,
