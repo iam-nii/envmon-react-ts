@@ -48,6 +48,7 @@ interface device {
   zoneNum?: number;
   reqInterval?: number;
   room_id?: number | null;
+  roomNumber?: number;
   status?: boolean | number;
 }
 

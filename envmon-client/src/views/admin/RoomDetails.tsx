@@ -11,9 +11,11 @@ import {
 import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import axiosClient from "../../axiosClient";
-import { Params } from "../../Types";
+import { device, Params } from "../../Types";
 import { useRoomContext } from "../../context/RoomContextProvider";
 import Chart from "../../components/Chart";
+import { useDeviceContext } from "../../context/DeviceContextProvider";
+import { useParameterContext } from "../../context/ParameterContextProvider";
 
 interface DataItem {
   // batch_num: number;
@@ -23,6 +25,8 @@ interface DataItem {
 
 interface TableColumn {
   name: string;
+  //hr.stena@lsrgroup.ru
+  //8-921-769-32-53
   uid: string; // Ensures uid must be a key of DataItem
   techReg_id?: number;
   max?: number;
@@ -250,24 +254,28 @@ type GraphData = {
     data?: DataPoint[] | null;
     max: number;
     min: number;
+    uom: string;
   };
 };
 function RoomDetails() {
+  const pageSize = 15;
+  const effectRan = useRef(false);
+  const [page, setPage] = useState(1);
   const { rooms } = useRoomContext();
+  const { devices } = useDeviceContext();
+  const { parameters: parameters_ } = useParameterContext();
+  const { room_id, device_id } = useParams();
+  const [isLoading, setIsLoading] = useState(false);
+  const [logData, setLogData] = useState<DataItem[]>([]);
+  const [reqInterval, setReqInterval] = useState<number>();
+  const [graphData, setGraphData] = useState<GraphData[]>([]);
+  const [maxMinData, setMaxMinData] = useState<MaxMinData[]>([]);
+  const [device, setDevice] = useState<device | undefined>(undefined);
+  const graphDataRef = useRef<GraphData[]>(graphData);
   const [roomDetails, setRoomDetails] = useState<{
     roomNumber: number;
     roomLocation: string;
   } | null>(null);
-  const { room_id, device_id } = useParams();
-  const [isLoading, setIsLoading] = useState(false);
-  const [reqInterval, setReqInterval] = useState<number>();
-  const [graphData, setGraphData] = useState<GraphData[]>([]);
-  const graphDataRef = useRef<GraphData[]>(graphData);
-  const [maxMinData, setMaxMinData] = useState<MaxMinData[]>([]);
-  const effectRan = useRef(false);
-  const [page, setPage] = useState(1);
-  const pageSize = 15;
-  const [logData, setLogData] = useState<DataItem[]>([]);
   const [parameters, setParameters] = useState<TableColumn[]>([
     // { name: "Номер замера", uid: "id" },
     // { name: "Дата и время", uid: "dateTime" },
@@ -320,6 +328,7 @@ function RoomDetails() {
           setReqInterval(reqInterval);
         });
     }
+    setDevice(devices.find((device) => device.device_id === device_id));
   }, [device_id]);
 
   useEffect(() => {
@@ -335,14 +344,15 @@ function RoomDetails() {
   useEffect(() => {
     try {
       //check if "id" and "dateTime" are in the parameters array
-      if (!parameters.some((param) => param.uid === "batch_num")) {
-        parameters.unshift({
-          name: "№ замера",
-          uid: "batch_num",
-        });
-      }
+
       if (!parameters.some((param) => param.uid === "dateTime")) {
         parameters.unshift({ name: "Дата и время", uid: "dateTime" });
+      }
+      if (!parameters.some((param) => param.uid === "batch_num")) {
+        parameters.unshift({
+          name: "№ п/п",
+          uid: "batch_num",
+        });
       }
       // console.log("parameters", parameters);
     } catch (error) {
@@ -370,11 +380,25 @@ function RoomDetails() {
       const param_aliases = parameters.map((param) => param.uid);
 
       for (let i = 2; i < parameters.length; i++) {
+        // const paramDataInit = {
+        //   [parameters[i].uid]: {
+        //     data: [],
+        //     max: parameters[i].max || 0,
+        //     min: parameters[i].min || 0,
+        //   },
+        // };
+
+        // setUnitOfMeasure(UOM);
+        const UOM = parameters_.find(
+          (param) => param.techReg_id === parameters[i].techReg_id
+        )?.unitOfMeasure;
+        console.log("UOM", UOM);
         const paramDataInit = {
-          [parameters[i].uid]: {
+          [`${parameters[i].uid}`]: {
             data: [],
             max: parameters[i].max || 0,
             min: parameters[i].min || 0,
+            uom: "",
           },
         };
         setGraphData((prev) => [...prev, paramDataInit]);
@@ -383,7 +407,7 @@ function RoomDetails() {
         startLogging(param_aliases, reqInterval);
       }
     }
-  }, [parameters, maxMinData]);
+  }, [parameters, maxMinData, parameters_]);
 
   interface ChartRef {
     chart?: {
@@ -424,7 +448,9 @@ function RoomDetails() {
       }
     }
   };
-
+  // useEffect(() => {
+  //   console.log("parameters_", parameters_);
+  // }, [parameters_]);
   function startLogging(param_aliases: Array<string>, reqInterval: number) {
     let num = 0;
     setInterval(() => {
@@ -458,7 +484,7 @@ function RoomDetails() {
                   if (data) {
                     paramData[key_].data?.push({
                       y: Number(filteredData[key]),
-                      batch_num: Number(filteredData.batch_num),
+                      batch_num: Number(num),
                     });
                   }
                 }
@@ -475,13 +501,12 @@ function RoomDetails() {
             }
 
             // add id and dateTime to the filteredData
+            const now = new Date();
+            const formatted = formatDate(now);
             const newData = {
               ...filteredData!,
               batch_num: num,
-              dateTime: new Date()
-                .toISOString()
-                .replace("T", " ")
-                .split(".")[0],
+              dateTime: formatted,
             };
             setLogData((prev) => [...prev, newData as DataItem]);
             // this.logData.push(filteredData);
@@ -495,10 +520,33 @@ function RoomDetails() {
       num++;
     }, reqInterval * 1000);
   }
+  function formatDate(date: Date): string {
+    const pad = (n: number) => n.toString().padStart(2, "0");
+    return (
+      [pad(date.getDate()), pad(date.getMonth() + 1), date.getFullYear()].join(
+        "."
+      ) +
+      " " +
+      [
+        pad(date.getHours()),
+        pad(date.getMinutes()),
+        pad(date.getSeconds()),
+      ].join(":")
+    );
+  }
 
   useEffect(() => {
     graphDataRef.current = graphData;
-  }, [graphData]);
+    console.log("graphData", graphData);
+    graphData.forEach((item) => {
+      const title = Object.keys(item)[0];
+      const UOM = parameters_.find(
+        (param) => param.parameter_alias === title
+      )?.unitOfMeasure;
+      // console.log("UOM", UOM);
+      item[title].uom = UOM || "";
+    });
+  }, [graphData, parameters_]);
 
   useEffect(() => {
     const room = rooms.find((room) => room.room_id === Number(room_id));
@@ -512,7 +560,8 @@ function RoomDetails() {
     } else {
       console.error("Room not found for room_id:", room_id);
     }
-  }, [room_id, rooms]);
+    setDevice(devices.find((device) => device.device_id === device_id));
+  }, [room_id, rooms, device_id, devices]);
 
   const pages = Math.ceil(logData.length / pageSize);
   const items = React.useMemo(() => {
@@ -538,7 +587,8 @@ function RoomDetails() {
         <>
           <h1 className="text-center font-bold mb-5">
             Журнал мониторинга параметров помещения номер{" "}
-            {roomDetails?.roomNumber} ({roomDetails?.roomLocation})
+            {roomDetails?.roomNumber} ({roomDetails?.roomLocation} - Зон:{" "}
+            {device?.zoneNum})
           </h1>
           <Table
             aria-label="Table with log data"
@@ -577,6 +627,7 @@ function RoomDetails() {
             Графики измерения параметров помещения номер{" "}
             {roomDetails?.roomNumber} ({roomDetails?.roomLocation})
           </h1>
+
           <div
             ref={(el) => {
               if (el) {
@@ -587,10 +638,7 @@ function RoomDetails() {
             // onClick={() => toggleFullScreen(chartRefs.current[0])}
             onDoubleClick={() => toggleFullScreen(chartRefs.current[0])}
           >
-            <Chart
-              data={graphData}
-              roomNumber={roomDetails?.roomNumber?.toString() || ""}
-            />
+            <Chart data={graphData} />
           </div>
         </>
       )}

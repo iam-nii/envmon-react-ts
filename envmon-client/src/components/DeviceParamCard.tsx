@@ -16,6 +16,7 @@ function DeviceParamCard({ room }: DeviceParamCardTypes) {
   const { users } = useUserContext();
   const { devices } = useDeviceContext();
   const [deviceID, setDeviceID] = useState<string>();
+  const [zoneNumber, setZoneNumber] = useState<number>();
   const [deviceParams, setDeviceParams] = useState<
     (recievedData | undefined)[]
   >([]);
@@ -24,7 +25,10 @@ function DeviceParamCard({ room }: DeviceParamCardTypes) {
   useEffect(() => {
     const device = devices.find((device) => device.room_id === room.room_id);
     console.log(device);
-    if (device) setDeviceID(device.device_id);
+    if (device) {
+      setZoneNumber(device.zoneNum);
+      setDeviceID(device.device_id);
+    }
   }, []);
   type recievedData = {
     param_id: number;
@@ -83,10 +87,11 @@ function DeviceParamCard({ room }: DeviceParamCardTypes) {
     navigate(`/admin/room/devices/${room.room_id}/${deviceID}`);
   };
   return (
-    <div>
+    <div className="w-full">
       <Card
         key={room.room_id}
         isPressable
+        className="w-80"
         shadow="sm"
         onPress={() => {
           handlePress(room);
@@ -94,7 +99,9 @@ function DeviceParamCard({ room }: DeviceParamCardTypes) {
       >
         <CardHeader className="flex justify-center items-center">
           <p className="text-2xl">
-            <span className="text-primary font-bold">{room.roomNumber}</span>
+            <span className="text-primary font-bold">
+              {room.location}, № {room.roomNumber}
+            </span>
           </p>
         </CardHeader>
         <CardBody className="overflow-visible">
@@ -126,14 +133,17 @@ function DeviceParamCard({ room }: DeviceParamCardTypes) {
             <div>
               <div>
                 <h3>
-                  Ид. устройства: <span className="text-sm">{deviceID}</span>{" "}
+                  Номер зоны: <span className="text-sm">{zoneNumber}</span>{" "}
                 </h3>
               </div>
               <div key={deviceID}>
                 {deviceParams ? (
                   deviceParams.map((param: recievedData | undefined) => (
-                    <div key={param?.param_id} className="flex flex-row gap-2">
-                      <p>
+                    <div
+                      key={param?.param_id}
+                      className="flex flex-row gap-2 mb-0"
+                    >
+                      <p className="w-28 text-right">
                         {param?.parameter_alias}, {param?.unitOfMeasure}:
                       </p>
                       <p>

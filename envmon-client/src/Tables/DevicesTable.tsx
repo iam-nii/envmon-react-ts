@@ -1,6 +1,7 @@
 import {
   Alert,
   Button,
+  Chip,
   cn,
   Input,
   Modal,
@@ -32,7 +33,7 @@ const COLUMNS = [
   { name: "Название устройства", uid: "deviceName" },
   { name: "Номер зоны", uid: "zoneNum" },
   { name: "Интервал опроса, с", uid: "reqInterval" },
-  { name: "ID помещения", uid: "room_id" },
+  { name: "Номер помещения", uid: "roomNumber" },
   { name: "Статус", uid: "status" },
   { name: "Действие", uid: "actions" },
 ];
@@ -72,6 +73,10 @@ function DevicesTable() {
     device: device,
     columnKey: keyof device | "actions"
   ): React.ReactNode => {
+    const room = rooms?.find((room) => room.room_id === device.room_id);
+    const roomNumber = room?.roomNumber;
+    const location = room?.location;
+    const status = device.status == 1 ? "активно" : "не активно";
     switch (columnKey) {
       case "device_id":
         return <p className="text-small">{device.device_id}</p>;
@@ -81,10 +86,21 @@ function DevicesTable() {
         return <p className="text-small">{device.zoneNum}</p>;
       case "reqInterval":
         return <p className="text-small">{device.reqInterval}</p>;
-      case "room_id":
-        return <p className="text-small">{device.room_id}</p>;
+      case "roomNumber":
+        return (
+          <p className="text-small">
+            {roomNumber} ({location})
+          </p>
+        );
       case "status":
-        return <p className="text-small">{device.status}</p>;
+        return (
+          <Chip
+            color={device.status == 1 ? "success" : "danger"}
+            variant="flat"
+          >
+            {status}
+          </Chip>
+        );
       case "actions":
         return (
           <div className="relative flex items-center gap-5 justify-end">

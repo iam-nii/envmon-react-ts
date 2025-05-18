@@ -224,9 +224,10 @@ function AddDevice({
                 >
                   <div className="flex flex-col gap-1">
                     <p className="text-medium">
-                      {devicePayload.status === true
+                      {/* {devicePayload.status === true
                         ? "Выключить"
-                        : " Включить"}
+                        : " Включить"} */}
+                      Состояние
                     </p>
                     <p className="text-tiny text-default-400">
                       {devicePayload.status === true

@@ -137,7 +137,7 @@ const Users = () => {
                   label="Должность"
                   variant="bordered"
                   isRequired
-                  maxLength={16}
+                  // maxLength={16}
                   value={userData.uPosition}
                   onChange={(e) => {
                     setUserData((prev) => ({

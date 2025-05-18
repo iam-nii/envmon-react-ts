@@ -70,10 +70,10 @@ function AddRoom({ setError, setSuccess, error, success }: AddRoomType) {
     if (!isNaN(height) && !isNaN(width) && !isNaN(length)) {
       setRoomPayload((prev) => ({
         ...prev,
-        area: height * width * length,
+        area: width * length,
       }));
     }
-  }, [roomPayload.height, roomPayload.width, roomPayload.length]);
+  }, [roomPayload.width, roomPayload.length]);
 
   const handleAddRoom = () => {
     setError(null);

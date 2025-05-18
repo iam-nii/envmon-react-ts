@@ -36,7 +36,7 @@ function Dashboard() {
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="gap-2 grid grid-cols-2 sm:grid-cols-4">
+      <div className="w-full flex sm:grid-cols-4">
         {isLoading ? (
           <Spinner size="lg" />
         ) : (

@@ -1,7 +1,17 @@
+import { Button, ButtonGroup } from "@heroui/react";
 import HighchartsReact from "highcharts-react-official";
 import Highcharts from "highcharts/highstock";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
+const COLORS = [
+  "#0000FF",
+  "#00FF00",
+  "#e900ff",
+  "#ff5200",
+  "#ff0070",
+  "#a74b4b",
+  "#312e2e",
+];
 type DataPoint = {
   y: number;
   batch_num: number;
@@ -11,6 +21,7 @@ type GraphData = {
     data?: DataPoint[] | null;
     max: number;
     min: number;
+    uom: string;
   };
 };
 type ChartProps = {
@@ -18,39 +29,72 @@ type ChartProps = {
   // max: number | number[];
   // min: number | number[];
   // yAxisTitle?: string | string[];
-  roomNumber: string;
+  // roomNumber: string;
   // colors?: string[];
 };
-function Chart({ data, roomNumber }: ChartProps) {
-  const [DATA, setDATA] = useState<GraphData[]>([]);
-  const chartRef = useRef<HighchartsReact.RefObject>(null);
+function Chart({ data }: ChartProps) {
+  // const [DATA, setDATA] = useState<GraphData[]>([]);
+  const [legend, setLegend] = useState<string[]>([]);
+  // const chartRef = useRef<HighchartsReact.RefObject>(null);
+  const [windowSize, setWindowSize] = useState<number | "all">("all");
+  const effectRan = useRef(false);
+  // const [userZoomed, setUserZoomed] = useState(false);
+
+  const filteredData = useMemo(() => {
+    return data.map((item) => {
+      const title = Object.keys(item)[0];
+      const allPoints = item[title].data || [];
+      if (windowSize === "all") return item;
+      return {
+        ...item,
+        [title]: {
+          ...item[title],
+          data: allPoints.slice(-windowSize),
+        },
+      };
+    });
+  }, [data, windowSize]);
   useEffect(() => {
-    console.log(data);
-  }, []);
-  useEffect(() => {
-    if (!DATA.length) return;
-
-    // Find max batch_num across all series
-    const maxBatch = Math.max(
-      ...DATA.flatMap((item) => {
-        const title = Object.keys(item)[0];
-        return item[title[0]]?.data?.map((dp) => dp.batch_num) || [];
-      }).flat()
-    );
-
-    // Access chart instance via ref (you need to add a ref to HighchartsReact)
-    if (chartRef.current) {
-      const chart = chartRef.current.chart;
-      const xAxis = chart.xAxis[0];
-      const visibleCount = 10; // or 20, 30 depending on your default
-
-      xAxis.setExtremes(maxBatch - visibleCount + 1, maxBatch);
-    }
-  }, [DATA]);
-
-  useEffect(() => {
-    setDATA(data);
+    if (effectRan.current) return;
+    effectRan.current = true;
+    // console.log(data);
+    data.forEach((item) => {
+      const title = Object.keys(item)[0];
+      // console.log(item[title].uom);
+      setLegend((prev) => [...prev, `${title} (${item[title].uom})`]);
+    });
   }, [data]);
+  useEffect(() => {
+    console.log(legend);
+  }, [legend]);
+  // useEffect(() => {
+  //   if (!chartRef.current) return;
+  //   if (userZoomed) return; // Don't auto-zoom if user zoomed manually
+
+  //   const chart = chartRef.current.chart;
+  //   const xAxis = chart.xAxis[0];
+
+  //   // Find max and min batch_num from filteredData
+  //   const allBatchNums = filteredData.flatMap((item) => {
+  //     const title = Object.keys(item)[0];
+  //     return item[title]?.data?.map((dp) => dp.batch_num) || [];
+  //   });
+
+  //   if (allBatchNums.length === 0) return;
+
+  //   const minBatch = Math.min(...allBatchNums);
+  //   const maxBatch = Math.max(...allBatchNums);
+
+  //   // Set extremes to show exactly the filtered data range
+  //   xAxis.setExtremes(minBatch, maxBatch);
+  // }, [filteredData, userZoomed]);
+
+  useEffect(() => {}, []);
+
+  // useEffect(() => {
+  //   setDATA(filteredData);
+  //   console.log(filteredData);
+  // }, [filteredData]);
 
   const options = {
     chart: {
@@ -77,33 +121,59 @@ function Chart({ data, roomNumber }: ChartProps) {
       },
     },
     title: {
-      text: `Тренд измерения параметров микроклимата производственного помещения ${roomNumber}`,
+      // text: `Тренд измерения параметров микроклимата производственного помещения ${roomNumber}`,
     },
     xAxis: {
       type: "linear",
       allowDecimals: false,
       tickPixelInterval: 1.0,
+      // events: {
+      //   setExtremes: function (e) {
+      //     if (
+      //       e.trigger !== "rangeSelectorButton" &&
+      //       e.trigger !== "zoom" &&
+      //       e.trigger !== "navigator"
+      //     ) {
+      //       // User manually changed zoom/pan
+      //       setUserZoomed(true);
+      //     }
+      //   },
+      // },
     },
-    yAxis: DATA.map((item, index) => {
+    yAxis: filteredData.map((item, index) => {
       const title = Object.keys(item);
-      const numberOfAxes = DATA.length;
+      const numberOfAxes = filteredData.length;
       const spacing = 0;
       const totalSpacing = spacing * (numberOfAxes - 1);
       const heightPerAxis = (100 - totalSpacing) / numberOfAxes;
 
+      const max = item[title[0]].max;
+      const min = item[title[0]].min;
+      // const uom = item[title[0]].uom;
+
       // console.log(title);
       return {
         title: {
-          text: title,
+          text: `[${min} - ${max}]`,
           align: "middle",
           rotation: 270,
           offset: 100,
-          x: -40,
+          x: -70,
           style: {
             color: "#333",
             fontWeight: "bold",
           },
         },
+        // title: {
+        //   // text: title,
+        //   align: "middle",
+        //   rotation: 270,
+        //   x: -40,
+        //   style: {
+        //     color: "#333",
+        //     fontWeight: "bold",
+        //   },
+        // },
         plotLines: [
           {
             color: "red", // Red line
@@ -160,13 +230,13 @@ function Chart({ data, roomNumber }: ChartProps) {
     },
 
     // the series will be a list of objects passed in the props with the following properties
-    series: DATA.map((item, index) => {
+    series: filteredData.map((item, index) => {
       const title = Object.keys(item);
       console.log(item[title[0]]);
       return {
         name: `${title}`,
         width: 3,
-        color: "",
+        color: COLORS[index],
         data:
           item[title[0]]?.data?.map((dp: DataPoint) => ({
             x: dp.batch_num,
@@ -176,11 +246,12 @@ function Chart({ data, roomNumber }: ChartProps) {
       };
     }),
     legend: {
-      enabled: true,
+      enabled: false,
       itemStyle: {
         color: "#333",
         fontWeight: "bold",
       },
+
       itemHoverStyle: {
         color: "#000",
       },
@@ -199,46 +270,84 @@ function Chart({ data, roomNumber }: ChartProps) {
     },
     tooltip: {
       headerFormat: "",
-      pointFormat: "Batch: {point.x} <b>{point.y:.2f}</b>",
+      pointFormat: " № п/п: {point.x} <b>{point.y:.2f}</b>",
     },
     rangeSelector: {
-      enabled: true,
-      allButtonsEnabled: true,
-      selected: 0, // Default selected button (0 = first button)
-      buttons: [
-        {
-          type: "x",
-          count: 10,
-          text: "10",
-        },
-        {
-          type: "x",
-          count: 20,
-          text: "20",
-        },
-        {
-          type: "x",
-          count: 30,
-          text: "30",
-        },
-        {
-          type: "all",
-          text: "All",
-        },
-      ],
-      buttonTheme: {
-        // Optional: style your buttons
-        width: 40,
-      },
-      inputEnabled: false, // Hide date inputs if not needed
+      enabled: false,
+      // allButtonsEnabled: true,
+      // selected: 0, // Default selected button (0 = first button)
+      // buttons: [
+      //   {
+      //     type: "x",
+      //     count: 10,
+      //     text: "10",
+      //     onclick: () => {
+      //       setWindowSize(10);
+      //     },
+      //   },
+      //   {
+      //     type: "x",
+      //     count: 20,
+      //     text: "20",
+      //   },
+      //   {
+      //     type: "x",
+      //     count: 30,
+      //     text: "30",
+      //   },
+      //   {
+      //     type: "all",
+      //     text: "All",
+      //   },
+      // ],
+      // buttonTheme: {
+      //   // Optional: style your buttons
+      //   width: 40,
+      // },
+      // inputEnabled: false, // Hide date inputs if not needed
+    },
+    scrollbar: {
+      enabled: false,
     },
   };
   return (
-    <HighchartsReact
-      highcharts={Highcharts}
-      constructorType={"stockChart"}
-      options={options}
-    />
+    <div className="mb-20">
+      <div className="flex gap-2 items-center">
+        <p className="text-[14px] text-gray-500 ml-2">Zoom</p>
+        <ButtonGroup>
+          <Button size="sm" radius="sm" onPress={() => setWindowSize(10)}>
+            10
+          </Button>
+          <Button size="sm" radius="sm" onPress={() => setWindowSize(20)}>
+            20
+          </Button>
+          <Button size="sm" radius="sm" onPress={() => setWindowSize(30)}>
+            30
+          </Button>
+          <Button size="sm" radius="sm" onPress={() => setWindowSize("all")}>
+            all
+          </Button>
+        </ButtonGroup>
+      </div>
+      <HighchartsReact
+        highcharts={Highcharts}
+        constructorType={"stockChart"}
+        options={options}
+      />
+      <div className="flex flex-wrap gap-5 w-full justify-center">
+        {legend.map((item, index) => (
+          <div className="flex items-center gap-2">
+            <div
+              className={" w-5 h-[2px]"}
+              style={{ backgroundColor: COLORS[index] }}
+            ></div>
+            <p key={item} className="text-[14px] text-gray-700 font-extrabold">
+              {item}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
