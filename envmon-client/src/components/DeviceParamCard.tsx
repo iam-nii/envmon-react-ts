@@ -91,7 +91,7 @@ function DeviceParamCard({ room }: DeviceParamCardTypes) {
       <Card
         key={room.room_id}
         isPressable
-        className="w-80"
+        className="w-100"
         shadow="sm"
         onPress={() => {
           handlePress(room);
@@ -106,12 +106,12 @@ function DeviceParamCard({ room }: DeviceParamCardTypes) {
         </CardHeader>
         <CardBody className="overflow-visible">
           <div className="flex gap-2">
-            <p className="text-md font-bold">Ответственный:</p>
+            <p className="text-md text-right font-bold w-32">Ответственный:</p>
             <p className="text-md">{room.frPerson}</p>
           </div>
 
           <div className="flex gap-5 w-full">
-            <p className="text-md font-bold">телефон:</p>
+            <p className="text-md text-right font-bold w-32">телефон:</p>
             <p className="text-md">
               {users?.find(
                 (user) => user.userName?.trim() === room.frPerson?.trim()

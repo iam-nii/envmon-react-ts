@@ -35,8 +35,8 @@ function Dashboard() {
   }, [devices]);
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="w-full flex sm:grid-cols-4">
+    <div className="flex flex-col gap-0">
+      <div className="w-full flex flex-row justify-around">
         {isLoading ? (
           <Spinner size="lg" />
         ) : (

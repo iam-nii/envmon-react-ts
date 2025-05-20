@@ -263,11 +263,12 @@ function RoomDetails() {
   const [page, setPage] = useState(1);
   const { rooms } = useRoomContext();
   const { devices } = useDeviceContext();
-  const { parameters: parameters_ } = useParameterContext();
   const { room_id, device_id } = useParams();
   const [isLoading, setIsLoading] = useState(false);
+  const [num, setNum] = useState<number>(0);
   const [logData, setLogData] = useState<DataItem[]>([]);
   const [reqInterval, setReqInterval] = useState<number>();
+  const { parameters: parameters_ } = useParameterContext();
   const [graphData, setGraphData] = useState<GraphData[]>([]);
   const [maxMinData, setMaxMinData] = useState<MaxMinData[]>([]);
   const [device, setDevice] = useState<device | undefined>(undefined);
@@ -288,7 +289,7 @@ function RoomDetails() {
       .then(async ({ data }) => {
         const response = data.data;
         const newParameters = response.map((param: Params) => ({
-          name: `${param.parameter_alias} (${param.unitOfMeasure})`,
+          name: `${param.parameter_alias}, ${param.unitOfMeasure}`,
           uid: param.parameter_alias,
           techReg_id: param.techReg_id,
         }));
@@ -404,11 +405,35 @@ function RoomDetails() {
         setGraphData((prev) => [...prev, paramDataInit]);
       }
       if (reqInterval && reqInterval > 0) {
-        startLogging(param_aliases, reqInterval);
+        // Get the last mdt from the logs table
+        let lastMdt;
+        axiosClient
+          .get(`/envmon/?id=${device_id}&query=lastMdt`)
+          .then(async ({ data }) => {
+            console.log("data", data);
+            lastMdt = data.data.mdt;
+            console.log("lastMdt", lastMdt);
+            // Get the current datetime using typescript
+            const dbDate = new Date(lastMdt!);
+            const currentDateTime = new Date(); // current date/time
+
+            const diffInSeconds = Math.floor(
+              (currentDateTime.getTime() - dbDate.getTime()) / 1000
+            );
+            console.log(diffInSeconds);
+
+            console.log("lastMdt", lastMdt);
+            // await sleep(diffInSeconds * 1000);
+            // setNum(1);
+            fetchData(param_aliases, 1);
+            startLogging(param_aliases, reqInterval);
+          });
       }
     }
   }, [parameters, maxMinData, parameters_]);
-
+  // async function sleep(ms: number): Promise<void> {
+  //   return new Promise((resolve) => setTimeout(resolve, ms));
+  // }
   interface ChartRef {
     chart?: {
       reflow: () => void;
@@ -452,73 +477,78 @@ function RoomDetails() {
   //   console.log("parameters_", parameters_);
   // }, [parameters_]);
   function startLogging(param_aliases: Array<string>, reqInterval: number) {
-    let num = 0;
+    let num = 2;
+
     setInterval(() => {
-      axiosClient
-        .get(`/envmon/?id=${device_id}`)
-        .then(({ data }) => {
-          type LogData = {
-            [key: string]: number | string;
-          };
-          // get only the parameters that are in the param_aliases array
-          try {
-            const filteredData = param_aliases.reduce(
-              (result: LogData, prop: string) => {
-                const value = data?.data?.[prop];
-                if (value !== undefined) {
-                  result[prop] = value;
-                }
-                return result;
-              },
-              {} as LogData
-            );
-            console.log("filteredData", filteredData);
-            const graphData_ = graphDataRef.current;
-            for (const key in filteredData) {
-              const paramData = graphData_.find((item) => item[key]);
-
-              // console.log("paramData", paramData);
-              if (paramData) {
-                for (const key_ in paramData) {
-                  const data = paramData[key_].data;
-                  if (data) {
-                    paramData[key_].data?.push({
-                      y: Number(filteredData[key]),
-                      batch_num: Number(num),
-                    });
-                  }
-                }
-              }
-              console.log("paramData", paramData);
-
-              // if (paramData) {
-              //   paramData.data?.data?.push({
-              //     y: Number(filteredData[key]),
-              //     batch_num: Number(filteredData.batch_num),
-              //   });
-              // }
-              // console.log("paramData", paramData);
-            }
-
-            // add id and dateTime to the filteredData
-            const now = new Date();
-            const formatted = formatDate(now);
-            const newData = {
-              ...filteredData!,
-              batch_num: num,
-              dateTime: formatted,
-            };
-            setLogData((prev) => [...prev, newData as DataItem]);
-            // this.logData.push(filteredData);
-          } catch (error) {
-            console.log(error);
-          }
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+      fetchData(param_aliases, num);
       num++;
     }, reqInterval * 1000);
+  }
+
+  function fetchData(param_aliases?: Array<string>, num?: number) {
+    axiosClient
+      .get(`/envmon/?id=${device_id}`)
+      .then(({ data }) => {
+        type LogData = {
+          [key: string]: number | string;
+        };
+        // get only the parameters that are in the param_aliases array
+        try {
+          const filteredData = param_aliases?.reduce(
+            (result: LogData, prop: string) => {
+              const value = data?.data?.[prop];
+              if (value !== undefined) {
+                result[prop] = value;
+              }
+              return result;
+            },
+            {} as LogData
+          );
+          console.log("filteredData", filteredData);
+          const graphData_ = graphDataRef.current;
+          for (const key in filteredData) {
+            const paramData = graphData_.find((item) => item[key]);
+
+            // console.log("paramData", paramData);
+            if (paramData) {
+              for (const key_ in paramData) {
+                const data = paramData[key_].data;
+                if (data) {
+                  paramData[key_].data?.push({
+                    y: Number(filteredData[key]),
+                    batch_num: Number(num),
+                  });
+                }
+              }
+            }
+            console.log("paramData", paramData);
+
+            // if (paramData) {
+            //   paramData.data?.data?.push({
+            //     y: Number(filteredData[key]),
+            //     batch_num: Number(filteredData.batch_num),
+            //   });
+            // }
+            // console.log("paramData", paramData);
+          }
+
+          // add id and dateTime to the filteredData
+          const now = new Date();
+          const formatted = formatDate(now);
+          const newData = {
+            ...filteredData!,
+            batch_num: num,
+            dateTime: formatted,
+          };
+          setLogData((prev) => [...prev, newData as DataItem]);
+          // this.logData.push(filteredData);
+        } catch (error) {
+          console.log(error);
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }
   function formatDate(date: Date): string {
     const pad = (n: number) => n.toString().padStart(2, "0");
@@ -634,7 +664,7 @@ function RoomDetails() {
                 chartRefs.current[0] = el;
               }
             }}
-            className="w-[75vw] h-[800px] cursor-pointer"
+            className="w-[75vw] h-[800px] cursor-pointer mb-10"
             // onClick={() => toggleFullScreen(chartRefs.current[0])}
             onDoubleClick={() => toggleFullScreen(chartRefs.current[0])}
           >

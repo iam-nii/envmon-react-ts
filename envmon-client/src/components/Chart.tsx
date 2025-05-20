@@ -164,16 +164,6 @@ function Chart({ data }: ChartProps) {
             fontWeight: "bold",
           },
         },
-        // title: {
-        //   // text: title,
-        //   align: "middle",
-        //   rotation: 270,
-        //   x: -40,
-        //   style: {
-        //     color: "#333",
-        //     fontWeight: "bold",
-        //   },
-        // },
         plotLines: [
           {
             color: "red", // Red line
@@ -312,7 +302,7 @@ function Chart({ data }: ChartProps) {
   };
   return (
     <div className="mb-20">
-      <div className="flex gap-2 items-center">
+      <div className="flex gap-2 items-center hidden">
         <p className="text-[14px] text-gray-500 ml-2">Zoom</p>
         <ButtonGroup>
           <Button size="sm" radius="sm" onPress={() => setWindowSize(10)}>
@@ -334,7 +324,7 @@ function Chart({ data }: ChartProps) {
         constructorType={"stockChart"}
         options={options}
       />
-      <div className="flex flex-wrap gap-5 w-full justify-center">
+      <div className="flex flex-wrap gap-5 w-full justify-center ">
         {legend.map((item, index) => (
           <div className="flex items-center gap-2">
             <div

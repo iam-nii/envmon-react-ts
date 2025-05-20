@@ -31,7 +31,7 @@ const COLUMNS = [
   { name: "Телефон", uid: "uPhone" },
   { name: "Роль", uid: "uRole" },
   { name: "Должность", uid: "uPosition" },
-  { name: "Действие", uid: "actions" },
+  { name: "Действия", uid: "actions" },
 ];
 
 function UserT() {
@@ -89,7 +89,7 @@ function UserT() {
             variant="flat"
             size="sm"
           >
-            {user.uRole}
+            {user.uRole?.trim()}
           </Chip>
         );
       }

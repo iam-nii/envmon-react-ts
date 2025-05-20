@@ -35,7 +35,7 @@ const COLUMNS = [
   { name: "Интервал опроса, с", uid: "reqInterval" },
   { name: "Номер помещения", uid: "roomNumber" },
   { name: "Статус", uid: "status" },
-  { name: "Действие", uid: "actions" },
+  { name: "Действия", uid: "actions" },
 ];
 
 function DevicesTable() {

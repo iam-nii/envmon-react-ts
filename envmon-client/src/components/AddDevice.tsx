@@ -145,7 +145,7 @@ function AddDevice({
                   }}
                 />
                 <Input
-                  label="Интервал опроса"
+                  label="Интервал опроса, с"
                   variant="bordered"
                   value={devicePayload.reqInterval.toString()}
                   type="number"

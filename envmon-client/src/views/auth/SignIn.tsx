@@ -1,4 +1,4 @@
-import { Link, Input, Button, Alert, Spinner } from "@heroui/react";
+import { Input, Button, Alert, Spinner } from "@heroui/react";
 import { useRef, useState } from "react";
 import { useUserContext } from "../../context/UserContextProvider";
 import { useNavigate } from "react-router-dom";
@@ -127,7 +127,7 @@ const SignIn = () => {
                 </Button>
               </div>
             </div>
-            <div className="mt-5">
+            {/* <div className="mt-5">
               <h2 className="text-right text-gray-500">
                 Нет аккаунта?{" "}
                 <Link onPress={() => navigate("/signup")}>
@@ -137,7 +137,7 @@ const SignIn = () => {
                   </span>
                 </Link>
               </h2>
-            </div>
+            </div> */}
             <div>{isLoading && <Spinner size="lg" color="success" />}</div>
           </form>
         </>

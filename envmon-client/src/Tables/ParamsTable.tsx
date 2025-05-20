@@ -25,8 +25,8 @@ import { Params } from "../Types";
 const COLUMNS = [
   { name: "Наименование параметра", uid: "parameter_name" },
   { name: "Ед. измерения", uid: "unitOfMeasure" },
-  { name: "Минимальное значение", uid: "pminValue" },
-  { name: "Максимальное значение", uid: "pmaxValue" },
+  { name: "Мин. значение", uid: "pminValue" },
+  { name: "Макс. значение", uid: "pmaxValue" },
   { name: "Действия", uid: "actions" },
 ];
 // import { Selection } from "@react-types/shared";
@@ -84,11 +84,13 @@ function ParamsTable({ isAdmin }: ParamsPropsType) {
             </p>
           );
         case "unitOfMeasure":
-          return <p className="text-small">{param.unitOfMeasure}</p>;
+          return (
+            <p className="text-small text-center">{param.unitOfMeasure}</p>
+          );
         case "pmaxValue":
-          return <p className="text-small">{param.pmaxValue}</p>;
+          return <p className="text-small text-center">{param.pmaxValue}</p>;
         case "pminValue":
-          return <p className="text-small">{param.pminValue}</p>;
+          return <p className="text-small text-center">{param.pminValue}</p>;
         case "actions":
           return (
             <div className="relative flex items-center gap-5 justify-end">
@@ -354,23 +356,6 @@ function ParamsTable({ isAdmin }: ParamsPropsType) {
                 />
                 <div className="flex flex-row gap-2">
                   <Input
-                    label="Максимальное значение"
-                    value={editedParam!.pmaxValue!.toString()}
-                    type="number"
-                    onChange={(e) => {
-                      const maxValue = parseFloat(e.target.value) || 0;
-                      setEditedParam((prev) => {
-                        const newState = {
-                          ...prev,
-                          pmaxValue: maxValue,
-                        };
-                        return newState;
-                      });
-                    }}
-                  />
-                </div>
-                <div className="flex flex-row gap-2">
-                  <Input
                     label="Минимальное значение"
                     value={editedParam!.pminValue!.toString()}
                     type="number"
@@ -380,6 +365,23 @@ function ParamsTable({ isAdmin }: ParamsPropsType) {
                         const newState = {
                           ...prev,
                           pminValue: minValue,
+                        };
+                        return newState;
+                      });
+                    }}
+                  />
+                </div>
+                <div className="flex flex-row gap-2">
+                  <Input
+                    label="Максимальное значение"
+                    value={editedParam!.pmaxValue!.toString()}
+                    type="number"
+                    onChange={(e) => {
+                      const maxValue = parseFloat(e.target.value) || 0;
+                      setEditedParam((prev) => {
+                        const newState = {
+                          ...prev,
+                          pmaxValue: maxValue,
                         };
                         return newState;
                       });

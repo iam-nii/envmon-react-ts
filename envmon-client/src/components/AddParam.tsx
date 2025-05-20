@@ -123,9 +123,9 @@ function AddParam({ setError, setSuccess, error, success }: AddParamType) {
                   }}
                 />
                 <Input
-                  label="Псевдоним параметра"
+                  label="Краткое наименование"
                   variant="bordered"
-                  description="5 символов как максимум"
+                  description="Не более 5 символов"
                   maxLength={5}
                   value={paramPayload.parameter_alias}
                   onChange={(e) => {
