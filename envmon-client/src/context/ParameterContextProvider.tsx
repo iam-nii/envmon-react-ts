@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 // import axiosClient from "../axiosClient";
-import { Parameters } from "../Types";
+import { Parameters, Params } from "../Types";
 import axiosClient from "../axiosClient";
 
 interface ParameterContextProviderType {
@@ -26,13 +26,20 @@ export const ParameterContextProvider = ({
       .get("/api/parameters/?method=GET")
       .then(({ data }) => {
         // console.log("response", response);
-        setParameters(data.data);
+        const params = data.data.map((param: Params) => {
+          param.parameter_name = param.parameter_name?.trim();
+          return param;
+        });
+        setParameters(params);
         // console.log(res.data.data);
       })
       .catch((err) => {
         console.log(err);
       });
   }, []);
+  useEffect(() => {
+    console.log("parameters", parameters);
+  }, [parameters]);
 
   return (
     <ParameterContext.Provider value={{ parameters, setParameters }}>

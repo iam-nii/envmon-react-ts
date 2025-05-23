@@ -222,7 +222,7 @@ function Chart({ data }: ChartProps) {
     // the series will be a list of objects passed in the props with the following properties
     series: filteredData.map((item, index) => {
       const title = Object.keys(item);
-      console.log(item[title[0]]);
+      // console.log(item[title[0]]);
       return {
         name: `${title}`,
         width: 3,
@@ -324,9 +324,9 @@ function Chart({ data }: ChartProps) {
         constructorType={"stockChart"}
         options={options}
       />
-      <div className="flex flex-wrap gap-5 w-full justify-center ">
+      <div className="flex flex-wrap gap-5 w-full justify-center">
         {legend.map((item, index) => (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2" key={item}>
             <div
               className={" w-5 h-[2px]"}
               style={{ backgroundColor: COLORS[index] }}

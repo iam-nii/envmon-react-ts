@@ -7,15 +7,21 @@ import {
   TableCell,
   Pagination,
   Spinner,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  useDisclosure,
+  ModalBody,
 } from "@heroui/react";
 import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import axiosClient from "../../axiosClient";
-import { device, Params } from "../../Types";
+import { device, Params, Room } from "../../Types";
 import { useRoomContext } from "../../context/RoomContextProvider";
 import Chart from "../../components/Chart";
 import { useDeviceContext } from "../../context/DeviceContextProvider";
 import { useParameterContext } from "../../context/ParameterContextProvider";
+import { useUserContext } from "../../context/UserContextProvider";
 
 interface DataItem {
   // batch_num: number;
@@ -257,26 +263,40 @@ type GraphData = {
     uom: string;
   };
 };
+
+type Warning = {
+  parameterName: string[];
+  parameterValue: number[];
+  uom: string[];
+  min: number[];
+  max: number[];
+  userName: string;
+  roomNumber: string;
+  location: string;
+  zoneNum: number;
+};
 function RoomDetails() {
   const pageSize = 15;
   const effectRan = useRef(false);
   const [page, setPage] = useState(1);
   const { rooms } = useRoomContext();
+  const { users } = useUserContext(); // to get the person responsible for the room and their contact information
   const { devices } = useDeviceContext();
   const { room_id, device_id } = useParams();
   const [isLoading, setIsLoading] = useState(false);
-  const [num, setNum] = useState<number>(0);
+  const [mailTo, setMailTo] = useState<string>("");
+  const [frTel, setFrTel] = useState<string>("");
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [showWarning, setShowWarning] = useState(false);
   const [logData, setLogData] = useState<DataItem[]>([]);
   const [reqInterval, setReqInterval] = useState<number>();
   const { parameters: parameters_ } = useParameterContext();
   const [graphData, setGraphData] = useState<GraphData[]>([]);
+  const [warning, setWarning] = useState<Warning | null>(null);
   const [maxMinData, setMaxMinData] = useState<MaxMinData[]>([]);
   const [device, setDevice] = useState<device | undefined>(undefined);
   const graphDataRef = useRef<GraphData[]>(graphData);
-  const [roomDetails, setRoomDetails] = useState<{
-    roomNumber: number;
-    roomLocation: string;
-  } | null>(null);
+  const [roomDetails, setRoomDetails] = useState<Room | null>(null);
   const [parameters, setParameters] = useState<TableColumn[]>([
     // { name: "Номер замера", uid: "id" },
     // { name: "Дата и время", uid: "dateTime" },
@@ -473,9 +493,6 @@ function RoomDetails() {
       }
     }
   };
-  // useEffect(() => {
-  //   console.log("parameters_", parameters_);
-  // }, [parameters_]);
   function startLogging(param_aliases: Array<string>, reqInterval: number) {
     let num = 2;
 
@@ -514,6 +531,73 @@ function RoomDetails() {
               for (const key_ in paramData) {
                 const data = paramData[key_].data;
                 if (data) {
+                  const min = paramData[key_].min;
+                  const max = paramData[key_].max;
+                  if (
+                    Number(filteredData[key]) < min ||
+                    Number(filteredData[key]) > max
+                  ) {
+                    const deviantParam = parameters_.find(
+                      (param) => param.parameter_alias == key
+                    );
+                    const parameterName = deviantParam?.parameter_name || "";
+                    const parameterValue = filteredData[key];
+                    const uom = paramData[key_].uom;
+
+                    // sendEmail(
+                    //   parameterName,
+                    //   Number(parameterValue),
+                    //   uom,
+                    //   min,
+                    //   max
+                    // );
+                    const frPerson = users.find(
+                      (user) =>
+                        user.userName?.trim() === roomDetails?.frPerson?.trim()
+                    );
+                    const device = devices.find(
+                      (device) => device.device_id === device_id
+                    );
+                    setMailTo(frPerson?.uEmail || "");
+                    setFrTel(frPerson?.uPhone || "");
+
+                    setWarning((prev) => ({
+                      ...prev,
+                      parameterName: [
+                        ...(prev?.parameterName || []),
+                        parameterName,
+                      ],
+                      parameterValue: [
+                        ...(prev?.parameterValue || []),
+                        Number(parameterValue),
+                      ],
+                      uom: [...(prev?.uom || []), uom],
+                      min: [...(prev?.min || []), min],
+                      max: [...(prev?.max || []), max],
+                      userName: prev?.userName || "",
+                      roomNumber: prev?.roomNumber || "",
+                      location: prev?.location || "",
+                      zoneNum: device?.zoneNum || 0,
+                    }));
+                    sendEmail();
+                    // parameterName,
+                    // Number(parameterValue),
+                    // uom,
+                    // min,
+                    // max
+
+                    // console.log(
+                    //   "Warning: ",
+                    //   parameterName,
+                    //   "value: ",
+                    //   parameterValue,
+                    //   " ",
+                    //   uom,
+                    //   " is out of range",
+                    //   min,
+                    //   max
+                    // );
+                  }
                   paramData[key_].data?.push({
                     y: Number(filteredData[key]),
                     batch_num: Number(num),
@@ -521,7 +605,7 @@ function RoomDetails() {
                 }
               }
             }
-            console.log("paramData", paramData);
+            // console.log("paramData", paramData);
 
             // if (paramData) {
             //   paramData.data?.data?.push({
@@ -565,6 +649,91 @@ function RoomDetails() {
     );
   }
 
+  function sendEmail() {
+    // console.log("roomDetails", roomDetails);
+    const frPerson = users.find(
+      (user) => user.userName?.trim() === roomDetails?.frPerson?.trim()
+    );
+    if (frPerson) {
+      setShowWarning(true);
+
+      // console.log(warning);
+
+      // const message = `ВНИМАНИЕ: Значение параметра "${deviantParams}" выходит за допустимые пределы!
+      // Минимально допустимое значение: ${warning?.min}
+      // Максимально допустимое значение: ${warning?.max}
+      // Письмо отправлено на адрес: ${frPerson?.uEmail}`;
+      // console.log("message", message);
+      onOpen();
+      setTimeout(() => {
+        setWarning(null);
+        setShowWarning(false);
+        onClose();
+      }, 6000);
+    }
+    // console.log("frPersonEmail", frPersonEmail);
+    // if (frPerson) {
+    //   console.log(
+    //     `ВНИМАНИЕ: Значение параметра "${parameterName}" (${parameterValue} ${uom}) выходит за допустимые пределы!
+    //   Минимально допустимое значение: ${min}
+    //   Максимально допустимое значение: ${max}
+    //   Письмо отправлено на адрес: ${frPerson?.uEmail}`
+    //   );
+    // }
+  }
+  useEffect(() => {
+    const deviantParams = warning?.parameterName.map((name, index) => {
+      return `${name} (${warning?.parameterValue[index]} ${warning?.uom[index]})`;
+    });
+    // console.log("deviantParams", deviantParams);
+    if (deviantParams && mailTo) {
+      const roomNumber = roomDetails?.roomNumber;
+      const location = roomDetails?.location;
+      const zoneNum = device?.zoneNum;
+      const frPerson = roomDetails?.frPerson;
+      const frPersonMail = mailTo;
+      const frPersonPhone = frTel;
+      const mailSubject = `ВНИМАНИЕ: Значение параметра "${deviantParams?.join(
+        ", "
+      )}" ${
+        warning?.parameterName.length && warning?.parameterName.length > 1
+          ? "выходят"
+          : "выходит"
+      } за допустимые пределы!`;
+      const message = `Номер помещения: ${roomNumber}
+      Местоположение: ${location}
+      Зона: ${zoneNum}
+      Ответственный за помещение: ${frPerson}
+      Почта ответственного: ${frPersonMail}
+      Номер телефона ответсвенного: ${frPersonPhone}
+      ${warning?.parameterValue
+        .map(
+          (value, index) =>
+            `${warning?.parameterName[index]} 
+          текущее значение: ${value} ${warning?.uom[index]}, 
+          минимальное значение: ${warning?.min[index]} ${warning?.uom[index]}, 
+          максимальное значение: ${warning?.max[index]} ${warning?.uom[index]}`
+        )
+        .join("\n")}`;
+
+      axiosClient
+        .get("/api/mail/", {
+          params: {
+            mailSubject,
+            message,
+            mailTo,
+            mailFrom: "lsr.monitoring@gmail.com",
+          },
+        })
+        .then(({ data }) => {
+          console.log("data", data);
+        });
+
+      // console.log("mailSubject", mailSubject);
+      // console.log("message", message);
+    }
+  }, [showWarning]);
+
   useEffect(() => {
     graphDataRef.current = graphData;
     console.log("graphData", graphData);
@@ -580,13 +749,10 @@ function RoomDetails() {
 
   useEffect(() => {
     const room = rooms.find((room) => room.room_id === Number(room_id));
-    console.log("room", room);
 
     if (room) {
-      setRoomDetails({
-        roomNumber: room.roomNumber,
-        roomLocation: room.location,
-      });
+      console.log("room", room);
+      setRoomDetails(room);
     } else {
       console.error("Room not found for room_id:", room_id);
     }
@@ -617,7 +783,7 @@ function RoomDetails() {
         <>
           <h1 className="text-center font-bold mb-5">
             Журнал мониторинга параметров помещения номер{" "}
-            {roomDetails?.roomNumber} ({roomDetails?.roomLocation} - Зон:{" "}
+            {roomDetails?.roomNumber} ({roomDetails?.location} - Зон:{" "}
             {device?.zoneNum})
           </h1>
           <Table
@@ -655,7 +821,7 @@ function RoomDetails() {
 
           <h1 className="text-center font-bold mb-5">
             Графики измерения параметров помещения номер{" "}
-            {roomDetails?.roomNumber} ({roomDetails?.roomLocation})
+            {roomDetails?.roomNumber} ({roomDetails?.location})
           </h1>
 
           <div
@@ -671,6 +837,72 @@ function RoomDetails() {
             <Chart data={graphData} />
           </div>
         </>
+      )}
+
+      {showWarning && (
+        <div>
+          <Modal backdrop="blur" isOpen={isOpen} onClose={onClose}>
+            <ModalContent>
+              <ModalHeader>
+                <h1 className="text-center uppercase text-2xl font-bold">
+                  Внимание!
+                </h1>
+              </ModalHeader>
+              <ModalBody className="text-left mb-5">
+                <h2>
+                  Номер помещения:{" "}
+                  <span className="font-bold font-sans">
+                    {roomDetails?.roomNumber}
+                  </span>
+                </h2>
+                <h2>
+                  Местоположение:{" "}
+                  <span className="font-bold font-sans">
+                    {roomDetails?.location}
+                  </span>
+                </h2>
+                <h2>
+                  Зона:{" "}
+                  <span className="font-bold font-sans">{device?.zoneNum}</span>
+                </h2>
+                <h2>
+                  Ответственный за помещение:{" "}
+                  <span className="font-bold font-sans">
+                    {roomDetails?.frPerson}
+                  </span>
+                </h2>
+                {warning?.parameterName.map((name, index) => (
+                  <p key={index}>
+                    Значение параметра{" "}
+                    <span className="font-bold font-sans text-red-600">
+                      "{name}" ({warning?.parameterValue[index]}
+                      {warning?.uom[index]}){" "}
+                    </span>
+                    выходит за допустимые пределы!
+                  </p>
+                ))}
+                <h2>
+                  <p className="font-bold">Минимальные допустимые значения: </p>
+                  {warning?.min.map((min, index) => (
+                    <div key={index} className="flex flex-row gap-2">
+                      <p className="underline">
+                        {warning?.parameterName[index]}:{" "}
+                      </p>
+                      <p>{min}</p>
+                      <p className=" text-red-600 font-bold ml-2 mr-2">
+                        {warning?.parameterValue[index]}
+                      </p>
+                      <p>{warning?.max[index]}</p>
+                    </div>
+                  ))}
+                </h2>
+                <p className="font-bold">
+                  Письмо отправлено на адрес: {mailTo}
+                </p>
+              </ModalBody>
+            </ModalContent>
+          </Modal>
+        </div>
       )}
     </div>
   );
