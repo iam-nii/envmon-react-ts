@@ -40,7 +40,7 @@ function Dashboard() {
         {isLoading ? (
           <Spinner size="lg" />
         ) : (
-          rooms.map((room) => <DeviceParamCard room={room} />)
+          rooms.map((room) => <DeviceParamCard room={room} role="admin" />)
         )}
       </div>
     </div>

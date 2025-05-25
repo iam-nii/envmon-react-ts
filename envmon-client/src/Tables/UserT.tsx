@@ -22,7 +22,7 @@ import {
 import { useUserContext } from "../context/UserContextProvider";
 import { User, userRole } from "../Types";
 import { useState } from "react";
-import { EyeIcon, Pencil, Trash2 } from "lucide-react";
+import { Eye, EyeClosed, EyeIcon, Pencil, Trash2 } from "lucide-react";
 import axiosClient from "../axiosClient";
 
 const COLUMNS = [
@@ -36,10 +36,13 @@ const COLUMNS = [
 
 function UserT() {
   const { users, setUsers } = useUserContext();
-  const [selectedItem, setSelectedItem] = useState<User | null>(null);
   const [editUser, setEditUser] = useState<User | null>();
-  const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [selectedItem, setSelectedItem] = useState<User | null>(null);
+  const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
+
+  const toggleVisibility = () => setPasswordVisible(!passwordVisible);
 
   const {
     isOpen: isViewOpen,
@@ -173,16 +176,30 @@ function UserT() {
           }
         ></Input>
         <Input
+          label="Новый пароль"
+          type={passwordVisible ? "text" : "password"}
+          endContent={
+            <button
+              aria-label="toggle password visibility"
+              className="focus:outline-none"
+              type="button"
+              onClick={toggleVisibility}
+            >
+              {passwordVisible ? (
+                <EyeClosed className="text-2xl text-default-400 pointer-events-none" />
+              ) : (
+                <Eye className="text-2xl text-default-400 pointer-events-none" />
+              )}
+            </button>
+          }
+          onChange={(e) =>
+            setEditUser((prev) => ({ ...prev, uPassword: e.target.value }))
+          }
+        ></Input>
+        <Input
           label="Телефон"
           value={editUser?.uPhone ?? ""}
           type="tel"
-          // startContent={
-          //   <div className="pointer-events-none flex items-center">
-          //     <span className="text-default-300 ">
-          //       <Phone className="text-small" />
-          //     </span>
-          //   </div>
-          // }
           onChange={(e) => {
             //remove all non-digit characters
             const digits = e.target.value.replace(/\D/g, "");
@@ -255,13 +272,13 @@ function UserT() {
   };
   const handleEdit = async () => {
     if (!editUser) return;
-    console.log(editUser);
+    // console.log(editUser);
     try {
       axiosClient
         .get(
           `/api/users/?method=PATCH&id=${editUser.user_id}&userName=${editUser.userName}
-          &uEmail=${editUser.uEmail}&uPhone=${editUser.uPhone}&uRole=${editUser.uRole}
-          &uPosition=${editUser.uPosition}`
+          &uPassword=${editUser.uPassword}&uEmail=${editUser.uEmail}&uPhone=${editUser.uPhone}
+          &uRole=${editUser.uRole}&uPosition=${editUser.uPosition}`
         )
         .then(({ data }) => {
           console.log(data.data);

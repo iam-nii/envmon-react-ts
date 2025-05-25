@@ -9,9 +9,10 @@ import ParameterReading from "./ParameterReading";
 
 type DeviceParamCardTypes = {
   room: Room;
+  role: string;
 };
 
-function DeviceParamCard({ room }: DeviceParamCardTypes) {
+function DeviceParamCard({ room, role }: DeviceParamCardTypes) {
   const navigate = useNavigate();
   const { users } = useUserContext();
   const { devices } = useDeviceContext();
@@ -24,7 +25,7 @@ function DeviceParamCard({ room }: DeviceParamCardTypes) {
   // Get the device id of the room
   useEffect(() => {
     const device = devices.find((device) => device.room_id === room.room_id);
-    console.log(device);
+    // console.log(device);
     if (device) {
       setZoneNumber(device.zoneNum);
       setDeviceID(device.device_id);
@@ -40,7 +41,7 @@ function DeviceParamCard({ room }: DeviceParamCardTypes) {
 
   // Get the device parameters
   useEffect(() => {
-    console.log("deviceID", deviceID);
+    // console.log("deviceID", deviceID);
     getDeviceParameters(deviceID!);
   }, [deviceID]);
 
@@ -84,7 +85,11 @@ function DeviceParamCard({ room }: DeviceParamCardTypes) {
   // }, [reqInterval, deviceID]);
 
   const handlePress = (room: Room) => {
-    navigate(`/admin/room/devices/${room.room_id}/${deviceID}`);
+    if (role === "admin") {
+      navigate(`/admin/room/devices/${room.room_id}/${deviceID}`);
+    } else {
+      navigate(`/engineer/room/devices/${room.room_id}/${deviceID}`);
+    }
   };
   return (
     <div className="w-full">

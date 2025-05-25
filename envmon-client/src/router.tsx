@@ -95,6 +95,14 @@ const router = createHashRouter([
         path: "/engineer/rooms",
         element: <EngineerRooms />,
       },
+      {
+        path: "/engineer/room/devices/:room_id/:device_id",
+        element: <RoomDevices />,
+      },
+      {
+        path: "/engineer/data/:room_id/:device_id",
+        element: <RoomData />,
+      },
     ],
   },
   {

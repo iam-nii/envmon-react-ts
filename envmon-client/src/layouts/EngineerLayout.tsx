@@ -1,5 +1,5 @@
 import { useUserContext } from "../context/UserContextProvider";
-import { useNavigate, Navigate, Link, Outlet } from "react-router-dom";
+import { useNavigate, Navigate, Outlet } from "react-router-dom";
 import {
   Button,
   Navbar,
@@ -11,9 +11,12 @@ import Logo from "../../public/Icons/proto-2-light-short.svg";
 import { useEffect } from "react";
 
 const EngineerLayout = () => {
-  const { token, setToken, user } = useUserContext();
+  const { token, setToken, user, setUser } = useUserContext();
   useEffect(() => {
-    console.log(user);
+    const userData = localStorage.getItem("USER_DATA");
+    if (userData) {
+      setUser(JSON.parse(userData));
+    }
   }, []);
   const navigate = useNavigate();
   if (!token) {
@@ -27,7 +30,7 @@ const EngineerLayout = () => {
 
   return (
     <div className="flex">
-      <aside className="min-w-72 h-screen flex flex-col gap-4 bg-slate-100">
+      {/* <aside className="min-w-72 h-screen flex flex-col gap-4 bg-slate-100">
         <Link
           to="/engineer"
           className="hover:bg-slate-200 p-4 text-start font-bold rounded-lg"
@@ -40,7 +43,7 @@ const EngineerLayout = () => {
         >
           Помещение/Устройства
         </Link>
-      </aside>
+      </aside> */}
       <div className="w-full">
         <Navbar className="bg-slate-100 border-b-2 border-slate-200">
           <NavbarBrand>
@@ -49,12 +52,14 @@ const EngineerLayout = () => {
           <NavbarContent className="hidden sm:flex gap-6 mt-" justify="end">
             <NavbarItem className="flex flex-row gap-2 items-center ">
               <div>{user && user.userName}</div>
-              <Button onPress={onLogout}>Выйти</Button>
+              <Button onPress={onLogout} color="danger">
+                Выйти
+              </Button>
             </NavbarItem>
           </NavbarContent>
         </Navbar>
 
-        <main className="w-full h-full p-10">
+        <main className="w-[80%] h-full p-10 mx-auto">
           <Outlet />
         </main>
       </div>

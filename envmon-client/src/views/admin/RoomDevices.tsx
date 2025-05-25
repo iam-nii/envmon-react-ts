@@ -4,9 +4,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import { device, Devices } from "../../Types";
 import { Card, CardBody, CardHeader, Divider } from "@heroui/react";
 import { useRoomContext } from "../../context/RoomContextProvider";
+import { useUserContext } from "../../context/UserContextProvider";
 
 function RoomDevices() {
   const navigate = useNavigate();
+  const { user } = useUserContext();
   const { devices } = useDeviceContext();
   const { rooms } = useRoomContext();
   const { room_id, device_id } = useParams();
@@ -34,7 +36,11 @@ function RoomDevices() {
 
   const handleDevicePress = (device: device) => {
     console.log(device);
-    navigate(`/admin/data/${room_id_}/${device_id_}`);
+    if (user?.uRole === "Администратор") {
+      navigate(`/admin/data/${room_id_}/${device_id_}`);
+    } else {
+      navigate(`/engineer/data/${room_id_}/${device_id_}`);
+    }
   };
   return (
     <>
