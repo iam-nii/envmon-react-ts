@@ -44,213 +44,6 @@ type MaxMinData = {
   techReg_id?: number;
 };
 
-// const COLUMNS: TableColumn[] = [
-//   { name: "Номер замера", uid: "id" },
-//   { name: "Дата и время", uid: "dateTime" },
-//   // { name: "Температура, °C", uid: "temperature" },
-//   // { name: "Влажность, %", uid: "humidity" },
-//   // { name: "Освещенность, лк", uid: "light" },
-//   // { name: "VOC, ppm", uid: "voc" },
-//   // { name: "CO2, ppm", uid: "co2" },
-// ];
-// const DATA: DataItem[] = [
-//   // {
-//   //     id: 20,
-//   //     dateTime: "2023-10-01 12:00",
-//   //     temperature: 23.2,
-//   //     humidity: 51,
-//   //     light: 105,
-//   //     voc: 0,
-//   //     co2: 414,
-//   // },
-//   {
-//     batch_num: 19,
-//     dateTime: "2023-10-01 12:00",
-//     temperature: 23.2,
-//     humidity: 51,
-//     light: 105,
-//     voc: 3,
-//     co2: 414,
-//   },
-//   {
-//     batch_num: 18,
-//     dateTime: "2023-10-01 12:00",
-//     temperature: 23.0,
-//     humidity: 51,
-//     light: 105,
-//     voc: 1,
-//     co2: 414,
-//   },
-//   {
-//     batch_num: 17,
-//     dateTime: "2023-10-01 12:00",
-//     temperature: 23.1,
-//     humidity: 51,
-//     light: 105,
-//     voc: 4,
-//     co2: 414,
-//   },
-//   {
-//     batch_num: 16,
-//     dateTime: "2023-10-01 12:00",
-//     temperature: 22.9,
-//     humidity: 51,
-//     light: 105,
-//     voc: 1,
-//     co2: 414,
-//   },
-//   {
-//     batch_num: 15,
-//     dateTime: "2023-10-01 12:00",
-//     temperature: 23.2,
-//     humidity: 51,
-//     light: 105,
-//     voc: 0,
-//     co2: 414,
-//   },
-//   {
-//     batch_num: 14,
-//     dateTime: "2023-10-01 12:00",
-//     temperature: 23.0,
-//     humidity: 51,
-//     light: 105,
-//     voc: 4,
-//     co2: 414,
-//   },
-//   {
-//     batch_num: 13,
-//     dateTime: "2023-10-01 12:00",
-//     temperature: 23.1,
-//     humidity: 51,
-//     light: 105,
-//     voc: 3,
-//     co2: 414,
-//   },
-//   {
-//     batch_num: 12,
-//     dateTime: "2023-10-01 12:00",
-//     temperature: 22.8,
-//     humidity: 51,
-//     light: 105,
-//     voc: 7,
-//     co2: 414,
-//   },
-//   {
-//     batch_num: 11,
-//     dateTime: "2023-10-01 12:00",
-//     temperature: 23.0,
-//     humidity: 51,
-//     light: 105,
-//     voc: 4,
-//     co2: 414,
-//   },
-//   {
-//     batch_num: 10,
-//     dateTime: "2023-10-01 12:00",
-//     temperature: 23.1,
-//     humidity: 51,
-//     light: 105,
-//     voc: 2,
-//     co2: 414,
-//   },
-//   {
-//     batch_num: 9,
-//     dateTime: "2023-10-01 12:00",
-//     temperature: 23.2,
-//     humidity: 50,
-//     light: 105,
-//     voc: 5,
-//     co2: 414,
-//   },
-//   {
-//     batch_num: 8,
-//     dateTime: "2023-10-01 12:00",
-//     temperature: 23.3,
-//     humidity: 51,
-//     light: 105,
-//     voc: 1,
-//     co2: 414,
-//   },
-//   {
-//     batch_num: 7,
-//     dateTime: "2023-10-01 12:00",
-//     temperature: 23.0,
-//     humidity: 51,
-//     light: 105,
-//     voc: 0,
-//     co2: 414,
-//   },
-//   {
-//     batch_num: 6,
-//     dateTime: "2023-10-01 12:00",
-//     temperature: 23.1,
-//     humidity: 51,
-//     light: 105,
-//     voc: 0,
-//     co2: 414,
-//   },
-//   {
-//     batch_num: 5,
-//     dateTime: "2023-10-01 12:00",
-//     temperature: 23.2,
-//     humidity: 52,
-//     light: 105,
-//     voc: 2,
-//     co2: 414,
-//   },
-//   {
-//     batch_num: 4,
-//     dateTime: "2023-10-01 12:00",
-//     temperature: 22.9,
-//     humidity: 52,
-//     light: 105,
-//     voc: 5,
-//     co2: 414,
-//   },
-//   {
-//     batch_num: 3,
-//     dateTime: "2023-10-01 12:00",
-//     temperature: 23.0,
-//     humidity: 53,
-//     light: 105,
-//     voc: 7,
-//     co2: 414,
-//   },
-//   {
-//     batch_num: 2,
-//     dateTime: "2023-10-01 12:00",
-//     temperature: 23.1,
-//     humidity: 53,
-//     light: 105,
-//     voc: 7,
-//     co2: 414,
-//   },
-//   {
-//     batch_num: 1,
-//     dateTime: "2023-10-01 12:00",
-//     temperature: 23.0,
-//     humidity: 52,
-//     light: 105,
-//     voc: 0,
-//     co2: 414,
-//   },
-// ];
-// TODO
-// get the parameter names from the device
-
-// const tempData = {
-//   temperature: {
-//     data: [
-//       {
-//         y: 23,
-//         dateTime: "2023-10-01 12:00",
-//       },
-//     ],
-//     max: 25,
-//     min: 15,
-//   },
-// };
-
 type DataPoint = {
   y: number;
   batch_num: number;
@@ -669,7 +462,7 @@ function RoomDetails() {
         setWarning(null);
         setShowWarning(false);
         onClose();
-      }, 6000);
+      }, 9000);
     }
     // console.log("frPersonEmail", frPersonEmail);
     // if (frPerson) {
@@ -844,34 +637,36 @@ function RoomDetails() {
           <Modal backdrop="blur" isOpen={isOpen} onClose={onClose}>
             <ModalContent>
               <ModalHeader>
-                <h1 className="text-center uppercase text-2xl font-bold">
+                <h1 className="text-center uppercase text-2xl font-bold mx-auto">
                   Внимание!
                 </h1>
               </ModalHeader>
               <ModalBody className="text-left mb-5">
                 <h2>
-                  Номер помещения:{" "}
+                  ПОМЕЩЕНИЕ №{" "}
                   <span className="font-bold font-sans">
-                    {roomDetails?.roomNumber}
+                    {roomDetails?.roomNumber} ({roomDetails?.location}), зона №
+                    {device?.zoneNum}
                   </span>
                 </h2>
-                <h2>
-                  Местоположение:{" "}
-                  <span className="font-bold font-sans">
-                    {roomDetails?.location}
-                  </span>
+                <h2 className="flex flex-row gap-3">
+                  <p className="w-28 text-right">Ответственный</p>
+                  <p className="font-bold font-sans">{roomDetails?.frPerson}</p>
                 </h2>
-                <h2>
-                  Зона:{" "}
-                  <span className="font-bold font-sans">{device?.zoneNum}</span>
+                <h2 className="flex flex-row gap-3">
+                  <p className="w-28 text-right">Тел.</p>
+                  <p className="font-bold font-sans">{frTel && frTel}</p>
                 </h2>
-                <h2>
-                  Ответственный за помещение:{" "}
-                  <span className="font-bold font-sans">
-                    {roomDetails?.frPerson}
-                  </span>
+                <h2 className="flex flex-row gap-3">
+                  <p className="w-28 text-right">E-mail</p>
+                  <p className="font-bold font-sans">{mailTo && mailTo}</p>
                 </h2>
-                {warning?.parameterName.map((name, index) => (
+                <p className="text-center text-wrap">
+                  Контролируемые параметры микроклимата за границами допустимого
+                  диапазона{" "}
+                </p>
+                <div className="bg-red-500 w-full h-[3px]"></div>
+                {/* {warning?.parameterName.map((name, index) => (
                   <p key={index}>
                     Значение параметра{" "}
                     <span className="font-bold font-sans text-red-600">
@@ -880,25 +675,43 @@ function RoomDetails() {
                     </span>
                     выходит за допустимые пределы!
                   </p>
-                ))}
-                <h2>
-                  <p className="font-bold">Минимальные допустимые значения: </p>
+                ))} */}
+                <div>
                   {warning?.min.map((min, index) => (
-                    <div key={index} className="flex flex-row gap-2">
-                      <p className="underline">
-                        {warning?.parameterName[index]}:{" "}
+                    <div
+                      key={index}
+                      className="flex flex-row gap-2 w-full items-center justify-center"
+                    >
+                      <p className="w-64 text-right">
+                        {warning?.parameterName[index]}, {warning?.uom[index]}{" "}
                       </p>
-                      <p>{min}</p>
-                      <p className=" text-red-600 font-bold ml-2 mr-2">
+                      <p className=" text-red-600 font-bold w-20 text-right">
                         {warning?.parameterValue[index]}
                       </p>
-                      <p>{warning?.max[index]}</p>
+                      <div className="w-full">
+                        {warning?.parameterValue[index] <
+                          warning?.min[index] && (
+                          <div className="flex flex-row w-[20%]">
+                            <p className="w-full mx-auto">&lt; </p>
+                            <p className="text-green-600 ml-2 w-20 font-bold text-left">
+                              {warning?.min[index]}
+                            </p>
+                          </div>
+                        )}
+                        {warning?.parameterValue[index] >
+                          warning?.max[index] && (
+                          <div className="flex flex-row w-[20%]">
+                            <p className="w-full mx-auto">&gt; </p>
+                            <p className="text-green-600 ml-2 w-20 font-bold text-left">
+                              {warning?.max[index]}
+                            </p>
+                            <p className="hidden">{min}</p>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   ))}
-                </h2>
-                <p className="font-bold">
-                  Письмо отправлено на адрес: {mailTo}
-                </p>
+                </div>
               </ModalBody>
             </ModalContent>
           </Modal>

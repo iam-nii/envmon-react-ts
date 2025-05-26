@@ -23,7 +23,7 @@ import { DeleteIcon, EditIcon, EyeIcon } from "../Icons/Icons";
 import { useState } from "react";
 import axiosClient from "../axiosClient";
 import { Regulation } from "../Types";
-// import { useDeviceContext } from "../context/DeviceContextProvider";
+import { useDeviceContext } from "../context/DeviceContextProvider";
 // import { useParameterContext } from "../context/ParameterContextProvider";
 
 const COLUMNS = [
@@ -54,11 +54,14 @@ function RegulationTable({
   const [editedRegulation, setEditedRegulation] = useState<Regulation | null>({
     sendMsg: false,
   });
-
+  const { devices } = useDeviceContext();
   const [success, setSuccess] = useState<string | boolean | null>(null);
   const [selectedDeviceValues, setSelectedDeviceValues] = useState<Selection>(
     new Set([])
   );
+  useEffect(() => {
+    console.log(devices);
+  }, [devices]);
   useEffect(() => {
     if (selectedRegulation) {
       setSelectedDeviceValues(
@@ -160,25 +163,6 @@ function RegulationTable({
     },
     []
   );
-
-  // useEffect(() => {
-  //   if (selectedRegulation?.sendMsg) {
-  //     setEditedRegulation((prev) => ({
-  //       ...prev,
-  //       sendMsg: true,
-  //     }));
-  //   } else if (selectedRegulation?.sendMsg === true) {
-  //     setEditedRegulation((prev) => ({
-  //       ...prev,
-  //       sendMsg: true,
-  //     }));
-  //   } else {
-  //     setEditedRegulation((prev) => ({
-  //       ...prev,
-  //       sendMsg: false,
-  //     }));
-  //   }
-  // }, [selectedRegulation]);
 
   useEffect(() => {
     console.log(editedRegulation?.sendMsg);
@@ -291,6 +275,7 @@ function RegulationTable({
           description={error}
         />
       )}
+
       <Table
         aria-label="Справочник регламентов"
         selectionMode="single"
@@ -323,7 +308,7 @@ function RegulationTable({
         </TableBody>
       </Table>
 
-      {/* Modal for viewing room */}
+      {/* Modal for viewing regulation */}
       <Modal isOpen={isViewOpen} onOpenChange={onViewOpenChange}>
         <ModalContent>
           {(onViewClose) => (
@@ -374,7 +359,7 @@ function RegulationTable({
         </ModalContent>
       </Modal>
 
-      {/* Modal for editing room */}
+      {/* Modal for editing regulation */}
       <Modal isOpen={isEditOpen} onOpenChange={onEditOpenChange}>
         <ModalContent>
           {(onEditClose) => (
@@ -475,7 +460,7 @@ function RegulationTable({
         </ModalContent>
       </Modal>
 
-      {/* Modal for deleting room */}
+      {/* Modal for deleting regulation */}
       <Modal isOpen={isDeleteOpen} onOpenChange={onDeleteOpenChange}>
         <ModalContent>
           {(onDeleteClose) => (

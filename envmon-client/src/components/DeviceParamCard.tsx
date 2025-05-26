@@ -30,6 +30,7 @@ function DeviceParamCard({ room, role }: DeviceParamCardTypes) {
       setZoneNumber(device.zoneNum);
       setDeviceID(device.device_id);
     }
+    console.log("role: ", role);
   }, []);
   type recievedData = {
     param_id: number;
@@ -92,7 +93,7 @@ function DeviceParamCard({ room, role }: DeviceParamCardTypes) {
     }
   };
   return (
-    <div className="w-full">
+    <div>
       <Card
         key={room.room_id}
         isPressable
@@ -151,9 +152,9 @@ function DeviceParamCard({ room, role }: DeviceParamCardTypes) {
                       <p className="w-28 text-right">
                         {param?.parameter_alias}, {param?.unitOfMeasure}:
                       </p>
-                      <p>
+                      <div>
                         <ParameterReading techReg_id={param?.techReg_id} />
-                      </p>
+                      </div>
                     </div>
                   ))
                 ) : (

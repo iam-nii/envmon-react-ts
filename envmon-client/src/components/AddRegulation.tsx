@@ -17,11 +17,13 @@ import { useEffect, useState } from "react";
 import RegulationsTable from "../Tables/RegulationsTable";
 import axiosClient from "../axiosClient";
 import { useUserContext } from "../context/UserContextProvider";
-import { useDeviceContext } from "../context/DeviceContextProvider";
+// import { useDeviceContext } from "../context/DeviceContextProvider";
 import { Params, Regulation, User } from "../Types";
 import { useParameterContext } from "../context/ParameterContextProvider";
-
-function AddRegulation() {
+type AddRegulationProps = {
+  device_id: string;
+};
+function AddRegulation({ device_id }: AddRegulationProps) {
   type Payload = {
     user_id: string;
     param_id: string | number;
@@ -40,8 +42,9 @@ function AddRegulation() {
   });
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { user } = useUserContext();
-  const { devices } = useDeviceContext();
+  // const { devices } = useDeviceContext();
   const { parameters: parameters_ } = useParameterContext();
+  const [deviceId, setDeviceId] = useState<string>(device_id);
 
   const [userData, setUserData] = useState<User | null>(null);
   const [parameters, setParameters] = useState<Params[]>([{}]);
@@ -53,9 +56,13 @@ function AddRegulation() {
 
   //get all regulations
   useEffect(() => {
+    setDeviceId(device_id);
+  }, [device_id]);
+  useEffect(() => {
     axiosClient
-      .get("/api/settings/?method=GET&query=settings")
+      .get(`/api/settings/?method=GET&id=${deviceId}&query=settings`)
       .then(({ data }) => {
+        console.log("Regulations", data.data);
         data.data.forEach((regulation: Regulation) => {
           const parameter = parameters_.find(
             (param) => param.param_id === regulation.param_id
@@ -67,12 +74,19 @@ function AddRegulation() {
   }, []);
 
   useEffect(() => {
+    // console.log("Parameters", parameters_);
     setParamNames(parameters_.map((param) => param.parameter_name?.trim()));
   }, [parameters_]);
   useEffect(() => {
-    // console.log("Current payload", payload);
-    getDeviceParameters(payload.device_id);
-  }, [payload.device_id]);
+    console.log("Param names", paramNames);
+    getDeviceParameters(deviceId);
+  }, [paramNames, deviceId]);
+
+  // useEffect(() => {
+  //   // console.log("Current payload", payload);
+  //   console.log("Current deviceId", deviceId);
+  //   getDeviceParameters(deviceId);
+  // }, [deviceId]);
   useEffect(() => {
     // console.log("Current user", user);
     setUserData(user);
@@ -83,6 +97,12 @@ function AddRegulation() {
       }));
     }
   }, [user]);
+  // useEffect(() => {
+  //   setPayload((payload) => ({
+  //     ...payload,
+  //     device_id: deviceId,
+  //   }));
+  // }, [deviceId]);
   useEffect(() => {
     // console.log(paramNames[parseInt(payload.param_id)]);
     console.log(payload.param_id);
@@ -209,7 +229,7 @@ function AddRegulation() {
   return (
     <div>
       <div className="flex justify-center items-center">
-        <Button onPress={onOpen} color="primary" className="text-lg w-full">
+        <Button onPress={onOpen} color="primary" className="text-lg w-[95%]">
           Добавить регламент
         </Button>
       </div>
@@ -243,7 +263,13 @@ function AddRegulation() {
                   />
                 </div>
                 <div>
-                  <Select
+                  <Input
+                    label="Идентификатор устройства"
+                    value={deviceId}
+                    isDisabled
+                    variant="bordered"
+                  />
+                  {/* <Select
                     label="Идентификатор устройства"
                     onChange={(e) => {
                       setPayload((prev) => ({
@@ -257,7 +283,7 @@ function AddRegulation() {
                         {device.deviceName}
                       </SelectItem>
                     ))}
-                  </Select>
+                  </Select> */}
                 </div>
                 <Select
                   label="Параметры"

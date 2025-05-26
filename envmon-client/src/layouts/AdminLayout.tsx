@@ -55,13 +55,19 @@ function AdminLayout() {
             to="/admin/rooms_devices"
             className="hover:bg-slate-200 p-4 text-start font-bold rounded-lg"
           >
-            Помещение / Устройства
+            Помещения / Устройства
           </Link>
           <Link
             to="/admin/params_regulations"
             className="hover:bg-slate-200 p-4 text-start font-bold rounded-lg"
           >
             Параметры / Регламенты
+          </Link>
+          <Link
+            to="/admin/params_regulations"
+            className="hover:bg-slate-200 p-4 text-start font-bold rounded-lg"
+          >
+            Системные настройки
           </Link>
         </aside>
         <div className="w-full">

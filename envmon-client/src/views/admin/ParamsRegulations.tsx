@@ -1,7 +1,8 @@
 import { Tab, Tabs } from "@heroui/react";
 import { useState } from "react";
 import AddParam from "../../components/AddParam";
-import AddRegulation from "../../components/AddRegulation";
+// import AddRegulation from "../../components/AddRegulation";
+import DeviceReg from "../../Tables/DeviceRegTable";
 
 const ParamsRegulations = () => {
   const [selected, setSelected] = useState<string>("addParam");
@@ -29,7 +30,8 @@ const ParamsRegulations = () => {
           />
         </Tab>
         <Tab key="addRegulation" title="Регламенты">
-          <AddRegulation />
+          {/* <AddRegulation /> */}
+          <DeviceReg />
         </Tab>
       </Tabs>
     </div>
