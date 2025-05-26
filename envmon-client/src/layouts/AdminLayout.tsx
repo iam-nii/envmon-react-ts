@@ -19,8 +19,11 @@ function AdminLayout() {
   // const { rooms } = useRoomContext();
   // console.log(rooms);
   // const { setDevices } = useDeviceContext();
+  // const email = useRef<string>("");
+  // const password = useRef<string>("");
   useEffect(() => {
     const userData = localStorage.getItem("USER_DATA");
+    localStorage.setItem("WARNINING_TIME", "10000");
     if (userData) {
       setUser(JSON.parse(userData));
     }
@@ -64,7 +67,7 @@ function AdminLayout() {
             Параметры / Регламенты
           </Link>
           <Link
-            to="/admin/params_regulations"
+            to="/admin/system_settings"
             className="hover:bg-slate-200 p-4 text-start font-bold rounded-lg"
           >
             Системные настройки
@@ -95,5 +98,4 @@ function AdminLayout() {
     );
   }
 }
-
 export default AdminLayout;

@@ -449,20 +449,14 @@ function RoomDetails() {
     );
     if (frPerson) {
       setShowWarning(true);
+      const warningTime = localStorage.getItem("WARNINING_TIME");
 
-      // console.log(warning);
-
-      // const message = `ВНИМАНИЕ: Значение параметра "${deviantParams}" выходит за допустимые пределы!
-      // Минимально допустимое значение: ${warning?.min}
-      // Максимально допустимое значение: ${warning?.max}
-      // Письмо отправлено на адрес: ${frPerson?.uEmail}`;
-      // console.log("message", message);
       onOpen();
       setTimeout(() => {
         setWarning(null);
         setShowWarning(false);
         onClose();
-      }, 9000);
+      }, Number(warningTime));
     }
     // console.log("frPersonEmail", frPersonEmail);
     // if (frPerson) {
@@ -510,7 +504,7 @@ function RoomDetails() {
         .join("\n")}`;
 
       axiosClient
-        .get("/api/mail/", {
+        .get("/api/reports/?method=GET&query=sendEmail", {
           params: {
             mailSubject,
             message,

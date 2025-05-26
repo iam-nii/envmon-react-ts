@@ -272,7 +272,8 @@ function DevicesTable() {
         >
           <div className="flex flex-col gap-1">
             <p className="text-medium">
-              {Number(editDevice?.status) === 1 ? "Выключить" : " Включить"}
+              {/* {Number(editDevice?.status) === 1 ? "Выключить" : " Включить"} */}
+              Состояние
             </p>
             <p className="text-tiny text-default-400">
               {Number(editDevice?.status) === 1

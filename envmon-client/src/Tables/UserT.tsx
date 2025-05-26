@@ -27,7 +27,7 @@ import axiosClient from "../axiosClient";
 
 const COLUMNS = [
   { name: "ФИО пользователя", uid: "userName" },
-  { name: "Почта", uid: "uEmail" },
+  { name: "E-mail", uid: "uEmail" },
   { name: "Телефон", uid: "uPhone" },
   { name: "Роль", uid: "uRole" },
   { name: "Должность", uid: "uPosition" },

@@ -16,7 +16,8 @@ function DeviceParamCard({ room, role }: DeviceParamCardTypes) {
   const navigate = useNavigate();
   const { users } = useUserContext();
   const { devices } = useDeviceContext();
-  const [deviceID, setDeviceID] = useState<string>();
+  const [deviceID, setDeviceID] = useState<string | null>();
+  const [deviceStatus, setDeviceStatus] = useState<number>(0);
   const [zoneNumber, setZoneNumber] = useState<number>();
   const [deviceParams, setDeviceParams] = useState<
     (recievedData | undefined)[]
@@ -32,6 +33,7 @@ function DeviceParamCard({ room, role }: DeviceParamCardTypes) {
     }
     console.log("role: ", role);
   }, []);
+  useEffect(() => {}, [deviceID]);
   type recievedData = {
     param_id: number;
     parameter_name: string;
@@ -42,29 +44,40 @@ function DeviceParamCard({ room, role }: DeviceParamCardTypes) {
 
   // Get the device parameters
   useEffect(() => {
-    // console.log("deviceID", deviceID);
+    console.log("deviceID", deviceID);
     getDeviceParameters(deviceID!);
   }, [deviceID]);
 
   const getDeviceParameters = (device_id: string) => {
-    axiosClient
-      .get(`/api/settings/?method=GET&id=${device_id}&query=parameters`)
-      .then((response) => {
-        if (response.status === 204) {
-          console.log("No content");
-        } else {
-          // console.log(response.data.data);
+    let status = 0;
+    if (device_id) {
+      status = devices.find((device) => device.device_id === deviceID)
+        ?.status as number;
+      console.log("status: ", status);
+      console.log(typeof status);
+      setDeviceStatus(status);
+      // getDeviceStatus(deviceID);
+    }
+    if (Number(status) === 1) {
+      axiosClient
+        .get(`/api/settings/?method=GET&id=${device_id}&query=parameters`)
+        .then((response) => {
+          if (response.status === 204) {
+            console.log("No content");
+          } else {
+            // console.log(response.data.data);
 
-          // const deviceParams: recievedData[] = response.data.data.map(
-          //   (devParam: recievedData) => devParam.parameter_name?.trim()
-          // );
-          setDeviceParams(response.data.data);
-        }
-      })
-      .catch((response) => {
-        console.log(response);
-      });
-    console.log("device_id", device_id);
+            // const deviceParams: recievedData[] = response.data.data.map(
+            //   (devParam: recievedData) => devParam.parameter_name?.trim()
+            // );
+            setDeviceParams(response.data.data);
+          }
+        })
+        .catch((response) => {
+          console.log(response);
+        });
+    }
+    // console.log("device_id", device_id);
     // api/devices/?method=GET&query=getInterval&id=n0G79nWmp6sm3ZYO
     // if (device_id) {
     //   axiosClient
@@ -112,12 +125,12 @@ function DeviceParamCard({ room, role }: DeviceParamCardTypes) {
         </CardHeader>
         <CardBody className="overflow-visible">
           <div className="flex gap-2">
-            <p className="text-md text-right font-bold w-32">Ответственный:</p>
+            <p className="text-md text-right font-bold w-32">Ответственный</p>
             <p className="text-md">{room.frPerson}</p>
           </div>
 
-          <div className="flex gap-5 w-full">
-            <p className="text-md text-right font-bold w-32">телефон:</p>
+          <div className="flex gap-2 w-full">
+            <p className="text-md text-right font-bold w-32">Телефон</p>
             <p className="text-md">
               {users?.find(
                 (user) => user.userName?.trim() === room.frPerson?.trim()
@@ -135,7 +148,7 @@ function DeviceParamCard({ room, role }: DeviceParamCardTypes) {
               <span className="pl-2 text-md"> 107</span>
             </p>
           </div> */}
-          {deviceID ? (
+          {deviceID && deviceStatus == 1 ? (
             <div>
               <div>
                 <h3>

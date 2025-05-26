@@ -58,7 +58,7 @@ function DeviceReg() {
       <div>
         <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="5xl">
           <ModalContent>
-            <ModalBody>
+            <ModalBody className="p-7">
               <AddRegulation device_id={deviceId} />
             </ModalBody>
           </ModalContent>
