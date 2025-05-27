@@ -10,6 +10,7 @@ import UserLayout from "./layouts/EngineerLayout";
 
 //Admin
 import Users from "./views/admin/Users_";
+import Reports from "./views/admin/Reports";
 import RoomData from "./views/admin/RoomData";
 import Dashboard from "./views/admin/Dashboard";
 import Rooms from "./views/admin/Rooms_Devices";
@@ -65,6 +66,10 @@ const router = createHashRouter([
       {
         path: "/admin/system_settings",
         element: <SystemSettings />,
+      },
+      {
+        path: "/admin/reports",
+        element: <Reports />,
       },
       {
         path: "/admin/rooms_devices",

@@ -67,6 +67,12 @@ function AdminLayout() {
             Параметры / Регламенты
           </Link>
           <Link
+            to="/admin/reports"
+            className="hover:bg-slate-200 p-4 text-start font-bold rounded-lg"
+          >
+            Отчеты
+          </Link>
+          <Link
             to="/admin/system_settings"
             className="hover:bg-slate-200 p-4 text-start font-bold rounded-lg"
           >

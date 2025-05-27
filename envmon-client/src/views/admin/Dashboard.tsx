@@ -21,7 +21,7 @@ function Dashboard() {
   useEffect(() => {
     if (rooms == null) setIsLoading(true);
     else setIsLoading(false);
-    console.log(rooms);
+    //console.log(rooms);
   }, []);
 
   //TODO
@@ -30,8 +30,7 @@ function Dashboard() {
 
   useEffect(() => {
     // getDeviceParameters();
-
-    console.log(devices);
+    //console.log(devices);
   }, [devices]);
 
   return (

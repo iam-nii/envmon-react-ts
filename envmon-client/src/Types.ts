@@ -76,7 +76,22 @@ interface Regulation {
   sendMsg?: boolean;
 }
 
+interface Report {
+  room_number: number;
+  room_report: {
+    param_name: string;
+    param_uom: string;
+    range: string;
+    values: string[];
+    date: string[];
+  }[];
+}
+
+type Reports = Report[];
+
 export type {
+  Report,
+  Reports,
   User,
   Users,
   Room,

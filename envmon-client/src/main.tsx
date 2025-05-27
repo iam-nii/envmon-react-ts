@@ -7,15 +7,18 @@ import { UserContextProvider } from "./context/UserContextProvider.tsx";
 import { RoomContextProvider } from "./context/RoomContextProvider.tsx";
 import { DeviceContextProvider } from "./context/DeviceContextProvider.tsx";
 import { ParameterContextProvider } from "./context/ParameterContextProvider.tsx";
+import { ReportContextProvider } from "./context/ReportContextProvider.tsx";
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <UserContextProvider>
       <RoomContextProvider>
         <DeviceContextProvider>
           <ParameterContextProvider>
-            <HeroUIProvider>
-              <RouterProvider router={router} />
-            </HeroUIProvider>
+            <ReportContextProvider>
+              <HeroUIProvider>
+                <RouterProvider router={router} />
+              </HeroUIProvider>
+            </ReportContextProvider>
           </ParameterContextProvider>
         </DeviceContextProvider>
       </RoomContextProvider>

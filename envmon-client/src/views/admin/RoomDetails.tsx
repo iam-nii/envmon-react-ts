@@ -13,15 +13,16 @@ import {
   useDisclosure,
   ModalBody,
 } from "@heroui/react";
-import React, { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
-import axiosClient from "../../axiosClient";
-import { device, Params, Room } from "../../Types";
-import { useRoomContext } from "../../context/RoomContextProvider";
 import Chart from "../../components/Chart";
+import axiosClient from "../../axiosClient";
+import { useParams } from "react-router-dom";
+import { device, Params, Room, Report } from "../../Types";
+import React, { useEffect, useRef, useState } from "react";
+import { useReportContext } from "../../context/ReportContextProvider";
+import { useRoomContext } from "../../context/RoomContextProvider";
+import { useUserContext } from "../../context/UserContextProvider";
 import { useDeviceContext } from "../../context/DeviceContextProvider";
 import { useParameterContext } from "../../context/ParameterContextProvider";
-import { useUserContext } from "../../context/UserContextProvider";
 
 interface DataItem {
   // batch_num: number;
@@ -71,10 +72,12 @@ type Warning = {
 function RoomDetails() {
   const pageSize = 15;
   const effectRan = useRef(false);
+  const [warningTime, setWarningTime] = useState<number>(0);
   const [page, setPage] = useState(1);
   const { rooms } = useRoomContext();
   const { users } = useUserContext(); // to get the person responsible for the room and their contact information
   const { devices } = useDeviceContext();
+  const { setReports } = useReportContext();
   const { room_id, device_id } = useParams();
   const [isLoading, setIsLoading] = useState(false);
   const [mailTo, setMailTo] = useState<string>("");
@@ -85,15 +88,25 @@ function RoomDetails() {
   const [reqInterval, setReqInterval] = useState<number>();
   const { parameters: parameters_ } = useParameterContext();
   const [graphData, setGraphData] = useState<GraphData[]>([]);
+  const graphDataRef = useRef<GraphData[]>(graphData);
   const [warning, setWarning] = useState<Warning | null>(null);
   const [maxMinData, setMaxMinData] = useState<MaxMinData[]>([]);
   const [device, setDevice] = useState<device | undefined>(undefined);
-  const graphDataRef = useRef<GraphData[]>(graphData);
   const [roomDetails, setRoomDetails] = useState<Room | null>(null);
   const [parameters, setParameters] = useState<TableColumn[]>([
     // { name: "Номер замера", uid: "id" },
     // { name: "Дата и время", uid: "dateTime" },
   ]);
+
+  useEffect(() => {
+    axiosClient
+      .get("/api/reports/?method=GET&query=getSettings")
+      .then(({ data }) => {
+        console.log("data", data.data.warning_settings);
+        const interval = Number(data.data.warning_settings.interval);
+        setWarningTime(interval);
+      });
+  }, []);
 
   useEffect(() => {
     //api/settings/?method=GET&id=2gE8gn37DP282V1&query=parameters
@@ -106,7 +119,7 @@ function RoomDetails() {
           uid: param.parameter_alias,
           techReg_id: param.techReg_id,
         }));
-        console.log("newParameters", newParameters);
+        //console.log("newParameters", newParameters);
         type itemType = {
           techReg_id: number;
         };
@@ -137,7 +150,7 @@ function RoomDetails() {
       axiosClient
         .get(`/api/devices/?method=GET&query=getInterval&id=${device_id}`)
         .then(({ data }) => {
-          console.log("reqInterval", data, device_id);
+          //console.log("reqInterval", data, device_id);
           const reqInterval = data.data.reqInterval;
           setReqInterval(reqInterval);
         });
@@ -146,12 +159,12 @@ function RoomDetails() {
   }, [device_id]);
 
   useEffect(() => {
-    console.log("maxMinData", maxMinData);
+    //console.log("maxMinData", maxMinData);
   }, [maxMinData]);
 
   useEffect(() => {
     setIsLoading(false);
-    console.log("logData", logData);
+    //console.log("logData", logData);
   }, [logData]);
   useEffect(() => setIsLoading(true), []);
 
@@ -168,12 +181,12 @@ function RoomDetails() {
           uid: "batch_num",
         });
       }
-      // console.log("parameters", parameters);
+      // //console.log("parameters", parameters);
     } catch (error) {
       console.log(error);
     }
     if (parameters.length > 2) {
-      // console.log("parameters", parameters);
+      // //console.log("parameters", parameters);
 
       if (effectRan.current) return;
       effectRan.current = true;
@@ -190,7 +203,7 @@ function RoomDetails() {
           // continue;
         }
       });
-      console.log("parameters", parameters);
+      //console.log("parameters", parameters);
       const param_aliases = parameters.map((param) => param.uid);
 
       for (let i = 2; i < parameters.length; i++) {
@@ -203,10 +216,10 @@ function RoomDetails() {
         // };
 
         // setUnitOfMeasure(UOM);
-        const UOM = parameters_.find(
-          (param) => param.techReg_id === parameters[i].techReg_id
-        )?.unitOfMeasure;
-        console.log("UOM", UOM);
+        // const UOM = parameters_.find(
+        //   (param) => param.techReg_id === parameters[i].techReg_id
+        // )?.unitOfMeasure;
+        //console.log("UOM", UOM);
         const paramDataInit = {
           [`${parameters[i].uid}`]: {
             data: [],
@@ -219,28 +232,29 @@ function RoomDetails() {
       }
       if (reqInterval && reqInterval > 0) {
         // Get the last mdt from the logs table
-        let lastMdt;
-        axiosClient
-          .get(`/envmon/?id=${device_id}&query=lastMdt`)
-          .then(async ({ data }) => {
-            console.log("data", data);
-            lastMdt = data.data.mdt;
-            console.log("lastMdt", lastMdt);
-            // Get the current datetime using typescript
-            const dbDate = new Date(lastMdt!);
-            const currentDateTime = new Date(); // current date/time
+        // let lastMdt;
+        fetchData(param_aliases, 1);
+        startLogging(param_aliases, reqInterval);
+        // axiosClient
+        //   .get(`/envmon/?id=${device_id}&query=lastMdt`)
+        //   .then(async ({ data }) => {
+        //     // console.log("data", data);
+        //     // lastMdt = data.data.mdt;
+        //     //console.log("lastMdt", lastMdt);
+        //     // Get the current datetime using typescript
+        //     // const dbDate = new Date(lastMdt!);
+        //     // const currentDateTime = new Date(); // current date/time
 
-            const diffInSeconds = Math.floor(
-              (currentDateTime.getTime() - dbDate.getTime()) / 1000
-            );
-            console.log(diffInSeconds);
+        //     // const diffInSeconds = Math.floor(
+        //     //   (currentDateTime.getTime() - dbDate.getTime()) / 1000
+        //     // );
+        //     //console.log(diffInSeconds);
 
-            console.log("lastMdt", lastMdt);
-            // await sleep(diffInSeconds * 1000);
-            // setNum(1);
-            fetchData(param_aliases, 1);
-            startLogging(param_aliases, reqInterval);
-          });
+        //     //console.log("lastMdt", lastMdt);
+        //     // await sleep(diffInSeconds * 1000);
+        //     // setNum(1);
+
+        //   });
       }
     }
   }, [parameters, maxMinData, parameters_]);
@@ -314,12 +328,12 @@ function RoomDetails() {
             },
             {} as LogData
           );
-          console.log("filteredData", filteredData);
+          //console.log("filteredData", filteredData);
           const graphData_ = graphDataRef.current;
           for (const key in filteredData) {
             const paramData = graphData_.find((item) => item[key]);
 
-            // console.log("paramData", paramData);
+            //console.log("paramData", paramData);
             if (paramData) {
               for (const key_ in paramData) {
                 const data = paramData[key_].data;
@@ -379,7 +393,7 @@ function RoomDetails() {
                     // min,
                     // max
 
-                    // console.log(
+                    // //console.log(
                     //   "Warning: ",
                     //   parameterName,
                     //   "value: ",
@@ -398,7 +412,7 @@ function RoomDetails() {
                 }
               }
             }
-            // console.log("paramData", paramData);
+            // //console.log("paramData", paramData);
 
             // if (paramData) {
             //   paramData.data?.data?.push({
@@ -406,7 +420,7 @@ function RoomDetails() {
             //     batch_num: Number(filteredData.batch_num),
             //   });
             // }
-            // console.log("paramData", paramData);
+            // //console.log("paramData", paramData);
           }
 
           // add id and dateTime to the filteredData
@@ -449,7 +463,7 @@ function RoomDetails() {
     );
     if (frPerson) {
       setShowWarning(true);
-      const warningTime = localStorage.getItem("WARNINING_TIME");
+      // const warningTime = localStorage.getItem("WARNINING_TIME");
 
       onOpen();
       setTimeout(() => {
@@ -468,54 +482,167 @@ function RoomDetails() {
     //   );
     // }
   }
+  const hasRun = useRef(false);
   useEffect(() => {
+    if (!showWarning) {
+      hasRun.current = false; // reset when showWarning is false
+      return;
+    }
+
+    if (hasRun.current) return; // skip if already run for this true state
+
+    hasRun.current = true;
     const deviantParams = warning?.parameterName.map((name, index) => {
       return `${name} (${warning?.parameterValue[index]} ${warning?.uom[index]})`;
     });
     // console.log("deviantParams", deviantParams);
     if (deviantParams && mailTo) {
       const roomNumber = roomDetails?.roomNumber;
-      const location = roomDetails?.location;
-      const zoneNum = device?.zoneNum;
-      const frPerson = roomDetails?.frPerson;
-      const frPersonMail = mailTo;
-      const frPersonPhone = frTel;
-      const mailSubject = `ВНИМАНИЕ: Значение параметра "${deviantParams?.join(
-        ", "
-      )}" ${
-        warning?.parameterName.length && warning?.parameterName.length > 1
-          ? "выходят"
-          : "выходит"
-      } за допустимые пределы!`;
-      const message = `Номер помещения: ${roomNumber}
-      Местоположение: ${location}
-      Зона: ${zoneNum}
-      Ответственный за помещение: ${frPerson}
-      Почта ответственного: ${frPersonMail}
-      Номер телефона ответсвенного: ${frPersonPhone}
-      ${warning?.parameterValue
-        .map(
-          (value, index) =>
-            `${warning?.parameterName[index]} 
-          текущее значение: ${value} ${warning?.uom[index]}, 
-          минимальное значение: ${warning?.min[index]} ${warning?.uom[index]}, 
-          максимальное значение: ${warning?.max[index]} ${warning?.uom[index]}`
-        )
-        .join("\n")}`;
+      // const location = roomDetails?.location;
+      // const zoneNum = device?.zoneNum;
+      // // const frPerson = roomDetails?.frPerson;
+      // const frPersonMail = mailTo;
+      // const frPersonPhone = frTel;
+      // console.log("roomNumber", roomNumber);
+      const now = new Date();
+      const newReport =
+        warning?.parameterName.map((paramName, index) => ({
+          param_name: paramName,
+          param_uom: warning.uom[index] || "",
+          range: `${warning.min[index] ?? ""} - ${warning.max[index] ?? ""}`,
+          values: [String(warning.parameterValue[index])],
+          date: [formatDate(now)],
+        })) || [];
+      setReports((prevReports: Report[]) => {
+        // Convert roomNumber string to number
+        const roomNum = Number(roomNumber);
 
-      axiosClient
-        .get("/api/reports/?method=GET&query=sendEmail", {
-          params: {
-            mailSubject,
-            message,
-            mailTo,
-            mailFrom: "lsr.monitoring@gmail.com",
-          },
-        })
-        .then(({ data }) => {
-          console.log("data", data);
-        });
+        // Check if report for this room exists
+        const reportIndex = prevReports.findIndex(
+          (r: Report) => r.room_number === roomNum
+        );
+        if (reportIndex !== -1) {
+          console.log("Report found", reportIndex);
+          // Updating existing report's room_report by replacing or merging
+          const updateReports = [...prevReports];
 
+          // Get the existing room_report array
+          const existingRoomReport = updateReports[reportIndex].room_report;
+
+          // for Each entry in newReport, update or add an entry in existingRoomReport
+          newReport.forEach((newEntry) => {
+            const paramIndex = existingRoomReport.findIndex(
+              (r) => r.param_name === newEntry.param_name
+            );
+            if (paramIndex !== -1) {
+              // Update only values and date arrays for existing param_name
+              existingRoomReport[paramIndex] = {
+                ...existingRoomReport[paramIndex],
+                values: [
+                  ...existingRoomReport[paramIndex].values,
+                  ...newEntry.values,
+                ],
+                date: [
+                  ...existingRoomReport[paramIndex].date,
+                  ...newEntry.date,
+                ],
+              };
+            } else {
+              // Add new param entry if not found
+              existingRoomReport.push(newEntry);
+            }
+          });
+
+          // Update the room_report in the report
+          updateReports[reportIndex] = {
+            ...updateReports[reportIndex],
+            room_report: existingRoomReport,
+          };
+
+          return updateReports;
+        } else {
+          console.log("Report not found", reportIndex);
+          //Add new report if not found
+          return [
+            ...prevReports,
+            {
+              room_number: roomNum,
+              room_report: newReport,
+            },
+          ];
+        }
+      });
+
+      // const mailSubject = `ВНИМАНИЕ: Значение параметра "${deviantParams?.join(
+      //   ", "
+      // )}" ${
+      //   warning?.parameterName.length && warning?.parameterName.length > 1
+      //     ? "выходят"
+      //     : "выходит"
+      // } за допустимые пределы!`;
+      // const message = `Номер помещения: ${roomNumber}
+      // Местоположение: ${location}
+      // Зона: ${zoneNum}
+      // Ответственный за помещение: ${frPerson}
+      // Почта ответственного: ${frPersonMail}
+      // Номер телефона ответсвенного: ${frPersonPhone}
+
+      // ${warning?.parameterValue
+      //   .map(
+      //     (value, index) =>
+      //       `${warning?.parameterName[index]}
+      //     текущее значение: ${value} ${warning?.uom[index]},
+      //     минимальное значение: ${warning?.min[index]} ${warning?.uom[index]},
+      //     максимальное значение: ${warning?.max[index]} ${warning?.uom[index]}`
+      //   )
+      //   .join("\n")}`;
+
+      // axiosClient
+      //   .get("/api/reports/?method=POST&query=sendMail", {
+      //     params: {
+      //       mailSubject,
+      //       message,
+      //       mailTo,
+      //       mailFrom: "lsr.monitoring@gmail.com",
+      //     },
+      //   })
+      //   .then(({ data }) => {
+      //     console.log("data", data);
+      //   })
+      //   .catch((err) => {
+      //     console.log("err", err);
+      //   });
+
+      // const fileName = `отчет_${roomNumber}_${location}_${zoneNum}`;
+      // const parameterValues = warning?.parameterValue.map((value) => {
+      //   return value;
+      // });
+      // const minValues = warning?.min.map((value) => {
+      //   return value;
+      // });
+      // const maxValues = warning?.max.map((value) => {
+      //   return value;
+      // });
+      // const data = {
+      //   fileName,
+      //   roomNumber,
+      //   location,
+      //   zoneNum,
+      //   phoneNumber: frPersonPhone,
+      //   email: frPersonMail,
+      //   warning:
+      //     "КОНТРОЛИРУЕМЫЕ ПАРАМЕТРЫ МИКРОКЛИМАТА ЗА ГРАНИЦАМИ ДОПУСТИМОГО ДИАПАЗОНА",
+      //   parameters: deviantParams,
+      //   parameterValues,
+      //   minValues,
+      //   maxValues,
+      // };
+      // console.log("data", data);
+      // axiosClient.get(
+      //   `/api/reports/?method=POST&query=generateReport&data=${JSON.stringify(
+      //     data
+      //   )}`
+      // );
       // console.log("mailSubject", mailSubject);
       // console.log("message", message);
     }
@@ -538,10 +665,10 @@ function RoomDetails() {
     const room = rooms.find((room) => room.room_id === Number(room_id));
 
     if (room) {
-      console.log("room", room);
+      // console.log("room", room);
       setRoomDetails(room);
     } else {
-      console.error("Room not found for room_id:", room_id);
+      // console.log("Room not found for room_id:", room_id);
     }
     setDevice(devices.find((device) => device.device_id === device_id));
   }, [room_id, rooms, device_id, devices]);
