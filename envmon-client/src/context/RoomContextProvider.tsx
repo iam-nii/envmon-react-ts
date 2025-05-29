@@ -21,7 +21,7 @@ export const RoomContextProvider = ({ children }: RoomContextProviderType) => {
   const [rooms, setRooms] = useState<Rooms>([]);
   useEffect(() => {
     axiosClient
-      .get("/api/rooms/?method=GET")
+      .get("/api/rooms/?method=GET&query=getRooms")
       .then((response) => {
         // console.log("response", response);
         setRooms(response.data.data);

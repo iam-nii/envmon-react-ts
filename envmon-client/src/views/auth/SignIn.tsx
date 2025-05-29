@@ -1,5 +1,5 @@
 import { Input, Button, Alert, Spinner } from "@heroui/react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useUserContext } from "../../context/UserContextProvider";
 import { useNavigate } from "react-router-dom";
 import axiosClient from "../../axiosClient";
@@ -11,6 +11,21 @@ const SignIn = () => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      console.log(`key pressed: ${event.key}`);
+      if (event.key === "Enter") {
+        console.log("Enter key pressed");
+        handleSubmit();
+      }
+    };
+    window.addEventListener("keydown", handleKeyPress);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, []);
 
   const handleSubmit = () => {
     // e.preventDefault();
@@ -41,9 +56,9 @@ const SignIn = () => {
           }
         })
         .catch((err) => {
-          console.log(err);
+          // console.log(err);
           const response = err.response;
-          console.log(response);
+          console.log(response.data.data);
           if (
             (response && response.data.status === 422) ||
             response.status === 401
@@ -54,6 +69,9 @@ const SignIn = () => {
                 "Данные не верные. Попробуйте еще раз или зарегистрируйтесь"
               );
             }
+          }
+          if (response.data.message === "Invalid request") {
+            setError(response.data.data);
           }
         })
         .finally(() => {

@@ -1,21 +1,24 @@
 import { Select, SelectItem, DateRangePicker, Button } from "@heroui/react";
 import { useRoomContext } from "../../context/RoomContextProvider";
 import { parseZonedDateTime } from "@internationalized/date";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useReportContext } from "../../context/ReportContextProvider";
-import { Report } from "../../Types";
+import { Report, Reports as Reports_ } from "../../Types";
 
 function Reports() {
   const { rooms } = useRoomContext();
   const [roomNumber, setRoomNumber] = useState<number>(0);
   const { ReportRef } = useReportContext();
   const [roomReport, setRoomReport] = useState<Report | null>(null);
+  const [allReports, setAllReports] = useState<Reports_>([]);
+  const [isEmptyReport, setIsEmptyReport] = useState<boolean>(false);
   // const [isGeneratedReport, setIsGeneratedReport] = useState<boolean>(false);
 
   const handleRoomSelectionChange = (
     e: React.ChangeEvent<HTMLSelectElement>
   ) => {
     setRoomReport(null);
+    setIsEmptyReport(false);
     const roomNumber = rooms.find(
       (room) => room.room_id === Number(e.target.value)
     )?.roomNumber;
@@ -28,12 +31,19 @@ function Reports() {
 
     if (report) {
       setRoomReport(report);
+      setIsEmptyReport(false);
       // console.log("report", report);
       const param_names = report?.room_report.map((param) => param.param_name);
       console.log("param_names", param_names);
       // setIsGeneratedReport(true);
+    } else {
+      setIsEmptyReport(true);
     }
   };
+
+  useEffect(() => {
+    setAllReports(ReportRef.current);
+  }, []);
   return (
     <>
       <div className="flex gap-2">
@@ -85,13 +95,13 @@ function Reports() {
           Генерировать отчет
         </Button>
       </div>
-      {roomReport && (
+      {roomReport ? (
         <>
           <div className="mt-10">
             <h1 className="font-bold text-lg mb-5">
               Параметры микроклимата помещения №{roomNumber}
             </h1>
-            {roomReport.room_report.map((param) => (
+            {roomReport!.room_report.map((param) => (
               <div key={param.param_name}>
                 <h2 className="text-md font-bold">
                   {param.param_name}, {param.param_uom}{" "}
@@ -109,7 +119,32 @@ function Reports() {
             ))}
           </div>
         </>
+      ) : (
+        isEmptyReport && (
+          <div className="mt-10">
+            <h1 className="font-bold text-lg mb-5">
+              Нет отчета о монтиторинге помещения №{roomNumber}
+            </h1>
+          </div>
+        )
       )}
+      {/* Show all reports  if no room Number is selected */}
+      {roomNumber === 0 &&
+        ReportRef.current.map((report) => (
+          <div key={report.room_number} className="mt-10">
+            <h1 className="font-bold text-lg mb-2">
+              Отчет о монтиторинге помещения №{report.room_number}
+            </h1>
+            {report.room_report.map((param) => (
+              <div key={param.param_name}>
+                <h2 className="text-md font-bold">
+                  {param.param_name}, {param.param_uom}{" "}
+                  <span>[{param.range}]</span>
+                </h2>
+              </div>
+            ))}
+          </div>
+        ))}
     </>
   );
 }
