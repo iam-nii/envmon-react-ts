@@ -12,12 +12,16 @@
   },
   "dependencies": {
     "@heroui/react": "^2.7.4",
+    "@internationalized/date": "^3.8.0",
     "axios": "^1.8.1",
+    "date-fns": "^4.1.0",
     "framer-motion": "^12.4.7",
     "highcharts": "^12.2.0",
     "highcharts-react-official": "^3.2.1",
     "lucide-react": "^0.483.0",
     "react": "^19.0.0",
+    "react-aria": "^3.40.0",
+    "react-datepicker": "^8.4.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.2.0",
     "uuid": "^11.1.0"

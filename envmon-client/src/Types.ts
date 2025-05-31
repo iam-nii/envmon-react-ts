@@ -86,6 +86,11 @@ interface Report {
     date: string[];
   }[];
 }
+interface resData {
+  status: string;
+  message: string;
+  data: string | [];
+}
 
 type Reports = Report[];
 
@@ -99,6 +104,7 @@ export type {
   device,
   Devices,
   Params,
+  resData,
   TableItem,
   Parameters,
   Regulation,
