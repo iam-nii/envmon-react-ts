@@ -5,7 +5,7 @@ import {
   NavbarItem,
   Button,
 } from "@heroui/react";
-import Logo from "../assets/21.svg";
+import Logo from "../assets/proto-2-light-short.svg";
 import { Link, Navigate, useNavigate, Outlet } from "react-router-dom";
 import { useUserContext } from "../context/UserContextProvider";
 // import { useRoomContext } from "../context/RoomContextProvider";
@@ -41,7 +41,7 @@ function AdminLayout() {
     return (
       <div className="flex">
         <aside className="min-w-72 h-screen flex flex-col gap-4 bg-blue-50">
-          <img src={Logo} alt="University Logo" className="w-52 mx-4 mt-4" />
+          <img src={Logo} alt="University Logo" className="w-40 mx-4 mt-2" />
           <Link
             to="/admin"
             className="hover:bg-slate-200 p-4 text-start font-bold rounded-lg"

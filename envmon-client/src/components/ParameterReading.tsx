@@ -34,9 +34,9 @@ function ParameterReading({ techReg_id }: ParameterReadingType) {
             reading.logValue < minReading!
           ) {
             //sending mail
-            console.log(
-              `sending mail: \nLogValue: ${reading.logValue}, \nMax: ${maxReading}, \nMin: ${minReading}, \nTechReg_id: ${techReg_id}`
-            );
+            // console.log(
+            //   `sending mail: \nLogValue: ${reading.logValue}, \nMax: ${maxReading}, \nMin: ${minReading}, \nTechReg_id: ${techReg_id}`
+            // );
           }
 
           return {
@@ -64,7 +64,7 @@ function ParameterReading({ techReg_id }: ParameterReadingType) {
         setMinReading(data.data[0].minValue);
       })
       .catch((error) => {
-        console.log(error);
+        console.error(error);
       });
   }, []);
   // useEffect(() => {

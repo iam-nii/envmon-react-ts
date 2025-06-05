@@ -37,9 +37,11 @@ function Dashboard() {
     <div className="w-full">
       <div className="w-full flex flex-wrap gap-5">
         {isLoading ? (
-          <Spinner size="lg" />
+          <Spinner key={1} size="lg" />
         ) : (
-          rooms.map((room) => <DeviceParamCard room={room} role="admin" />)
+          rooms.map((room) => (
+            <DeviceParamCard key={room.room_id} room={room} role="admin" />
+          ))
         )}
       </div>
     </div>

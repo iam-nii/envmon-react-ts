@@ -9,13 +9,13 @@ import {
   ModalFooter,
   ModalHeader,
   Select,
-  Selection,
+  // Selection,
   SelectItem,
   Switch,
   // Spinner,
   useDisclosure,
 } from "@heroui/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import DevicesTable from "../Tables/DevicesTable";
 import axiosClient from "../axiosClient";
 import { useRoomContext } from "../context/RoomContextProvider";
@@ -63,25 +63,25 @@ function AddDevice({
   const { rooms } = useRoomContext();
   const { devices, setDevices } = useDeviceContext();
 
-  useEffect(() => {
-    console.log("rooms:", rooms);
-  }, [rooms]);
+  // useEffect(() => {
+  //   console.log("rooms:", rooms);
+  // }, [rooms]);
   //   const [freeDevices, setFreeDevices] = useState<Devices | null>(null);
 
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const { parameters } = useParameterContext();
-  const [selectedParameters, setSelectedParameters] = useState<Selection>();
+  // const [selectedParameters, setSelectedParameters] = useState<Selection>();
 
   const handleAddDevice = () => {
     setError(null);
-    console.log("devicePayload", devicePayload);
+    // console.log("devicePayload", devicePayload);
     if (devicePayload.status === true) {
       devicePayload.status = 1;
     } else {
       devicePayload.status = 0;
     }
     axiosClient.post("/api/devices/", devicePayload).then(({ data }) => {
-      console.log(data);
+      // console.log(data);
       setDevices([...devices, data.data]);
       setError(null);
       setSuccess(data.message);
@@ -91,9 +91,9 @@ function AddDevice({
       onClose();
     });
   };
-  useEffect(() => {
-    console.log(selectedParameters);
-  }, [selectedParameters]);
+  // useEffect(() => {
+  //   console.log(selectedParameters);
+  // }, [selectedParameters]);
   return (
     <div>
       <div className="flex justify-center items-center">
@@ -186,7 +186,7 @@ function AddDevice({
                   placeholder="Отслеживаемые параметры"
                   variant="bordered"
                   selectionMode="multiple"
-                  onSelectionChange={setSelectedParameters}
+                  // onSelectionChange={setSelectedParameters}
                 >
                   {parameters!.map((parameter) => (
                     <SelectItem

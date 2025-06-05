@@ -28,7 +28,7 @@ export const RoomContextProvider = ({ children }: RoomContextProviderType) => {
         // console.log(res.data.data);
       })
       .catch((err) => {
-        console.log(err);
+        console.error(err);
       });
   }, []);
 

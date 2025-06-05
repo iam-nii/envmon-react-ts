@@ -31,7 +31,7 @@ function DeviceParamCard({ room, role }: DeviceParamCardTypes) {
       setZoneNumber(device.zoneNum);
       setDeviceID(device.device_id);
     }
-    console.log("role: ", role);
+    // console.log("role: ", role);
   }, []);
   useEffect(() => {}, [deviceID]);
   type recievedData = {
@@ -44,7 +44,7 @@ function DeviceParamCard({ room, role }: DeviceParamCardTypes) {
 
   // Get the device parameters
   useEffect(() => {
-    console.log("deviceID", deviceID);
+    // console.log("deviceID", deviceID);
     getDeviceParameters(deviceID!);
   }, [deviceID]);
 
@@ -53,8 +53,8 @@ function DeviceParamCard({ room, role }: DeviceParamCardTypes) {
     if (device_id) {
       status = devices.find((device) => device.device_id === deviceID)
         ?.status as number;
-      console.log("status: ", status);
-      console.log(typeof status);
+      // console.log("status: ", status);
+      // console.log(typeof status);
       setDeviceStatus(status);
       // getDeviceStatus(deviceID);
     }
@@ -74,29 +74,10 @@ function DeviceParamCard({ room, role }: DeviceParamCardTypes) {
           }
         })
         .catch((response) => {
-          console.log(response);
+          console.error(response);
         });
     }
-    // console.log("device_id", device_id);
-    // api/devices/?method=GET&query=getInterval&id=n0G79nWmp6sm3ZYO
-    // if (device_id) {
-    //   axiosClient
-    //     .get(`/api/devices/?method=GET&query=getInterval&id=${device_id}`)
-    //     .then(({ data }) => {
-    //       console.log("reqInterval", data, device_id);
-    //       const reqInterval = data.data.reqInterval;
-    //       setReqInterval(reqInterval);
-    //     });
-    // }
   };
-
-  // useEffect(() => {
-  //   console.log("reqInterval", reqInterval);
-  //   const logData = new DeviceLogData(deviceID!, room.roomNumber, reqInterval!);
-  //   if (reqInterval && reqInterval > 0) {
-  //     logData.getLogData();
-  //   }
-  // }, [reqInterval, deviceID]);
 
   const handlePress = (room: Room) => {
     if (role === "admin") {

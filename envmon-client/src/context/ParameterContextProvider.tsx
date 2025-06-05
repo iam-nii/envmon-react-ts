@@ -37,9 +37,9 @@ export const ParameterContextProvider = ({
         console.log(err);
       });
   }, []);
-  useEffect(() => {
-    console.log("parameters", parameters);
-  }, [parameters]);
+  // useEffect(() => {
+  //   console.log("parameters", parameters);
+  // }, [parameters]);
 
   return (
     <ParameterContext.Provider value={{ parameters, setParameters }}>

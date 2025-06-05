@@ -62,7 +62,7 @@ function AddRegulation({ device_id }: AddRegulationProps) {
     axiosClient
       .get(`/api/settings/?method=GET&id=${deviceId}&query=settings`)
       .then(({ data }) => {
-        console.log("Regulations", data.data);
+        // console.log("Regulations", data.data);
         data.data.forEach((regulation: Regulation) => {
           const parameter = parameters_.find(
             (param) => param.param_id === regulation.param_id
@@ -78,7 +78,7 @@ function AddRegulation({ device_id }: AddRegulationProps) {
     setParamNames(parameters_.map((param) => param.parameter_name?.trim()));
   }, [parameters_]);
   useEffect(() => {
-    console.log("Param names", paramNames);
+    // console.log("Param names", paramNames);
     getDeviceParameters(deviceId);
   }, [paramNames, deviceId]);
 
@@ -103,10 +103,10 @@ function AddRegulation({ device_id }: AddRegulationProps) {
   //     device_id: deviceId,
   //   }));
   // }, [deviceId]);
-  useEffect(() => {
-    // console.log(paramNames[parseInt(payload.param_id)]);
-    console.log(payload.param_id);
-  }, [payload.param_id]);
+  // useEffect(() => {
+  //   // console.log(paramNames[parseInt(payload.param_id)]);
+  //   console.log(payload.param_id);
+  // }, [payload.param_id]);
 
   const getDeviceParameters = async (device_id: string) => {
     const response = await axiosClient.get(
@@ -118,11 +118,11 @@ function AddRegulation({ device_id }: AddRegulationProps) {
       for (let i = 0; i < paramNames.length; i++) {
         missingParams.push({ param_id: i, parameter_name: paramNames[i] });
       }
-      console.log("Missing params", missingParams);
+      // console.log("Missing params", missingParams);
 
       setParameters(missingParams);
     } else {
-      console.log(response.data.data);
+      // console.log(response.data.data);
       type recievedData = {
         param_id: number;
         parameter_name: string;
@@ -131,8 +131,8 @@ function AddRegulation({ device_id }: AddRegulationProps) {
         devParam.parameter_name?.trim()
       );
 
-      console.log("Device params:", deviceParams);
-      console.log("All Params", paramNames);
+      // console.log("Device params:", deviceParams);
+      // console.log("All Params", paramNames);
 
       // Filter deviceParameters to find those not in parameters_
       const missingParams = [];
@@ -155,11 +155,11 @@ function AddRegulation({ device_id }: AddRegulationProps) {
       setParameters(missingParams);
     }
   };
-  useEffect(() => {
-    // const paramsSet = new Set(parameters_);
-    // console.log(paramsSet);
-    console.log(payload.param_id);
-  }, [payload.param_id]);
+  // useEffect(() => {
+  //   // const paramsSet = new Set(parameters_);
+  //   // console.log(paramsSet);
+  //   console.log(payload.param_id);
+  // }, [payload.param_id]);
 
   const invalidPayload = () => {
     setError(false);
@@ -192,16 +192,16 @@ function AddRegulation({ device_id }: AddRegulationProps) {
 
   const handleSubmit = () => {
     if (invalidPayload()) {
-      console.log("Payload is invalid");
+      // console.log("Payload is invalid");
       return;
     } else {
-      console.log("Payload is valid");
+      // console.log("Payload is valid");
       if (payload.send_msg === true) {
         payload.send_msg = 1;
       } else {
         payload.send_msg = 0;
       }
-      console.log(payload);
+      // console.log(payload);
       axiosClient
         .get(
           `/api/settings/?method=POST&id=${payload.device_id}&query=parameters`,
@@ -209,17 +209,17 @@ function AddRegulation({ device_id }: AddRegulationProps) {
             params: payload,
           }
         )
-        .then((response) => {
+        .then(() => {
           setSuccess("Регламент добавлен");
           setError(false);
           setTimeout(() => {
             setSuccess(false);
           }, 3000);
-          console.log(response);
+          // console.log(response);
         })
         .catch((error) => {
           setError("Ошибка добавления регламента");
-          console.log(error);
+          console.error(error);
           setTimeout(() => {
             setError(false);
           }, 3000);

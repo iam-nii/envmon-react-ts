@@ -77,9 +77,9 @@ function AddRoom({ setError, setSuccess, error, success }: AddRoomType) {
 
   const handleAddRoom = () => {
     setError(null);
-    console.log("roomPayload", roomPayload);
+    // console.log("roomPayload", roomPayload);
     axiosClient.post("/api/rooms/", roomPayload).then(({ data }) => {
-      console.log(data);
+      // console.log(data);
       setRooms([...rooms, data.data]);
       setError(null);
       setSuccess(data.message);

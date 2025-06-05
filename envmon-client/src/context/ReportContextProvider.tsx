@@ -39,7 +39,7 @@ export const ReportContextProvider = ({
 
   useEffect(() => {
     ReportRef.current = Reports;
-    console.log("ReportRef updated:", ReportRef.current);
+    // console.log("ReportRef updated:", ReportRef.current);
     // Save reports to localStorage on every change
     localStorage.setItem("reports", JSON.stringify(Reports));
   }, [Reports]);

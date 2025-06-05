@@ -62,7 +62,7 @@ function AddParam({ setError, setSuccess, error, success }: AddParamType) {
 
   const handleAddParam = () => {
     setError(null);
-    console.log("paramPayload", paramPayload);
+    // console.log("paramPayload", paramPayload);
     axiosClient
       .get(
         `/api/parameters/?method=POST&parameter_name=${paramPayload.paramName}
@@ -72,7 +72,7 @@ function AddParam({ setError, setSuccess, error, success }: AddParamType) {
         &parameter_alias=${paramPayload.parameter_alias}`
       )
       .then(({ data }) => {
-        console.log(data);
+        // console.log(data);
         setParameters([...parameters, data.params]);
         setSuccess(data.message);
         setError(null);

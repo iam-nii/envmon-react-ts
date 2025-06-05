@@ -12,17 +12,19 @@ import {
   ModalHeader,
   useDisclosure,
   ModalBody,
+  Button,
 } from "@heroui/react";
 import Chart from "../../components/Chart";
 import axiosClient from "../../axiosClient";
 import { useParams } from "react-router-dom";
 import { device, Params, Room, Report } from "../../Types";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useReportContext } from "../../context/ReportContextProvider";
 import { useRoomContext } from "../../context/RoomContextProvider";
 import { useUserContext } from "../../context/UserContextProvider";
 import { useDeviceContext } from "../../context/DeviceContextProvider";
 import { useParameterContext } from "../../context/ParameterContextProvider";
+import CustomDateRangePicker from "../../components/CustomDateRangePicker";
 
 interface DataItem {
   // batch_num: number;
@@ -97,6 +99,11 @@ function RoomDetails() {
     // { name: "Номер замера", uid: "id" },
     // { name: "Дата и время", uid: "dateTime" },
   ]);
+  const [dateRange, setDateRange] = useState<{
+    startDate: string;
+    endData: string;
+  } | null>(null);
+  // const [filteredData, setFilteredData] = useState<GraphData[]>([]);
 
   useEffect(() => {
     axiosClient
@@ -207,19 +214,6 @@ function RoomDetails() {
       const param_aliases = parameters.map((param) => param.uid);
 
       for (let i = 2; i < parameters.length; i++) {
-        // const paramDataInit = {
-        //   [parameters[i].uid]: {
-        //     data: [],
-        //     max: parameters[i].max || 0,
-        //     min: parameters[i].min || 0,
-        //   },
-        // };
-
-        // setUnitOfMeasure(UOM);
-        // const UOM = parameters_.find(
-        //   (param) => param.techReg_id === parameters[i].techReg_id
-        // )?.unitOfMeasure;
-        //console.log("UOM", UOM);
         const paramDataInit = {
           [`${parameters[i].uid}`]: {
             data: [],
@@ -231,36 +225,12 @@ function RoomDetails() {
         setGraphData((prev) => [...prev, paramDataInit]);
       }
       if (reqInterval && reqInterval > 0) {
-        // Get the last mdt from the logs table
-        // let lastMdt;
         fetchData(param_aliases, 1);
         startLogging(param_aliases, reqInterval);
-        // axiosClient
-        //   .get(`/envmon/?id=${device_id}&query=lastMdt`)
-        //   .then(async ({ data }) => {
-        //     // console.log("data", data);
-        //     // lastMdt = data.data.mdt;
-        //     //console.log("lastMdt", lastMdt);
-        //     // Get the current datetime using typescript
-        //     // const dbDate = new Date(lastMdt!);
-        //     // const currentDateTime = new Date(); // current date/time
-
-        //     // const diffInSeconds = Math.floor(
-        //     //   (currentDateTime.getTime() - dbDate.getTime()) / 1000
-        //     // );
-        //     //console.log(diffInSeconds);
-
-        //     //console.log("lastMdt", lastMdt);
-        //     // await sleep(diffInSeconds * 1000);
-        //     // setNum(1);
-
-        //   });
       }
     }
   }, [parameters, maxMinData, parameters_]);
-  // async function sleep(ms: number): Promise<void> {
-  //   return new Promise((resolve) => setTimeout(resolve, ms));
-  // }
+
   interface ChartRef {
     chart?: {
       reflow: () => void;
@@ -674,7 +644,7 @@ function RoomDetails() {
   }, [room_id, rooms, device_id, devices]);
 
   const pages = Math.ceil(logData.length / pageSize);
-  const items = React.useMemo(() => {
+  const items = useMemo(() => {
     const start = (page - 1) * pageSize;
     const end = start + pageSize;
 
@@ -682,6 +652,41 @@ function RoomDetails() {
       .sort((a, b) => Number(b.batch_num) - Number(a.batch_num))
       .slice(start, end);
   }, [page, logData]);
+  const handleDateRangeChange = (range: {
+    start: Date | null;
+    end: Date | null;
+  }) => {
+    // 2025-05-20 20:01:43
+    let startDate = "";
+    let startTime = "";
+    if (range.start) {
+      startDate = `${range.start?.getFullYear()}-${
+        range.start.getMonth() + 1
+      }-${range.start.getDate()}`;
+      startTime = `${range.start.getHours()}:${range.start.getMinutes()}:${range.start.getSeconds()}`;
+      console.log(`From: ${startDate} ${startTime}`);
+    }
+
+    let endDate = "";
+    let endTime = "";
+    if (range.end) {
+      endDate = `${range.end.getFullYear()}-${
+        range.end.getMonth() + 1
+      }-${range.end.getDate()}`;
+      endTime = `${range.end.getHours()}:${range.end.getMinutes()}:${range.end.getSeconds()}`;
+      console.log(`To: ${endDate} ${endTime}`);
+    }
+
+    // &query=getFilteredReports&minDate=2025-05-19 00:15:33&maxDate=2025-5-20 20:01:43
+    if (range.start && range.end)
+      setDateRange({
+        startDate: `${startDate} ${startTime}`,
+        endData: `${endDate} ${endTime}`,
+      });
+  };
+  const handleFilteredSearch = () => {
+    console.log("dateRange", dateRange);
+  };
 
   return (
     <div>
@@ -695,11 +700,25 @@ function RoomDetails() {
         </div>
       ) : (
         <>
-          <h1 className="text-center font-bold mb-5">
-            Журнал мониторинга параметров помещения номер{" "}
-            {roomDetails?.roomNumber} ({roomDetails?.location} - Зон:{" "}
-            {device?.zoneNum})
-          </h1>
+          <div className="flex flex-col align-center gap-5 mb-5 w-full">
+            <h1 className="font-bold text-center">
+              Журнал мониторинга параметров помещения номер{" "}
+              {roomDetails?.roomNumber} ({roomDetails?.location} - Зон:{" "}
+              {device?.zoneNum}) За период
+            </h1>
+            <div className="flex flex-row gap-5">
+              <CustomDateRangePicker onChange={handleDateRangeChange} />
+              <Button
+                variant="solid"
+                color="primary"
+                className="w-24 h-11"
+                onPress={handleFilteredSearch}
+              >
+                Показать
+              </Button>
+            </div>
+          </div>
+
           <Table
             aria-label="Table with log data"
             className="mb-5"

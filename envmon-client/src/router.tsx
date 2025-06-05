@@ -106,6 +106,10 @@ const router = createHashRouter([
         element: <EngineerRooms />,
       },
       {
+        path: "/engineer/reports",
+        element: <Reports />,
+      },
+      {
         path: "/engineer/room/devices/:room_id/:device_id",
         element: <RoomDevices />,
       },

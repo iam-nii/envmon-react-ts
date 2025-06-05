@@ -31,7 +31,14 @@ const COLUMNS = [
   { name: "Номер помещения", uid: "roomNumber" },
   { name: "ФИО ответственного", uid: "frPerson" },
   { name: "Местоположение", uid: "location" },
-  { name: "Площадь, м2", uid: "area" },
+  {
+    name: (
+      <>
+        Площадь, м<sup>2</sup>
+      </>
+    ),
+    uid: "area",
+  },
   { name: "Длина, м", uid: "length" },
   { name: "Ширина, м", uid: "width" },
   { name: "Высота, м", uid: "height" },

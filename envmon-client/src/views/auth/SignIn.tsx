@@ -14,9 +14,9 @@ const SignIn = () => {
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
-      console.log(`key pressed: ${event.key}`);
+      // console.log(`key pressed: ${event.key}`);
       if (event.key === "Enter") {
-        console.log("Enter key pressed");
+        // console.log("Enter key pressed");
         handleSubmit();
       }
     };

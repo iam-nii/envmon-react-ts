@@ -55,7 +55,8 @@ function RoomDevices() {
           roomDevices.map((device) => (
             // <div key={device.device_id}>{device.device_id}</div>
             <Card
-              isPressable
+              isPressable={device.status == 1}
+              isDisabled={device.status == 0}
               key={device.device_id}
               className="h-[170px] w-[50%]"
               onPress={() => {
