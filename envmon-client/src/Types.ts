@@ -62,6 +62,8 @@ interface Params {
   pmaxValue?: number;
   parameter_alias?: string;
   techReg_id?: number;
+  min?: number;
+  max?: number;
 }
 
 type Parameters = Params[];

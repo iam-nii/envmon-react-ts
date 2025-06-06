@@ -49,7 +49,7 @@ type MaxMinData = {
 
 type DataPoint = {
   y: number;
-  batch_num: number;
+  x: number | string;
 };
 type GraphData = {
   [title: string]: {
@@ -377,7 +377,7 @@ function RoomDetails() {
                   }
                   paramData[key_].data?.push({
                     y: Number(filteredData[key]),
-                    batch_num: Number(num),
+                    x: Number(num),
                   });
                 }
               }
@@ -652,6 +652,7 @@ function RoomDetails() {
       .sort((a, b) => Number(b.batch_num) - Number(a.batch_num))
       .slice(start, end);
   }, [page, logData]);
+
   const handleDateRangeChange = (range: {
     start: Date | null;
     end: Date | null;

@@ -1,11 +1,12 @@
 import { Select, SelectItem, Button } from "@heroui/react";
 import { useRoomContext } from "../../context/RoomContextProvider";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 // import { useReportContext } from "../../context/ReportContextProvider";
 import { resData } from "../../Types";
 import axiosClient from "../../axiosClient";
 import CustomDateRangePicker from "../../components/CustomDateRangePicker";
 import RoomReport from "../../components/reports/RoomReport";
+import html2pdf from "html2pdf.js";
 
 function Reports() {
   interface roomParams {
@@ -39,6 +40,7 @@ function Reports() {
     startDate: string;
     endData: string;
   } | null>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   const handleRoomSelectionChange = (
     e: React.ChangeEvent<HTMLSelectElement>
@@ -49,6 +51,20 @@ function Reports() {
       (room) => room.room_id === Number(e.target.value)
     )?.roomNumber;
     setRoomNumber(roomNumber!);
+  };
+  const handleDownloadPdf = () => {
+    if (contentRef.current) {
+      const options = {
+        margin: 0.5,
+        filename: `Отчет для помещения № ${roomNumber}.pdf`,
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
+      };
+      console.log(contentRef.current);
+
+      html2pdf().set(options).from(contentRef.current).save();
+    }
   };
   // const generateReport = () => {
   //   getRoomParameters();
@@ -264,7 +280,9 @@ function Reports() {
       </div>
 
       {/* Report for all rooms */}
-      <div className="mt-10">
+      <div className="mt-10" ref={contentRef}>
+        <div></div>
+        <Button onPress={handleDownloadPdf}>Скачать в PDF</Button>
         {/* Report for all rooms */}
         {allReports &&
           !roomNumber &&

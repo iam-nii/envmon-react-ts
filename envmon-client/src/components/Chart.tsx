@@ -1,7 +1,7 @@
-import { Button, ButtonGroup } from "@heroui/react";
+// import { Button, ButtonGroup } from "@heroui/react";
 import HighchartsReact from "highcharts-react-official";
 import Highcharts from "highcharts/highstock";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const COLORS = [
   "#0000FF",
@@ -14,7 +14,7 @@ const COLORS = [
 ];
 type DataPoint = {
   y: number;
-  batch_num: number;
+  x: number | string;
 };
 type GraphData = {
   [title: string]: {
@@ -35,25 +35,26 @@ type ChartProps = {
 function Chart({ data }: ChartProps) {
   // const [DATA, setDATA] = useState<GraphData[]>([]);
   const [legend, setLegend] = useState<string[]>([]);
+  // const [series, setSeries] = useState<GraphData[]>([]);
   // const chartRef = useRef<HighchartsReact.RefObject>(null);
-  const [windowSize, setWindowSize] = useState<number | "all">("all");
+  // const [windowSize, setWindowSize] = useState<number | "all">("all");
   const effectRan = useRef(false);
   // const [userZoomed, setUserZoomed] = useState(false);
 
-  const filteredData = useMemo(() => {
-    return data.map((item) => {
-      const title = Object.keys(item)[0];
-      const allPoints = item[title].data || [];
-      if (windowSize === "all") return item;
-      return {
-        ...item,
-        [title]: {
-          ...item[title],
-          data: allPoints.slice(-windowSize),
-        },
-      };
-    });
-  }, [data, windowSize]);
+  // const filteredData = useMemo(() => {
+  //   return data.map((item) => {
+  //     const title = Object.keys(item)[0];
+  //     const allPoints = item[title].data || [];
+  //     if (windowSize === "all") return item;
+  //     return {
+  //       ...item,
+  //       [title]: {
+  //         ...item[title],
+  //         data: allPoints.slice(-windowSize),
+  //       },
+  //     };
+  //   });
+  // }, [data, windowSize]);
   useEffect(() => {
     if (effectRan.current) return;
     effectRan.current = true;
@@ -63,38 +64,13 @@ function Chart({ data }: ChartProps) {
       // console.log(item[title].uom);
       setLegend((prev) => [...prev, `${title} (${item[title].uom})`]);
     });
+    // setSeries(data);
   }, [data]);
   useEffect(() => {
     console.log(legend);
   }, [legend]);
-  // useEffect(() => {
-  //   if (!chartRef.current) return;
-  //   if (userZoomed) return; // Don't auto-zoom if user zoomed manually
-
-  //   const chart = chartRef.current.chart;
-  //   const xAxis = chart.xAxis[0];
-
-  //   // Find max and min batch_num from filteredData
-  //   const allBatchNums = filteredData.flatMap((item) => {
-  //     const title = Object.keys(item)[0];
-  //     return item[title]?.data?.map((dp) => dp.batch_num) || [];
-  //   });
-
-  //   if (allBatchNums.length === 0) return;
-
-  //   const minBatch = Math.min(...allBatchNums);
-  //   const maxBatch = Math.max(...allBatchNums);
-
-  //   // Set extremes to show exactly the filtered data range
-  //   xAxis.setExtremes(minBatch, maxBatch);
-  // }, [filteredData, userZoomed]);
 
   useEffect(() => {}, []);
-
-  // useEffect(() => {
-  //   setDATA(filteredData);
-  //   console.log(filteredData);
-  // }, [filteredData]);
 
   const options = {
     chart: {
@@ -102,47 +78,42 @@ function Chart({ data }: ChartProps) {
       animation: false,
       height: "65%",
       events: {
-        load: function (this: Highcharts.Chart) {
-          // Defensive checks
-          if (!this.series || this.series.length === 0) return;
-
-          // Filter series that have data and non-empty data arrays
-          const allDataPoints = this.series
-            .filter((s) => s && s.data && s.data.length > 0)
-            .flatMap((s) => s.data.map((point) => point.x));
-
-          if (allDataPoints.length === 0) return;
-
-          const maxBatch = Math.max(...allDataPoints);
-          const minBatch = maxBatch - 10 + 1;
-
-          this.xAxis[0].setExtremes(minBatch, maxBatch);
-        },
+        // load: function (this: Highcharts.Chart) {
+        //   // Defensive checks
+        //   if (!this.series || this.series.length === 0) return;
+        //   // Filter series that have data and non-empty data arrays
+        //   const allDataPoints = this.series
+        //     .filter((s) => s && s.data && s.data.length > 0)
+        //     .flatMap((s) => s.data.map((point) => point.x));
+        //   if (allDataPoints.length === 0) return;
+        //   const maxBatch = Math.max(...allDataPoints);
+        //   const minBatch = maxBatch - 10 + 1;
+        //   this.xAxis[0].setExtremes(minBatch, maxBatch);
+        // },
       },
     },
     title: {
       // text: `Тренд измерения параметров микроклимата производственного помещения ${roomNumber}`,
     },
     xAxis: {
-      type: "linear",
+      type: "category",
       allowDecimals: false,
       tickPixelInterval: 1.0,
-      // events: {
-      //   setExtremes: function (e) {
-      //     if (
-      //       e.trigger !== "rangeSelectorButton" &&
-      //       e.trigger !== "zoom" &&
-      //       e.trigger !== "navigator"
-      //     ) {
-      //       // User manually changed zoom/pan
-      //       setUserZoomed(true);
-      //     }
-      //   },
+      dateTimeLabelFormats: {
+        hour: "%H:%M",
+        minute: "%H:%M",
+        second: "%H:%M:%S",
+      },
+      labels: {
+        rotation: -45, // Optional: slant labels for readability
+        style: { fontSize: "11px" },
+      },
+
       // },
     },
-    yAxis: filteredData.map((item, index) => {
+    yAxis: data.map((item, index) => {
       const title = Object.keys(item);
-      const numberOfAxes = filteredData.length;
+      const numberOfAxes = data.length;
       const spacing = 0;
       const totalSpacing = spacing * (numberOfAxes - 1);
       const heightPerAxis = (100 - totalSpacing) / numberOfAxes;
@@ -164,40 +135,40 @@ function Chart({ data }: ChartProps) {
             fontWeight: "bold",
           },
         },
-        plotLines: [
-          {
-            color: "red", // Red line
-            value: item[title[0]].min, // Value at which to draw the line
-            width: 2, // Line thickness
-            zIndex: 5, // Keep above gridlines
-            dashStyle: "Solid", // Optional: can be "Dash", "Dot", etc.
-            label: {
-              text: `min: ${item[title[0]].min}`,
-              align: "left",
-              x: 10,
-              style: {
-                color: "red",
-                // fontWeight: "bold",
-              },
-            },
-          },
-          {
-            color: "red", // Red line
-            value: item[title[0]].max, // Value at which to draw the line
-            width: 2, // Line thickness
-            zIndex: 5, // Keep above gridlines
-            dashStyle: "Solid", // Optional: can be "Dash", "Dot", etc.
-            label: {
-              text: `max: ${item[title[0]].max}`,
-              align: "left",
-              x: 10,
-              style: {
-                color: "red",
-                // fontWeight: "bold",
-              },
-            },
-          },
-        ],
+        // plotLines: [
+        //   {
+        //     color: "red", // Red line
+        //     value: item[title[0]].min, // Value at which to draw the line
+        //     width: 2, // Line thickness
+        //     zIndex: 5, // Keep above gridlines
+        //     dashStyle: "Solid", // Optional: can be "Dash", "Dot", etc.
+        //     label: {
+        //       text: `min: ${item[title[0]].min}`,
+        //       align: "left",
+        //       x: 10,
+        //       style: {
+        //         color: "red",
+        //         // fontWeight: "bold",
+        //       },
+        //     },
+        //   },
+        //   {
+        //     color: "red", // Red line
+        //     value: item[title[0]].max, // Value at which to draw the line
+        //     width: 2, // Line thickness
+        //     zIndex: 5, // Keep above gridlines
+        //     dashStyle: "Solid", // Optional: can be "Dash", "Dot", etc.
+        //     label: {
+        //       text: `max: ${item[title[0]].max}`,
+        //       align: "left",
+        //       x: 10,
+        //       style: {
+        //         color: "red",
+        //         // fontWeight: "bold",
+        //       },
+        //     },
+        //   },
+        // ],
         top: `${index * (heightPerAxis + spacing)}%`,
         height: heightPerAxis + 60,
         offset: 0,
@@ -220,7 +191,7 @@ function Chart({ data }: ChartProps) {
     },
 
     // the series will be a list of objects passed in the props with the following properties
-    series: filteredData.map((item, index) => {
+    series: data.map((item, index) => {
       const title = Object.keys(item);
       // console.log(item[title[0]]);
       return {
@@ -229,7 +200,7 @@ function Chart({ data }: ChartProps) {
         color: COLORS[index],
         data:
           item[title[0]]?.data?.map((dp: DataPoint) => ({
-            x: dp.batch_num,
+            name: dp.x,
             y: dp.y,
           })) || [],
         yAxis: index,
@@ -260,7 +231,8 @@ function Chart({ data }: ChartProps) {
     },
     tooltip: {
       headerFormat: "",
-      pointFormat: " № п/п: {point.x} <b>{point.y:.2f}</b>",
+      pointFormat:
+        "Время: <b>{point.x:%H:%M:%S}</b><br>Значение: <b>{point.y:.0f}</b>",
     },
     rangeSelector: {
       enabled: false,
@@ -302,9 +274,9 @@ function Chart({ data }: ChartProps) {
   };
   return (
     <div className="mb-20">
-      <div className="flex gap-2 items-center hidden">
+      <div className=" hidden gap-2 items-center">
         <p className="text-[14px] text-gray-500 ml-2">Zoom</p>
-        <ButtonGroup>
+        {/* <ButtonGroup>
           <Button size="sm" radius="sm" onPress={() => setWindowSize(10)}>
             10
           </Button>
@@ -317,7 +289,7 @@ function Chart({ data }: ChartProps) {
           <Button size="sm" radius="sm" onPress={() => setWindowSize("all")}>
             all
           </Button>
-        </ButtonGroup>
+        </ButtonGroup> */}
       </div>
       <HighchartsReact
         highcharts={Highcharts}
