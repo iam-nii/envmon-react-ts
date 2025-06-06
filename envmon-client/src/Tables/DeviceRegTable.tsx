@@ -56,7 +56,7 @@ function DeviceReg() {
         </Card>
       ))}
       <div>
-        <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="5xl">
+        <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="4xl">
           <ModalContent>
             <ModalBody className="p-7">
               <AddRegulation device_id={deviceId} />

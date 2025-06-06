@@ -27,11 +27,11 @@ import { useDeviceContext } from "../context/DeviceContextProvider";
 // import { useParameterContext } from "../context/ParameterContextProvider";
 
 const COLUMNS = [
-  { name: "Идентификатор регламента", uid: "techReg_id" },
+  { name: "ID", uid: "techReg_id" },
   { name: "Параметр", uid: "parameter_name" },
-  { name: "Минимальное значение", uid: "minValue" },
-  { name: "Максимальное значение", uid: "maxValue" },
-  { name: "Идентификатор устройства", uid: "device_id" },
+  { name: "Мин. значение", uid: "minValue" },
+  { name: "Макс. значение", uid: "maxValue" },
+  // { name: "Идентификатор устройства", uid: "device_id" },
   { name: "Действия", uid: "actions" },
 ];
 // import { Selection } from "@react-types/shared";
@@ -103,9 +103,7 @@ function RegulationTable({
       switch (columnKey) {
         case "techReg_id":
           return (
-            <p className="font-bold text-small capitalize">
-              {regulation.techReg_id}
-            </p>
+            <p className="font-bold text-small">{regulation.techReg_id}</p>
           );
         case "parameter_name":
           return <p className="text-small">{regulation.parameter_name}</p>;
@@ -260,7 +258,7 @@ function RegulationTable({
       });
   };
   return (
-    <div className="-auto mt-5">
+    <div className="w-full items-center  mt-5">
       {success && (
         <Alert
           color={"success"}
@@ -279,6 +277,7 @@ function RegulationTable({
       <Table
         aria-label="Справочник регламентов"
         selectionMode="single"
+        className=" self-center"
         // onSelectionChange={handleSelectionChange}
       >
         <TableHeader columns={COLUMNS}>
@@ -286,6 +285,7 @@ function RegulationTable({
             <TableColumn
               key={column.uid}
               align={column.uid === "actions" ? "end" : "start"}
+              // className="text-center"
             >
               {column.name}
             </TableColumn>
@@ -295,6 +295,7 @@ function RegulationTable({
           // items={rooms!.sort((a, b) => a.roomNumber - b.roomNumber)}
           items={regulations}
           emptyContent={"Справочник регламентов пустой"}
+          // className="text-center"
         >
           {(item) => (
             <TableRow key={item.techReg_id}>

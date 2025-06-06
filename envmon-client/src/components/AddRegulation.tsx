@@ -228,7 +228,7 @@ function AddRegulation({ device_id }: AddRegulationProps) {
   };
   return (
     <div>
-      <div className="flex justify-center items-center">
+      <div className="flex justify-center items-center ">
         <Button onPress={onOpen} color="primary" className="text-lg w-[95%]">
           Добавить регламент
         </Button>

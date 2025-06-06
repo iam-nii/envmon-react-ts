@@ -231,8 +231,7 @@ function Chart({ data }: ChartProps) {
     },
     tooltip: {
       headerFormat: "",
-      pointFormat:
-        "Время: <b>{point.x:%H:%M:%S}</b><br>Значение: <b>{point.y:.0f}</b>",
+      pointFormat: "x: <b>{point.x}</b><br>Значение: <b>{point.y:.0f}</b>",
     },
     rangeSelector: {
       enabled: false,

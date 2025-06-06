@@ -65,9 +65,7 @@ const SignIn = () => {
           ) {
             console.log(response.data.message);
             if (response.data.message === "Unauthorized") {
-              setError(
-                "Данные не верные. Попробуйте еще раз или зарегистрируйтесь"
-              );
+              setError("Ошибка авторизации пользователя");
             }
           }
           if (response.data.message === "Invalid request") {

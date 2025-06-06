@@ -64,7 +64,9 @@ function RoomDevices() {
               }}
             >
               <CardHeader>
-                <div className="text-lg font-bold">{device.deviceName}</div>
+                <div className="text-lg font-bold w-full">
+                  <h1 className="text-xl text-center">{device.deviceName}</h1>
+                </div>
               </CardHeader>
               <Divider />
               <CardBody className="flex h-5 text-small">

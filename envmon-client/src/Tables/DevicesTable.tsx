@@ -49,6 +49,11 @@ function DevicesTable() {
   useEffect(() => {
     console.log(devices);
   }, [devices]);
+
+  // useEffect(() => {
+  //   console.log(selectedItem);
+  // }, [selectedItem]);
+
   const {
     isOpen: isViewOpen,
     onOpen: onViewOpen,
@@ -73,7 +78,7 @@ function DevicesTable() {
     device: device,
     columnKey: keyof device | "actions"
   ): React.ReactNode => {
-    const room = rooms?.find((room) => room.room_id === device.room_id);
+    const room = rooms?.find((room) => room.room_id === Number(device.room_id));
     const roomNumber = room?.roomNumber;
     const location = room?.location;
     const status = device.status == 1 ? "активно" : "не активно";
@@ -225,14 +230,21 @@ function DevicesTable() {
           label="Номер помещения"
           placeholder="Выберите помещение"
           variant="bordered"
-          onChange={(e) =>
-            setEditDevice({ ...editDevice, room_id: parseInt(e.target.value) })
-          }
+          onChange={(e) => {
+            console.log(e.target.value);
+            setEditDevice({
+              ...editDevice,
+              room_id: parseInt(e.target.value),
+            });
+          }}
+          // selectedKeys={editDevice?.room_id?.toString()}
+          defaultSelectedKeys={[editDevice?.room_id?.toString() ?? ""]}
         >
           {rooms?.map((room) => (
             <SelectItem
               key={String(room.room_id)}
-              textValue={String(room.roomNumber)}
+              // textValue={String(room.roomNumber)}
+              textValue={`${room.roomNumber} (${room.location})`}
             >
               {room.roomNumber} ({room.location})
             </SelectItem>
