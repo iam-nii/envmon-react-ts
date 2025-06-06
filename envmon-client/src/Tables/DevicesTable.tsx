@@ -22,7 +22,7 @@ import {
   useDisclosure,
 } from "@heroui/react";
 import { device } from "../Types";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import axiosClient from "../axiosClient";
 import { useDeviceContext } from "../context/DeviceContextProvider";
 import { useRoomContext } from "../context/RoomContextProvider";
@@ -46,9 +46,9 @@ function DevicesTable() {
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    console.log(devices);
-  }, [devices]);
+  // useEffect(() => {
+  //   console.log(devices);
+  // }, [devices]);
 
   // useEffect(() => {
   //   console.log(selectedItem);
@@ -231,7 +231,7 @@ function DevicesTable() {
           placeholder="Выберите помещение"
           variant="bordered"
           onChange={(e) => {
-            console.log(e.target.value);
+            // console.log(e.target.value);
             setEditDevice({
               ...editDevice,
               room_id: parseInt(e.target.value),
@@ -320,7 +320,7 @@ function DevicesTable() {
   };
   const handleEdit = async () => {
     if (!editDevice) return;
-    console.log(editDevice);
+    // console.log(editDevice);
     try {
       if (editDevice.status === true) {
         editDevice.status = 1;
@@ -338,7 +338,7 @@ function DevicesTable() {
           },
         })
         .then(({ data }) => {
-          console.log(data);
+          // console.log(data);
           const index = devices.findIndex(
             (device) => device.device_id === editDevice.device_id
           );
@@ -362,8 +362,8 @@ function DevicesTable() {
     try {
       axiosClient
         .get(`/api/devices/?method=DELETE&id=${selectedItem.device_id}`)
-        .then(({ data }) => {
-          console.log(data);
+        .then(() => {
+          // console.log(data);
           setDevices(
             devices.filter(
               (device) => device.device_id !== selectedItem.device_id
