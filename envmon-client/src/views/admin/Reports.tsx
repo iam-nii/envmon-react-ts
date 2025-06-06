@@ -7,6 +7,7 @@ import axiosClient from "../../axiosClient";
 import CustomDateRangePicker from "../../components/CustomDateRangePicker";
 import RoomReport from "../../components/reports/RoomReport";
 import html2pdf from "html2pdf.js";
+import { useUserContext } from "../../context/UserContextProvider";
 
 function Reports() {
   interface roomParams {
@@ -33,6 +34,7 @@ function Reports() {
   // const { ReportRef } = useReportContext();
   // const [roomReport, setRoomReport] = useState<Report | null>(null);
   const [isDateSelected, setIsDataSelected] = useState<boolean>(false);
+  const { user } = useUserContext();
   const [roomParameters, setRoomParameters] = useState<roomParams[] | null>();
   // const [isEmptyReport, setIsEmptyReport] = useState<boolean>(false);
   const [allReports, setAllReport] = useState<roomParams[] | null>(null);
@@ -55,11 +57,12 @@ function Reports() {
   const handleDownloadPdf = () => {
     if (contentRef.current) {
       const options = {
-        margin: 0.5,
+        margin: 0.2,
+        pagebreak: { mode: ["css", "legacy"] },
         filename: `Отчет для помещения № ${roomNumber}.pdf`,
         image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
+        html2canvas: { scale: 3 },
+        jsPDF: { unit: "in", format: "a4", orientation: "landscape" },
       };
       console.log(contentRef.current);
 
@@ -236,8 +239,7 @@ function Reports() {
     <>
       <div className="flex items-center">
         <h1 className="w-[39%] my-auto font-bold text-md">
-          <span className="text-lg">О</span>ТЧЕТ О МОНИТОРИНГЕ МИКРОКЛИМАТА ЗА
-          ПЕРИОД
+          <span className="text-lg">О</span>ТЧЕТ О МОНИТОРИНГЕ МИКРОКЛИМАТА
         </h1>
         <div className="p-4">
           <CustomDateRangePicker onChange={handleDateRangeChange} />
@@ -268,49 +270,51 @@ function Reports() {
             </SelectItem>
           ))}
         </Select>
-        {/* <Button
-          isDisabled={!roomNumber}
-          size="lg"
-          color="primary"
-          className="py-7 font-bold"
-          onPress={() => generateReport()}
-        >
-          Генерировать отчет
-        </Button> */}
       </div>
 
       {/* Report for all rooms */}
-      <div className="mt-10" ref={contentRef}>
-        <div></div>
-        <Button onPress={handleDownloadPdf}>Скачать в PDF</Button>
-        {/* Report for all rooms */}
-        {allReports &&
-          !roomNumber &&
-          allReports.map((room) => (
-            <RoomReport room={room} key={room.roomNumber} />
-          ))}
+      <div className="mt-10">
+        <Button variant="bordered" color="primary" onPress={handleDownloadPdf}>
+          Скачать в PDF
+        </Button>
+        <div ref={contentRef} className="h-full">
+          <div className="mt-10" id="Information">
+            <h1 className="font-bold underline">
+              Ответсвенный <span className="font-normal">{user?.userName}</span>
+            </h1>
+            <h1 className="font-bold underline">
+              E-mail: <span className="font-normal">{user?.uEmail}</span>
+            </h1>
+          </div>
+          {/* Report for all rooms */}
+          {allReports &&
+            !roomNumber &&
+            allReports.map((room) => (
+              <RoomReport room={room} key={room.roomNumber} />
+            ))}
 
-        {/* Report for a specific room */}
-        {allReports &&
-          roomNumber &&
-          (() => {
-            const room = allReports.find((r) => r.roomNumber === roomNumber);
-            if (!room) {
+          {/* Report for a specific room */}
+          {allReports &&
+            roomNumber &&
+            (() => {
+              const room = allReports.find((r) => r.roomNumber === roomNumber);
+              if (!room) {
+                return (
+                  <h1 className="font-semibold text-lg text-slate-700">
+                    Данные для помещения № {roomNumber} не найдены
+                  </h1>
+                );
+              }
               return (
-                <h1 className="font-semibold text-lg text-slate-700">
-                  Данные для помещения № {roomNumber} не найдены
-                </h1>
+                <>
+                  <h1 className="text-xl font-bold">
+                    Отчет для помещения № {roomNumber}
+                  </h1>
+                  <RoomReport room={room} />
+                </>
               );
-            }
-            return (
-              <>
-                <h1 className="text-xl font-bold">
-                  Отчет для помещения № {roomNumber}
-                </h1>
-                <RoomReport room={room} />
-              </>
-            );
-          })()}
+            })()}
+        </div>
       </div>
     </>
   );

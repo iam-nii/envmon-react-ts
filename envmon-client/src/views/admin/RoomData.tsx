@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import RoomDetails from "./RoomDetails";
+// import RoomDetails from "./RoomDetails";
 import RoomDetailsUpd from "./RoomDetailsUpd";
 
 // Define type for the chart reference
@@ -48,19 +48,19 @@ function RoomData() {
     };
   }, []);
 
-  const toggleFullScreen = (current: HTMLDivElement | null) => {
-    if (current) {
-      if (!document.fullscreenElement) {
-        // Enter fullscreen mode
-        current.requestFullscreen().catch((err) => {
-          console.error("Error entering fullscreen mode", err);
-        });
-      } else {
-        // Exit fullscreen mode
-        document.exitFullscreen();
-      }
-    }
-  };
+  // const toggleFullScreen = (current: HTMLDivElement | null) => {
+  //   if (current) {
+  //     if (!document.fullscreenElement) {
+  //       // Enter fullscreen mode
+  //       current.requestFullscreen().catch((err) => {
+  //         console.error("Error entering fullscreen mode", err);
+  //       });
+  //     } else {
+  //       // Exit fullscreen mode
+  //       document.exitFullscreen();
+  //     }
+  //   }
+  // };
 
   return (
     <div className="flex flex-col gap-4 h-screen min-w-full">

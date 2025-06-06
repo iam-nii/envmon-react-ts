@@ -20,8 +20,7 @@ const ParameterReport = ({ parameter }: ParameterReportProps) => {
 
   return (
     <>
-      <h1 className="font-semibold">Параметры микроклимата</h1>
-      <h1 className="font-bold mt-5">
+      <h1 className="font-bold mt-2 mb-2">
         {parameter.parameter_name} {parameter.parameter_alias},{" "}
         {parameter.unitOfMeasure} [{parameter.trMin} - {parameter.trMax}]
       </h1>

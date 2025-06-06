@@ -28,6 +28,7 @@ const EntityReport = ({ entity }: EntityReportProps) => (
       Идентификация устройства: {entity.device_id}
     </h1>
     <h1 className="font-semibold">Номер зоны: {entity.zone_num}</h1>
+    <h1 className="font-semibold">Параметры микроклимата</h1>
 
     {entity.parameters.map((parameter) => (
       <ParameterReport parameter={parameter} key={parameter.parameter_name} />
