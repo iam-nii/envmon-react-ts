@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import axiosClient from "../../axiosClient";
 import { device, Params, Room, User } from "../../Types";
@@ -12,7 +12,7 @@ import {
   Table,
   TableBody,
   TableCell,
-  Pagination,
+  // Pagination,
   Input,
   Modal,
   ModalContent,
@@ -21,15 +21,15 @@ import {
   useDisclosure,
 } from "@heroui/react";
 import { useRoomContext } from "../../context/RoomContextProvider";
-import CustomDateRangePicker from "../../components/CustomDateRangePicker";
+// import CustomDateRangePicker from "../../components/CustomDateRangePicker";
 import { useUserContext } from "../../context/UserContextProvider";
 import Chart from "../../components/Chart";
 
 // Get the devId from the url
-interface DateRange {
-  startDate: string;
-  endData: string;
-}
+// interface DateRange {
+//   startDate: string;
+//   endData: string;
+// }
 interface DataItem {
   // batch_num: number;
   // dateTime: string;
@@ -79,14 +79,14 @@ function RoomDetailsUpd() {
   const [showWarning, setShowWarning] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [warningTime, setWarningTime] = useState<number>(0);
-  const [dateRange, setDateRange] = useState<DateRange | null>(null);
+  // const [dateRange, setDateRange] = useState<DateRange | null>(null);
   const [reqInterval, setReqInterval] = useState<number>(0);
   const [roomDetails, setRoomDetails] = useState<Room | null>(null);
   const [device, setDevice] = useState<device | undefined>(undefined);
   const [userInfo, setUserInfo] = useState<User | null>(null);
   const [logs, setLogs] = useState<DataItem[]>([]);
   const [window, setWindow] = useState<number>(10);
-  const [logStart, setLogStart] = useState<boolean>(false);
+  // const [logStart, setLogStart] = useState<boolean>(false);
   // const [nextBatch_num, setNextBatch_num] = useState<number>(window);
   const [parameters, setParameters] = useState<TabColumn[]>([
     // { name: "Номер замера", uid: "id" },
@@ -103,20 +103,20 @@ function RoomDetailsUpd() {
   const chartRefs = useRef<(HTMLDivElement & ChartRef)[]>([]);
 
   // setting the pagination
-  const [page, setPage] = useState(1);
-  const rowsPerPage = 10;
+  // const [page, setPage] = useState(1);
+  // const rowsPerPage = 10;
 
-  const pages = Math.ceil(logs.length / rowsPerPage);
+  // // const pages = Math.ceil(logs.length / rowsPerPage);
 
-  const items =
-    useMemo(() => {
-      const start = (page - 1) * rowsPerPage;
-      const end = start + rowsPerPage;
+  // const items =
+  //   useMemo(() => {
+  //     const start = (page - 1) * rowsPerPage;
+  //     const end = start + rowsPerPage;
 
-      return [...logs]
-        .sort((a, b) => Number(b.mdt) - Number(a.mdt))
-        .slice(start, end);
-    }, [page, logs]) || [];
+  //     return [...logs]
+  //       .sort((a, b) => Number(b.mdt) - Number(a.mdt))
+  //       .slice(start, end);
+  //   }, [page, logs]) || [];
 
   useEffect(() => {
     axiosClient
@@ -128,11 +128,11 @@ function RoomDetailsUpd() {
       });
   }, []);
 
-  useEffect(() => {
-    if (logStart) {
-      startLogging();
-    }
-  }, [logStart]);
+  // useEffect(() => {
+  //   if (logStart) {
+  //     startLogging();
+  //   }
+  // }, [logStart]);
 
   // Set the room details
   useEffect(() => {
@@ -229,55 +229,58 @@ function RoomDetailsUpd() {
   };
 
   // Get the Filtered logs
-  const handleFilteredSearch = (query: string) => {
-    if (query === "startLogging") {
-      // /api/logs/?method=GET&id=2gE8gJn37DPMz2V1&query=getLastLog
-      axiosClient
-        .get(`/api/logs/?method=GET&id=${device_id}&query=getLastLog`)
-        .then(({ data }) => {
-          console.log("data", data);
+  // const handleFilteredSearch = (query: string) => {
+  const handleFilteredSearch = () => {
+    setIsLoading(false);
+    axiosClient
+      .get(`/api/logs/?method=GET&id=${device_id}&query=getLastLog`)
+      .then(({ data }) => {
+        console.log("data", data);
 
-          // Check data
-          checkData(data.data);
+        // Check data
+        checkData(data.data);
 
-          const log = transformLogsToRows(data.data, parameters)[0];
-          // console.log("log", log);
-          setLogs((prev) => {
-            const newLogs = [log, ...prev]; // Add new log at the front
-            return newLogs.slice(0, window); // Keep only the most recent 'window' logs
-          });
-          // if (log.logValue < log.min || log.logValue > log.max) {
-
-          // }
-        })
-        .catch((error) => {
-          console.error(error);
+        const log = transformLogsToRows(data.data, parameters)[0];
+        // console.log("log", log);
+        setLogs((prev) => {
+          const newLogs = [log, ...prev]; // Add new log at the front
+          return newLogs.slice(0, window); // Keep only the most recent 'window' logs
         });
-    } else {
-      setIsLoading(true);
-      try {
-        let windowSize = window;
-        if (parameters.length > 2) {
-          windowSize = window * (parameters.length - 2);
-        }
-        axiosClient
-          .get(
-            `/api/logs/?method=GET&id=${device_id}&query=getFilteredLogs&minDate=${dateRange?.startDate}&maxDate=${dateRange?.endData}&limit=${windowSize}`
-          )
-          .then(({ data }) => {
-            // console.log("data", data);
-            setLogs(transformLogsToRows(data.data, parameters));
-            setLogStart(true);
-          })
-          .catch((error) => {
-            console.error(error);
-          });
-      } catch (error) {
+        // if (log.logValue < log.min || log.logValue > log.max) {
+
+        // }
+      })
+      .catch((error) => {
         console.error(error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
+      });
+    // if (query === "startLogging") {
+    //   // /api/logs/?method=GET&id=2gE8gJn37DPMz2V1&query=getLastLog
+
+    // } else {
+    //   setIsLoading(true);
+    //   try {
+    //     let windowSize = window;
+    //     if (parameters.length > 2) {
+    //       windowSize = window * (parameters.length - 2);
+    //     }
+    //     axiosClient
+    //       .get(
+    //         `/api/logs/?method=GET&id=${device_id}&query=getFilteredLogs&minDate=${dateRange?.startDate}&maxDate=${dateRange?.endData}&limit=${windowSize}`
+    //       )
+    //       .then(({ data }) => {
+    //         // console.log("data", data);
+    //         setLogs(transformLogsToRows(data.data, parameters));
+    //         setLogStart(true);
+    //       })
+    //       .catch((error) => {
+    //         console.error(error);
+    //       });
+    //   } catch (error) {
+    //     console.error(error);
+    //   } finally {
+    //     setIsLoading(false);
+    //   }
+    // }
   };
   interface dataItem {
     log_id: number;
@@ -294,6 +297,13 @@ function RoomDetailsUpd() {
   const checkData = (data: dataItem[]) => {
     data.forEach((log) => {
       if (log.logValue < log.min || log.logValue > log.max) {
+        if (
+          log.logValue < Number(log.pmin) ||
+          log.logValue > Number(log.pmax)
+        ) {
+          return;
+        }
+
         console.log("log", log);
         // Send warning
         setWarning((prev) => ({
@@ -328,8 +338,9 @@ function RoomDetailsUpd() {
   };
 
   const startLogging = () => {
+    setIsLoading(true);
     setInterval(() => {
-      handleFilteredSearch("startLogging");
+      handleFilteredSearch();
     }, reqInterval * 1000);
   };
   // const setWindowSize = (size: number) => {
@@ -449,38 +460,38 @@ function RoomDetailsUpd() {
   };
 
   // Set the date
-  const handleDateRangeChange = (range: {
-    start: Date | null;
-    end: Date | null;
-  }) => {
-    // 2025-05-20 20:01:43
-    let startDate = "";
-    let startTime = "";
-    if (range.start) {
-      startDate = `${range.start?.getFullYear()}-${
-        range.start.getMonth() + 1
-      }-${range.start.getDate()}`;
-      startTime = `${range.start.getHours()}:${range.start.getMinutes()}:${range.start.getSeconds()}`;
-      // console.log(`From: ${startDate} ${startTime}`);
-    }
+  // const handleDateRangeChange = (range: {
+  //   start: Date | null;
+  //   end: Date | null;
+  // }) => {
+  //   // 2025-05-20 20:01:43
+  //   let startDate = "";
+  //   let startTime = "";
+  //   if (range.start) {
+  //     startDate = `${range.start?.getFullYear()}-${
+  //       range.start.getMonth() + 1
+  //     }-${range.start.getDate()}`;
+  //     startTime = `${range.start.getHours()}:${range.start.getMinutes()}:${range.start.getSeconds()}`;
+  //     // console.log(`From: ${startDate} ${startTime}`);
+  //   }
 
-    let endDate = "";
-    let endTime = "";
-    if (range.end) {
-      endDate = `${range.end.getFullYear()}-${
-        range.end.getMonth() + 1
-      }-${range.end.getDate()}`;
-      endTime = `${range.end.getHours()}:${range.end.getMinutes()}:${range.end.getSeconds()}`;
-      // console.log(`To: ${endDate} ${endTime}`);
-    }
+  //   let endDate = "";
+  //   let endTime = "";
+  //   if (range.end) {
+  //     endDate = `${range.end.getFullYear()}-${
+  //       range.end.getMonth() + 1
+  //     }-${range.end.getDate()}`;
+  //     endTime = `${range.end.getHours()}:${range.end.getMinutes()}:${range.end.getSeconds()}`;
+  //     // console.log(`To: ${endDate} ${endTime}`);
+  //   }
 
-    // &query=getFilteredReports&minDate=2025-05-19 00:15:33&maxDate=2025-5-20 20:01:43
-    if (range.start && range.end)
-      setDateRange({
-        startDate: `${startDate} ${startTime}`,
-        endData: `${endDate} ${endTime}`,
-      });
-  };
+  //   // &query=getFilteredReports&minDate=2025-05-19 00:15:33&maxDate=2025-5-20 20:01:43
+  //   if (range.start && range.end)
+  //     setDateRange({
+  //       startDate: `${startDate} ${startTime}`,
+  //       endData: `${endDate} ${endTime}`,
+  //     });
+  // };
   const toggleFullScreen = (current: HTMLDivElement | null) => {
     if (current) {
       if (!document.fullscreenElement) {
@@ -515,8 +526,12 @@ function RoomDetailsUpd() {
   return (
     <div>
       {isLoading ? (
-        <div>
-          <Spinner />
+        <div className="flex justify-center items-center h-full">
+          <Spinner
+            size="lg"
+            variant="wave"
+            label={`Загрузка данных начнется через ${reqInterval} секунд...`}
+          />
         </div>
       ) : (
         <div>
@@ -527,84 +542,82 @@ function RoomDetailsUpd() {
               {device?.zoneNum})
             </h1>
             <div className="flex flex-row gap-5 justify-center">
-              <CustomDateRangePicker onChange={handleDateRangeChange} />
+              {/* <CustomDateRangePicker onChange={handleDateRangeChange} /> */}
               <Input
                 type="number"
                 min={5}
                 step={5}
-                max={20}
-                className="w-24 h-12"
-                label="Окно"
+                max={100}
+                className="w-44 h-12"
+                label="Количество строк"
                 variant="bordered"
                 value={window.toString()}
                 onChange={(e) => setWindow(Number(e.target.value))}
               />
               <Button
-                isDisabled={!dateRange}
+                // isDisabled={!dateRange}
                 variant="solid"
                 color="primary"
                 className="w-24 h-11"
-                onPress={() => handleFilteredSearch("allLogs")}
+                onPress={startLogging}
               >
                 Показать
               </Button>
             </div>
-            {dateRange && (
-              <>
-                <Table
-                  aria-label="Table with log data"
-                  className="mb-5 "
-                  bottomContent={
-                    <div className="flex w-full justify-center">
-                      <Pagination
-                        isCompact
-                        showControls
-                        showShadow
-                        color="primary"
-                        page={page}
-                        total={pages}
-                        onChange={(page) => setPage(page)}
-                      />
-                    </div>
+            <>
+              <Table
+                aria-label="Table with log data"
+                className="mb-5 "
+                // bottomContent={
+                //   <div className="flex w-full justify-center">
+                //     <Pagination
+                //       isCompact
+                //       showControls
+                //       showShadow
+                //       color="primary"
+                //       page={page}
+                //       total={pages}
+                //       onChange={(page) => setPage(page)}
+                //     />
+                //   </div>
+                // }
+              >
+                <TableHeader>
+                  {parameters.map((column) => (
+                    <TableColumn key={column.uid}>{column.name}</TableColumn>
+                  ))}
+                </TableHeader>
+                <TableBody emptyContent="Нет данных">
+                  {logs.map((item) => (
+                    <TableRow key={item.batch_num}>
+                      {parameters.map((column) => (
+                        <TableCell key={column.uid}>
+                          {item[column.uid]}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+
+              <h1 className="text-center font-bold mb-5">
+                Графики измерения параметров помещения номер{" "}
+                {roomDetails?.roomNumber} ({roomDetails?.location})
+              </h1>
+
+              <div
+                ref={(el) => {
+                  if (el) {
+                    chartRefs.current[0] = el;
                   }
-                >
-                  <TableHeader>
-                    {parameters.map((column) => (
-                      <TableColumn key={column.uid}>{column.name}</TableColumn>
-                    ))}
-                  </TableHeader>
-                  <TableBody emptyContent="Нет данных">
-                    {items.map((item) => (
-                      <TableRow key={item.batch_num}>
-                        {parameters.map((column) => (
-                          <TableCell key={column.uid}>
-                            {item[column.uid]}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-
-                <h1 className="text-center font-bold mb-5">
-                  Графики измерения параметров помещения номер{" "}
-                  {roomDetails?.roomNumber} ({roomDetails?.location})
-                </h1>
-
-                <div
-                  ref={(el) => {
-                    if (el) {
-                      chartRefs.current[0] = el;
-                    }
-                  }}
-                  className="w-[75vw] h-[800px] cursor-pointer mb-10"
-                  // onClick={() => toggleFullScreen(chartRefs.current[0])}
-                  onDoubleClick={() => toggleFullScreen(chartRefs.current[0])}
-                >
-                  <Chart data={graphData} />
-                </div>
-              </>
-            )}
+                }}
+                className="w-[75vw] h-[800px] cursor-pointer mb-10"
+                // onClick={() => toggleFullScreen(chartRefs.current[0])}
+                onDoubleClick={() => toggleFullScreen(chartRefs.current[0])}
+              >
+                <Chart data={graphData} />
+              </div>
+            </>
           </div>
         </div>
       )}
