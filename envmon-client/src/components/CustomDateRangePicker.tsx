@@ -60,7 +60,7 @@ function CustomDateRangePicker({
           showTimeSelect
           timeFormat="HH:mm:ss"
           timeIntervals={1}
-          dateFormat="yyyy.MM.dd HH:mm:ss"
+          dateFormat="dd.MM.yyyy HH:mm:ss"
           timeCaption="Время"
           open={startOpen}
           onClickOutside={() => setStartOpen(false)}
@@ -85,14 +85,14 @@ function CustomDateRangePicker({
           showTimeSelect
           timeFormat="HH:mm:ss"
           timeIntervals={1}
-          dateFormat="yyyy.MM.dd HH:mm:ss"
+          dateFormat="dd.MM.yyyy HH:mm:ss"
           timeCaption="Время"
           open={endOpen}
           startDate={startDate}
           onClickOutside={() => setEndOpen(false)}
           endDate={endDate}
           minDate={startDate!}
-          placeholderText="yyyy.MM.dd HH:mm:ss"
+          placeholderText="dd.MM.yyyy HH:mm:ss"
           ref={endDatePicketRef}
           className="py-2 cursor-pointer outline-none"
         />

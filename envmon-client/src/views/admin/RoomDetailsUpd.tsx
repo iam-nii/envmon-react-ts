@@ -235,12 +235,16 @@ function RoomDetailsUpd() {
     axiosClient
       .get(`/api/logs/?method=GET&id=${device_id}&query=getLastLog`)
       .then(({ data }) => {
-        console.log("data", data);
+        const convertedData = data.data.map((log: LogEntry) => ({
+          ...log,
+          mdt: convertDateFormat(log.mdt),
+        }));
+        console.log("data", convertedData);
 
         // Check data
-        checkData(data.data);
+        checkData(convertedData);
 
-        const log = transformLogsToRows(data.data, parameters)[0];
+        const log = transformLogsToRows(convertedData, parameters)[0];
         // console.log("log", log);
         setLogs((prev) => {
           const newLogs = [log, ...prev]; // Add new log at the front
@@ -282,6 +286,15 @@ function RoomDetailsUpd() {
     //   }
     // }
   };
+  function convertDateFormat(dateStr: string) {
+    const dt = new Date(dateStr.replace(" ", "T")); // Ensure proper parsing
+    const pad = (n: number) => n.toString().padStart(2, "0");
+    return `${pad(dt.getDate())}.${pad(
+      dt.getMonth() + 1
+    )}.${dt.getFullYear()} ${pad(dt.getHours())}.${pad(dt.getMinutes())}.${pad(
+      dt.getSeconds()
+    )}`;
+  }
   interface dataItem {
     log_id: number;
     logValue: number;

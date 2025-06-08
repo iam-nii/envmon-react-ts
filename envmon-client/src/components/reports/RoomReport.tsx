@@ -30,7 +30,7 @@ interface RoomReportProps {
 }
 
 const RoomReport = ({ room }: RoomReportProps) => (
-  <div key={room.roomNumber} className="mt-10">
+  <div key={room.roomNumber} className="mt-5" id="room-report">
     <h1 className="text-xl font-bold">Помещение № {room.roomNumber}</h1>
     {room.entities.length > 0 && room.entities[0].parameters.length > 0 ? (
       room.entities.map((entity) => (

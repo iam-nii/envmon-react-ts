@@ -30,7 +30,7 @@ function Reports() {
     }[];
   }
   const { rooms } = useRoomContext();
-  const [roomNumber, setRoomNumber] = useState<number>(0);
+  const [roomNumber, setRoomNumber] = useState<number>();
   // const { ReportRef } = useReportContext();
   // const [roomReport, setRoomReport] = useState<Report | null>(null);
   const [isDateSelected, setIsDataSelected] = useState<boolean>(false);
@@ -273,11 +273,11 @@ function Reports() {
       </div>
 
       {/* Report for all rooms */}
-      <div className="mt-10">
+      <div className="mt-10" id="report-container">
         <Button variant="bordered" color="primary" onPress={handleDownloadPdf}>
           Скачать в PDF
         </Button>
-        <div ref={contentRef} className="h-full">
+        <div ref={contentRef} className="h-full" id="content">
           <div className="mt-10" id="Information">
             <h1 className="font-bold underline">
               Ответсвенный <span className="font-normal">{user?.userName}</span>
@@ -304,15 +304,16 @@ function Reports() {
                     Данные для помещения № {roomNumber} не найдены
                   </h1>
                 );
+              } else {
+                return (
+                  <div key={room.roomNumber} id={`room-${room.roomNumber}`}>
+                    <h1 className="text-xl font-bold">
+                      Отчет для помещения № {roomNumber}
+                    </h1>
+                    <RoomReport room={room} />
+                  </div>
+                );
               }
-              return (
-                <>
-                  <h1 className="text-xl font-bold">
-                    Отчет для помещения № {roomNumber}
-                  </h1>
-                  <RoomReport room={room} />
-                </>
-              );
             })()}
         </div>
       </div>

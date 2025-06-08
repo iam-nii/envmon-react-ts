@@ -23,7 +23,7 @@ interface EntityReportProps {
   entity: Entity;
 }
 const EntityReport = ({ entity }: EntityReportProps) => (
-  <div key={entity.device_id}>
+  <div key={entity.device_id} id={entity.device_id.toString()}>
     <h1 className="font-semibold">
       Идентификация устройства: {entity.device_id}
     </h1>

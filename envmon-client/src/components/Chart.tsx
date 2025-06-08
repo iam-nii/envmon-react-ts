@@ -199,10 +199,13 @@ function Chart({ data }: ChartProps) {
         width: 3,
         color: COLORS[index],
         data:
-          item[title[0]]?.data?.map((dp: DataPoint) => ({
-            name: dp.x,
-            y: dp.y,
-          })) || [],
+          item[title[0]]?.data?.map((dp: DataPoint) => {
+            console.log(dp);
+            return {
+              name: dp.x,
+              y: dp.y,
+            };
+          }) || [],
         yAxis: index,
       };
     }),
@@ -231,7 +234,8 @@ function Chart({ data }: ChartProps) {
     },
     tooltip: {
       headerFormat: "",
-      pointFormat: "x: <b>{point.x}</b><br>Значение: <b>{point.y:.0f}</b>",
+      pointFormat:
+        "Дата/Время: <b>{point.name}</b><br>Значение: <b>{point.y:.0f}</b>",
     },
     rangeSelector: {
       enabled: false,

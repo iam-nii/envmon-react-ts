@@ -27,7 +27,7 @@ const ParameterReport = ({ parameter }: ParameterReportProps) => {
       <div className="flex flex-row flex-wrap gap-1 w-[75%] bg-slate-500 rounded-lg p-1">
         {parameter.report.map((report) => (
           <div className="bg-slate-50 p-1 w-[33%]" key={report.logId}>
-            <p className="text-red-600 font-bold break-words">
+            <p className="text-red-600 font-bold break-words ">
               {report.logValue} <span className="text-black">{report.mdt}</span>
             </p>
           </div>
