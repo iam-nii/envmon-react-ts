@@ -88,9 +88,7 @@ function AdminLayout() {
             </NavbarBrand>
             <NavbarContent className="hidden sm:flex gap-6 " justify="end">
               <NavbarItem className="flex flex-row gap-2 items-center ">
-                <div className="font-bold">
-                  {user?.userName?.split(" ")[0]}{" "}
-                </div>
+                <div className="font-semibold">{user?.uEmail}</div>
                 <Button onPress={onLogout} color="danger">
                   Выйти
                 </Button>

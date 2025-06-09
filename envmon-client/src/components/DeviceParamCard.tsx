@@ -119,7 +119,7 @@ function DeviceParamCard({ room, role }: DeviceParamCardTypes) {
             </p>
           </div>
           {/* make a line seperator */}
-          <div className="w-full h-px bg-gray-300"></div>
+          <div className="w-full h-px bg-gray-300 mt-1"></div>
 
           {/* <div className="flex gap-2">
             <p className="text-lg font-bold">Л,лм:</p>

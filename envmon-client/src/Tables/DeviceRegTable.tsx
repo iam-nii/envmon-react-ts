@@ -41,7 +41,9 @@ function DeviceReg() {
           }}
         >
           <CardHeader>
-            <div className="text-lg font-bold">{device.deviceName}</div>
+            <div className="text-lg font-bold text-center w-full">
+              {device.deviceName}
+            </div>
           </CardHeader>
           <Divider />
           <CardBody className="flex h-5 text-small">

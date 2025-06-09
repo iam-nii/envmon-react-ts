@@ -59,9 +59,11 @@ function Reports() {
       const options = {
         margin: 0.2,
         pagebreak: { mode: ["css", "legacy"] },
-        filename: `Отчет для помещения № ${roomNumber}.pdf`,
+        filename: `Отчет для ${
+          roomNumber ? `помещения № ${roomNumber}` : "всех помещений"
+        }.pdf`,
         image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 3 },
+        html2canvas: { scale: 2 },
         jsPDF: { unit: "in", format: "a4", orientation: "landscape" },
       };
       console.log(contentRef.current);
@@ -224,7 +226,10 @@ function Reports() {
           `/api/reports/?method=GET&query=getFilteredReports&minDate=${dateRange.startDate}&maxDate=${dateRange.endData}`
         )
         .then(({ data }) => {
-          // console.log(data);
+          console.log(data);
+          data.data.map((item: ReportItem) => {
+            item.mdt = formatDate(new Date(item.mdt));
+          });
           if (roomParameters) {
             const rooms = addReportsToRooms(roomParameters!, data.data);
             setAllReport(rooms);
@@ -232,9 +237,23 @@ function Reports() {
         });
     }
   };
-  useEffect(() => {
-    console.log(allReports);
-  }, [allReports]);
+  function formatDate(date: Date): string {
+    const pad = (n: number) => n.toString().padStart(2, "0");
+    return (
+      [pad(date.getDate()), pad(date.getMonth() + 1), date.getFullYear()].join(
+        "."
+      ) +
+      " " +
+      [
+        pad(date.getHours()),
+        pad(date.getMinutes()),
+        pad(date.getSeconds()),
+      ].join(":")
+    );
+  }
+  // useEffect(() => {
+  //   console.log(allReports);
+  // }, [allReports]);
   return (
     <>
       <div className="flex items-center">
@@ -278,9 +297,10 @@ function Reports() {
           Скачать в PDF
         </Button>
         <div ref={contentRef} className="h-full" id="content">
-          <div className="mt-10" id="Information">
+          <div className="my-10" id="Information">
             <h1 className="font-bold underline">
-              Ответсвенный <span className="font-normal">{user?.userName}</span>
+              Составитель отчёта:{" "}
+              <span className="font-normal">{user?.userName}</span>
             </h1>
             <h1 className="font-bold underline">
               E-mail: <span className="font-normal">{user?.uEmail}</span>
@@ -308,7 +328,9 @@ function Reports() {
                 return (
                   <div key={room.roomNumber} id={`room-${room.roomNumber}`}>
                     <h1 className="text-xl font-bold">
-                      Отчет для помещения № {roomNumber}
+                      Отчет для помещения № {roomNumber} (
+                      {rooms.find((r) => r.roomNumber === roomNumber)?.location}
+                      )
                     </h1>
                     <RoomReport room={room} />
                   </div>

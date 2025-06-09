@@ -98,6 +98,7 @@ function Chart({ data }: ChartProps) {
     xAxis: {
       type: "category",
       allowDecimals: false,
+
       tickPixelInterval: 1.0,
       dateTimeLabelFormats: {
         hour: "%H:%M",
@@ -105,8 +106,7 @@ function Chart({ data }: ChartProps) {
         second: "%H:%M:%S",
       },
       labels: {
-        rotation: -45, // Optional: slant labels for readability
-        style: { fontSize: "11px" },
+        enabled: false, // This line disables the x-axis labels
       },
 
       // },
@@ -204,13 +204,14 @@ function Chart({ data }: ChartProps) {
             return {
               name: dp.x,
               y: dp.y,
+              // x: index,
             };
           }) || [],
         yAxis: index,
       };
     }),
     legend: {
-      enabled: false,
+      enabled: true,
       itemStyle: {
         color: "#333",
         fontWeight: "bold",

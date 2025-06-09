@@ -184,7 +184,7 @@ function RoomDetails() {
       }
       if (!parameters.some((param) => param.uid === "batch_num")) {
         parameters.unshift({
-          name: "№ п/п",
+          name: "ID",
           uid: "batch_num",
         });
       }

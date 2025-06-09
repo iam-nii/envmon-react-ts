@@ -23,34 +23,39 @@ function ParameterReading({ techReg_id }: ParameterReadingType) {
   useEffect(() => {
     // Get the last 3 values from the logs table given the techReg_id
     // http:///localhost/pdn1/api/logs/?method=GET&id=1&query=3
-    axiosClient
-      .get(`/api/logs/?method=GET&id=${techReg_id}&query=1`)
-      .then(({ data }) => {
-        // console.log(`${techReg_id}:`, data.data);
+    setInterval(() => {
+      axiosClient
+        .get(`/api/logs/?method=GET&id=${techReg_id}&query=1`)
+        .then(({ data }) => {
+          // console.log(`${techReg_id}:`, data.data);
 
-        const readings: ParameterData[] = data.data.map((reading: Reading) => {
-          if (
-            reading.logValue > maxReading! ||
-            reading.logValue < minReading!
-          ) {
-            //sending mail
-            // console.log(
-            //   `sending mail: \nLogValue: ${reading.logValue}, \nMax: ${maxReading}, \nMin: ${minReading}, \nTechReg_id: ${techReg_id}`
-            // );
-          }
+          const readings: ParameterData[] = data.data.map(
+            (reading: Reading) => {
+              if (
+                reading.logValue > maxReading! ||
+                reading.logValue < minReading!
+              ) {
+                //sending mail
+                // console.log(
+                //   `sending mail: \nLogValue: ${reading.logValue}, \nMax: ${maxReading}, \nMin: ${minReading}, \nTechReg_id: ${techReg_id}`
+                // );
+              }
 
-          return {
-            reading: reading.logValue,
-            color:
-              reading.logValue < maxReading! && reading.logValue >= minReading!
-                ? "text-green-700"
-                : "text-red-700",
-          };
+              return {
+                reading: reading.logValue,
+                color:
+                  reading.logValue < maxReading! &&
+                  reading.logValue >= minReading!
+                    ? "text-green-700"
+                    : "text-red-700",
+              };
+            }
+          );
+          // console.log(readings);
+
+          setParamReadings(readings);
         });
-        // console.log(readings);
-
-        setParamReadings(readings);
-      });
+    }, 10000);
   }, [maxReading, minReading]);
 
   useEffect(() => {
