@@ -70,6 +70,7 @@ type Parameters = Params[];
 
 interface Regulation {
   techReg_id?: number;
+  techreg_id?: number;
   param_id?: number;
   parameter_name?: string;
   minValue?: number;

@@ -298,7 +298,7 @@ function RegulationTable({
           // className="text-center"
         >
           {(item) => (
-            <TableRow key={item.techReg_id}>
+            <TableRow key={item.techReg_id || item.techreg_id}>
               {(columnKey) => (
                 <TableCell>
                   {renderCell(item, columnKey as keyof Regulation)}

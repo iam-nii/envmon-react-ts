@@ -682,20 +682,24 @@ function RoomDetailsUpd() {
                 </p>
                 <div className="bg-red-500 w-full h-[3px]"></div>
 
-                <div>
+                <div className="w-full ">
                   {warning?.min?.map((min, index) => (
                     <div
                       key={index}
                       className="flex flex-row gap-2 w-full items-center justify-center"
                     >
-                      <p className="w-64 text-right">
+                      <p className="w-[60%] text-right">
                         {warning?.parameterName?.[index]},{" "}
                         {warning?.uom?.[index]}{" "}
                       </p>
-                      <p className=" text-red-600 font-bold w-20 text-right">
-                        {warning?.parameterValue?.[index]}
-                      </p>
-                      <div className="w-full">
+
+                      <div
+                        id="min-max-container"
+                        className="w-[30%] flex flex-row gap-2"
+                      >
+                        <p className=" text-red-600 font-bold w-[40%] text-right">
+                          {warning?.parameterValue?.[index]}
+                        </p>
                         {warning?.parameterValue![index] <
                           warning?.min![index] && (
                           <div className="flex flex-row w-[20%]">

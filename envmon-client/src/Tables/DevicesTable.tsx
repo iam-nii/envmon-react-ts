@@ -175,8 +175,12 @@ function DevicesTable() {
           disabled
         ></Input>
         <Input
-          label="ID помещения"
-          value={device.room_id?.toString() ?? ""}
+          label="Помещения"
+          value={
+            rooms
+              .find((room) => room.room_id === device.room_id)
+              ?.roomNumber.toString() ?? ""
+          }
           disabled
         ></Input>
         <Switch
@@ -227,7 +231,7 @@ function DevicesTable() {
           }
         ></Input>
         <Select
-          label="Номер помещения"
+          label="Помещение"
           placeholder="Выберите помещение"
           variant="bordered"
           onChange={(e) => {
@@ -250,15 +254,6 @@ function DevicesTable() {
             </SelectItem>
           ))}
         </Select>
-        <Input
-          label="ID помещения"
-          value={
-            Number(device?.room_id)
-              ? Number(device?.room_id).toString()
-              : "Номер помещения не указан"
-          }
-          disabled
-        ></Input>
         <Switch
           classNames={{
             base: cn(

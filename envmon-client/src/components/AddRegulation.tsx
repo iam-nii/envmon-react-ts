@@ -57,6 +57,7 @@ function AddRegulation({ device_id }: AddRegulationProps) {
   //get all regulations
   useEffect(() => {
     setDeviceId(device_id);
+    setPayload((prev) => ({ ...prev, device_id: device_id }));
   }, [device_id]);
   useEffect(() => {
     axiosClient
@@ -69,6 +70,7 @@ function AddRegulation({ device_id }: AddRegulationProps) {
           );
           regulation["parameter_name"] = parameter?.parameter_name?.trim();
         });
+        console.log("Regulations", data.data);
         setRegulations(data.data);
       });
   }, []);
@@ -163,6 +165,7 @@ function AddRegulation({ device_id }: AddRegulationProps) {
 
   const invalidPayload = () => {
     setError(false);
+
     if (payload.param_id === "") {
       setError("Выберите параметр");
       return true;
@@ -209,7 +212,15 @@ function AddRegulation({ device_id }: AddRegulationProps) {
             params: payload,
           }
         )
-        .then(() => {
+        .then(({ data }) => {
+          console.log("Regulation added", data);
+          const data_param = parameters_.find(
+            (param) => param.param_id === data.data.param_id
+          );
+          data.data.parameter_name = data_param?.parameter_name;
+          data.data.techReg_id = data.data.techreg_id;
+          setRegulations((prev) => [...prev, data.data]);
+
           setSuccess("Регламент добавлен");
           setError(false);
           setTimeout(() => {
