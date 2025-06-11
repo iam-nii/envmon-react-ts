@@ -112,7 +112,7 @@ function Welcome() {
                 Envmon {year}. Все права защищены.
               </p>
               <p className="text-slate-700 mt-2">
-                <Link href="/privacy-policy" className="hover:text-slate-900">
+                <Link href="/" className="hover:text-slate-900">
                   Политика конфиденциальности
                 </Link>
                 {" | "}
@@ -138,7 +138,7 @@ function Welcome() {
               </p>
               <p className="text-slate-700">
                 Телефон:{" "}
-                <a href="tel:+1234567890" className="hover:text-slate-900">
+                <a href="tel:+7234567890" className="hover:text-slate-900">
                   +7 (234) 567-89-10
                 </a>
               </p>
@@ -146,22 +146,13 @@ function Welcome() {
             <div className="text-center md:text-left">
               <p className="text-slate-700">Мы в соцсетях:</p>
               <div className="flex space-x-4 mt-2">
-                <Link
-                  href="https://facebook.com/envmon"
-                  className="text-slate-700 hover:text-slate-900"
-                >
+                <Link href="#" className="text-slate-700 hover:text-slate-900">
                   Facebook
                 </Link>
-                <Link
-                  href="https://twitter.com/envmon"
-                  className="text-slate-700 hover:text-slate-900"
-                >
+                <Link href="#" className="text-slate-700 hover:text-slate-900">
                   Twitter
                 </Link>
-                <Link
-                  href="https://linkedin.com/company/envmon"
-                  className="text-slate-700 hover:text-slate-900"
-                >
+                <Link href="#" className="text-slate-700 hover:text-slate-900">
                   LinkedIn
                 </Link>
               </div>

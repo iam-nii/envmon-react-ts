@@ -63,14 +63,14 @@ function SystemSettings() {
     <div className="flex flex-col gap-4">
       <h1 className="text-2xl font-bold">Настройки предупреждений</h1>
       <Input
-        label="Время предупреждения, мс"
+        label="Время предупреждения, с"
         className="w-80"
         type="number"
         value={warningTime.toString()}
         onChange={(e) =>
           setWarningTime(() => {
             setIsAltered(true);
-            return Number(e.target.value);
+            return Number(e.target.value) * 1000;
           })
         }
       />

@@ -75,19 +75,25 @@ function RoomDevices() {
                   {device.device_id}
                 </div>
                 <div>
+                  <span className="font-bold">Помещение:</span>{" "}
+                  {
+                    rooms?.find((room) => room.room_id === device.room_id)
+                      ?.roomNumber
+                  }{" "}
+                  (
+                  {
+                    rooms?.find((room) => room.room_id === device.room_id)
+                      ?.location
+                  }
+                  )
+                </div>
+                <div>
                   <span className="font-bold">Номер зоны:</span>{" "}
                   {device.zoneNum}
                 </div>
                 <div>
-                  <span className="font-bold">Интервал:</span>{" "}
-                  {device.reqInterval}
-                </div>
-                <div>
-                  <span className="font-bold">Номер помещения:</span>{" "}
-                  {
-                    rooms?.find((room) => room.room_id === device.room_id)
-                      ?.roomNumber
-                  }
+                  <span className="font-bold">Интервал опроса:</span>{" "}
+                  {device.reqInterval} с
                 </div>
               </CardBody>
             </Card>

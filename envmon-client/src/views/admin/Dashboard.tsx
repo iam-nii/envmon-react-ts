@@ -4,13 +4,13 @@ import { useEffect, useState } from "react";
 // import { useNavigate } from "react-router-dom";
 // import { Room } from "../../Types";
 // import { useUserContext } from "../../context/UserContextProvider";
-import { useDeviceContext } from "../../context/DeviceContextProvider";
+// import { useDeviceContext } from "../../context/DeviceContextProvider";
 import DeviceParamCard from "../../components/DeviceParamCard";
 
 function Dashboard() {
   const { rooms } = useRoomContext();
   // const { users } = useUserContext();
-  const { devices } = useDeviceContext();
+  // const { devices } = useDeviceContext();
   // const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -28,10 +28,10 @@ function Dashboard() {
   // Get the device ID of each room
   // Get the parameter aliases for the parameters of each device
 
-  useEffect(() => {
-    // getDeviceParameters();
-    //console.log(devices);
-  }, [devices]);
+  // useEffect(() => {
+  //   // getDeviceParameters();
+  //   //console.log(devices);
+  // }, [devices]);
 
   return (
     <div className="w-full">

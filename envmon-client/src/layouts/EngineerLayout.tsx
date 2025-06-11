@@ -222,7 +222,7 @@ const EngineerLayout = () => {
           </NavbarBrand>
           <NavbarContent className="hidden sm:flex gap-6 mt-" justify="end">
             <NavbarItem className="flex flex-row gap-2 items-center ">
-              <div>{user && user.userName}</div>
+              <div>{user && user.uEmail}</div>
               <Button onPress={onLogout} color="danger">
                 Выйти
               </Button>

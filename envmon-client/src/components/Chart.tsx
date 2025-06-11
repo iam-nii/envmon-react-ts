@@ -222,7 +222,7 @@ function Chart({ data }: ChartProps) {
       },
       layout: "horizontal",
       align: "center",
-      verticalAlign: "bottom",
+      verticalAlign: "top",
     },
     exporting: {
       enabled: false,

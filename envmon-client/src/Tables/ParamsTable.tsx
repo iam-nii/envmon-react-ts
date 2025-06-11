@@ -76,6 +76,7 @@ function ParamsTable({ isAdmin }: ParamsPropsType) {
   const renderCell = React.useCallback(
     (param: Params, columnKey: keyof Params | "actions"): React.ReactNode => {
       const cellValue = param[columnKey as keyof Params];
+      console.log(param.parameter_name);
       switch (columnKey) {
         case "parameter_name":
           return (

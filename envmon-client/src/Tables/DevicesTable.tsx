@@ -125,7 +125,7 @@ function DevicesTable() {
                 className="text-lg text-default-400 cursor-pointer active:opacity-50"
                 onClick={() => {
                   setSelectedItem(device);
-                  setEditDevice(device);
+                  setEditDevice({ ...device, old_device_id: device.device_id });
                   onEditOpen();
                 }}
               >
@@ -197,7 +197,10 @@ function DevicesTable() {
           label="Идентификатор устройства"
           variant="bordered"
           value={device.device_id ?? ""}
-          isDisabled
+          onChange={(e) =>
+            setEditDevice({ ...editDevice, device_id: e.target.value })
+          }
+          // isDisabled
         ></Input>
         <Input
           label="Название устройства"
@@ -323,23 +326,29 @@ function DevicesTable() {
         editDevice.status = 0;
       }
       axiosClient
-        .get(`/api/devices/?method=PATCH&id=${editDevice.device_id}`, {
+        .get(`/api/devices/?method=PATCH&id=${editDevice.old_device_id}`, {
           params: {
+            device_id: editDevice.device_id,
             deviceName: editDevice.deviceName,
             zoneNum: editDevice.zoneNum,
             reqInterval: editDevice.reqInterval,
             room_id: editDevice.room_id,
             status: editDevice.status,
+            old_device_id: editDevice.old_device_id,
           },
         })
         .then(({ data }) => {
-          // console.log(data);
+          console.log(data);
           const index = devices.findIndex(
-            (device) => device.device_id === editDevice.device_id
+            (device) => device.device_id === editDevice.old_device_id
           );
           devices[index] = data.data;
+          devices[index].device_id = editDevice.old_device_id;
           setDevices(devices);
-          setSuccess("Устройство успешно обновлено");
+
+          setSuccess(
+            "Устройство успешно обновлено. Перезагрузите страницу чтобы обновить список устройств"
+          );
           setTimeout(() => setSuccess(null), 3000);
           onEditClose();
         })

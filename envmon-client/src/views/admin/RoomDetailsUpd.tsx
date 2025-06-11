@@ -268,7 +268,12 @@ function RoomDetailsUpd() {
           )
           .then(({ data }) => {
             // console.log("data", data);
-            setLogs(transformLogsToRows(data.data, parameters));
+            const convertedData = data.data.map((log: LogEntry) => ({
+              ...log,
+              mdt: convertDateFormat(log.mdt),
+            }));
+            console.log("data", convertedData);
+            setLogs(transformLogsToRows(convertedData, parameters));
             setLogStart(true);
           })
           .catch((error) => {
@@ -312,7 +317,7 @@ function RoomDetailsUpd() {
     const pad = (n: number) => n.toString().padStart(2, "0");
     return `${pad(dt.getDate())}.${pad(
       dt.getMonth() + 1
-    )}.${dt.getFullYear()} ${pad(dt.getHours())}.${pad(dt.getMinutes())}.${pad(
+    )}.${dt.getFullYear()} ${pad(dt.getHours())}:${pad(dt.getMinutes())}:${pad(
       dt.getSeconds()
     )}`;
   }

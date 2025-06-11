@@ -69,6 +69,9 @@ function AddRegulation({ device_id }: AddRegulationProps) {
             (param) => param.param_id === regulation.param_id
           );
           regulation["parameter_name"] = parameter?.parameter_name?.trim();
+          // regulation["param_id"] = parameter?.param_id;
+          regulation.param_id = Number(regulation.param_id).toString();
+          console.log(regulation);
         });
         console.log("Regulations", data.data);
         setRegulations(data.data);

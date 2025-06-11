@@ -32,7 +32,7 @@ function DeviceParamCard({ room, role }: DeviceParamCardTypes) {
       setDeviceID(device.device_id);
     }
     // console.log("role: ", role);
-  }, []);
+  }, [devices]);
   useEffect(() => {}, [deviceID]);
   type recievedData = {
     param_id: number;
@@ -132,7 +132,7 @@ function DeviceParamCard({ room, role }: DeviceParamCardTypes) {
           {deviceID && deviceStatus == 1 ? (
             <div>
               <div>
-                <h3>
+                <h3 className="text-center">
                   Номер зоны: <span className="text-sm">{zoneNumber}</span>{" "}
                 </h3>
               </div>

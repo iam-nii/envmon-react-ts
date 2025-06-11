@@ -43,6 +43,7 @@ interface Room {
 type Rooms = Room[];
 
 interface device {
+  old_device_id?: string;
   device_id?: string;
   deviceName?: string | null;
   zoneNum?: number;
@@ -71,7 +72,7 @@ type Parameters = Params[];
 interface Regulation {
   techReg_id?: number;
   techreg_id?: number;
-  param_id?: number;
+  param_id?: number | string;
   parameter_name?: string;
   minValue?: number;
   maxValue?: number;

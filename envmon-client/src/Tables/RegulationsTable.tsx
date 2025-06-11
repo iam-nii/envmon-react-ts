@@ -24,7 +24,7 @@ import { useState } from "react";
 import axiosClient from "../axiosClient";
 import { Regulation } from "../Types";
 import { useDeviceContext } from "../context/DeviceContextProvider";
-// import { useParameterContext } from "../context/ParameterContextProvider";
+import { useParameterContext } from "../context/ParameterContextProvider";
 
 const COLUMNS = [
   { name: "ID", uid: "techReg_id" },
@@ -55,6 +55,7 @@ function RegulationTable({
     sendMsg: false,
   });
   const { devices } = useDeviceContext();
+  const { parameters } = useParameterContext();
   const [success, setSuccess] = useState<string | boolean | null>(null);
   const [selectedDeviceValues, setSelectedDeviceValues] = useState<Selection>(
     new Set([])
@@ -106,7 +107,19 @@ function RegulationTable({
             <p className="font-bold text-small">{regulation.techReg_id}</p>
           );
         case "parameter_name":
-          return <p className="text-small">{regulation.parameter_name}</p>;
+          return (
+            <p className="text-small">
+              {
+                parameters?.find((p) => p.param_id === regulation.param_id)
+                  ?.parameter_name
+              }
+              ,{" "}
+              {
+                parameters?.find((p) => p.param_id === regulation.param_id)
+                  ?.unitOfMeasure
+              }
+            </p>
+          );
         case "maxValue":
           return <p className="text-small">{regulation.maxValue}</p>;
         case "minValue":
@@ -181,7 +194,7 @@ function RegulationTable({
       .get(
         `/api/settings/?method=PATCH&techReg_id=${
           editedRegulation!.techReg_id
-        }&param_id=${editedRegulation!.param_id}
+        }&param_id=${editedRegulation!.param_id?.toString().trim()}
         &minValue=${editedRegulation!.minValue}&maxValue=${
           editedRegulation!.maxValue
         }&device_id=${editedRegulation!.device_id}
@@ -195,6 +208,7 @@ function RegulationTable({
           (reg) => reg.techReg_id === editedRegulation!.techReg_id
         );
         data.data["parameter_name"] = editedRegulation?.parameter_name;
+        data.data["param_id"] = editedRegulation?.param_id;
         regulations![index] = data.data;
         setRegulations(regulations!);
         //show success alert for 3 seconds
