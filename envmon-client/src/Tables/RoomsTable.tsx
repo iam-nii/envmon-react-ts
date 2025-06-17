@@ -294,12 +294,15 @@ function RoomsTable({ isAdmin }: RoomPropsType) {
       )
       .then((response) => {
         // log the response
-        console.log(response);
+
         //update only the edited room
         const index = rooms!.findIndex(
           (room) => room.room_id === editedRoom.room_id
         );
+        response.data.data.roomNumber = editedRoom.roomNumber;
+        console.log(response);
         rooms![index] = response.data.data;
+        console.log(response.data.data);
         setRooms(rooms!);
         //show success alert for 3 seconds
         setSuccess("Помещение успешно обновлено");
@@ -353,8 +356,8 @@ function RoomsTable({ isAdmin }: RoomPropsType) {
         }, 3000);
       })
       .catch((error) => {
-        console.log(error);
-        setError(true);
+        console.log(error.response.data.message);
+        setError(error.response.data.message);
         setTimeout(() => {
           setError(null);
         }, 3000);
@@ -672,9 +675,7 @@ function RoomsTable({ isAdmin }: RoomPropsType) {
                 {success && (
                   <Alert color="success">Помещение успешно удалено</Alert>
                 )}
-                {error && (
-                  <Alert color="danger">Ошибка при удалении помещения</Alert>
-                )}
+                {error && <Alert color="danger">{error}</Alert>}
                 <Alert color="warning">
                   Вы действительно хотите удалите это помещение?
                 </Alert>

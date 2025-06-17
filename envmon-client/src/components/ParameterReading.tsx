@@ -4,19 +4,19 @@ import axiosClient from "../axiosClient";
 type ParameterReadingType = {
   techReg_id: number | undefined;
 };
-type Reading = {
-  batch_num: number;
-  logValue: number;
-  log_id: number;
-  mdt: Date;
-  techReg_id: number;
-};
+// type Reading = {
+//   batch_num: number;
+//   logValue: number;
+//   log_id: number;
+//   mdt: Date;
+//   techReg_id: number;
+// };
 type ParameterData = {
   reading: number;
   color: string;
 };
 function ParameterReading({ techReg_id }: ParameterReadingType) {
-  const [paramReadings, setParamReadings] = useState<ParameterData[]>();
+  // const [paramReadings, setParamReadings] = useState<ParameterData[]>();
   const [maxReading, setMaxReading] = useState<number>();
   const [minReading, setMinReading] = useState<number>();
   const [startLogging, setStartLogging] = useState<boolean>(false);
@@ -36,34 +36,30 @@ function ParameterReading({ techReg_id }: ParameterReadingType) {
     }
   }, [startLogging, maxReading, minReading]);
 
+  const [paramReading, setParamReading] = useState<ParameterData | null>(null);
+
   const getLastLogs = () => {
     axiosClient
       .get(`/api/logs/?method=GET&id=${techReg_id}&query=1`)
       .then(({ data }) => {
-        // console.log(`${techReg_id}:`, data.data);
+        const latest = data.data[0]; // Assuming the latest reading is first
+        const newReading: ParameterData = {
+          reading: latest.logValue,
+          color: "text-blue-500", // Blue initially
+        };
+        setParamReading(newReading);
 
-        const readings: ParameterData[] = data.data.map((reading: Reading) => {
-          if (
-            reading.logValue > maxReading! ||
-            reading.logValue < minReading!
-          ) {
-            //sending mail
-            // console.log(
-            //   `sending mail: \nLogValue: ${reading.logValue}, \nMax: ${maxReading}, \nMin: ${minReading}, \nTechReg_id: ${techReg_id}`
-            // );
-          }
+        const color =
+          latest.logValue <= maxReading! && latest.logValue >= minReading!
+            ? "text-green-700"
+            : "text-red-700";
 
-          return {
-            reading: reading.logValue,
-            color:
-              reading.logValue < maxReading! && reading.logValue > minReading!
-                ? "text-green-700"
-                : "text-red-700",
-          };
-        });
-        // console.log(readings);
-
-        setParamReadings(readings);
+        setTimeout(() => {
+          setParamReading({
+            reading: latest.logValue,
+            color: color,
+          });
+        }, 400); // 500ms blue flash
       });
   };
 
@@ -89,11 +85,11 @@ function ParameterReading({ techReg_id }: ParameterReadingType) {
   return (
     <div className="pl-2 flex gap-2">
       <p>{minReading} </p>
-      {paramReadings?.map((reading, index) => (
-        <p className={`font-bold ${reading.color}`} key={index}>
-          {reading.reading}
+      {paramReading && (
+        <p className={`font-bold  ${paramReading.color}`}>
+          {paramReading.reading}
         </p>
-      ))}
+      )}
       <p> {maxReading}</p>
     </div>
   );

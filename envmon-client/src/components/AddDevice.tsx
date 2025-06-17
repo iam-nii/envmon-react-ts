@@ -80,6 +80,22 @@ function AddDevice({
     } else {
       devicePayload.status = 0;
     }
+    if (devicePayload.device_id.length !== 16) {
+      setError("Идентификатор устройства должен быть 16 символов");
+      return;
+    }
+    if (devicePayload.deviceName.length < 3) {
+      setError("Название устройства должно быть не менее 3 символов");
+      return;
+    }
+    if (Number(devicePayload.zoneNum) < 0 || devicePayload.zoneNum === "") {
+      setError("Номер зоны должен быть больше 0");
+      return;
+    }
+    if (Number(devicePayload.reqInterval) < 10) {
+      setError("Интервал опроса должен быть больше 10");
+      return;
+    }
     axiosClient.post("/api/devices/", devicePayload).then(({ data }) => {
       // console.log(data);
       setDevices([...devices, data.data]);
@@ -175,7 +191,7 @@ function AddDevice({
                   {rooms?.map((room) => (
                     <SelectItem
                       key={String(room.room_id)}
-                      textValue={String(room.roomNumber)}
+                      textValue={`${room.roomNumber} (${room.location})`}
                     >
                       {room.roomNumber} ({room.location})
                     </SelectItem>

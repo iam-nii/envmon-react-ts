@@ -31,6 +31,7 @@ const COLUMNS = [
   { name: "Параметр", uid: "parameter_name" },
   { name: "Мин. значение", uid: "minValue" },
   { name: "Макс. значение", uid: "maxValue" },
+  { name: "Отправить сообщение", uid: "sendMsg" },
   // { name: "Идентификатор устройства", uid: "device_id" },
   { name: "Действия", uid: "actions" },
 ];
@@ -120,6 +121,12 @@ function RegulationTable({
               }
             </p>
           );
+        case "sendMsg":
+          return (
+            <p className="text-small">
+              {regulation.sendMsg == 1 ? "вкл." : "выкл."}
+            </p>
+          );
         case "maxValue":
           return <p className="text-small">{regulation.maxValue}</p>;
         case "minValue":
@@ -172,7 +179,7 @@ function RegulationTable({
           return <p className="text-small">{String(cellValue)}</p>;
       }
     },
-    []
+    [regulations, parameters]
   );
 
   useEffect(() => {
@@ -182,7 +189,7 @@ function RegulationTable({
   const handleEditRegulations = () => {
     setEditedRegulation({
       ...editedRegulation,
-      device_id: parseInt(selectedDeviceValues.toString()),
+      device_id: selectedDeviceValues.toString(),
     });
 
     let sendMsg;
@@ -359,7 +366,7 @@ function RegulationTable({
                 />
                 <Switch
                   disabled
-                  isSelected={selectedRegulation?.sendMsg || false}
+                  isSelected={selectedRegulation?.sendMsg === 1 ? true : false}
                 >
                   <p className="text-sm">Отправить сообщение</p>
                 </Switch>
@@ -386,7 +393,7 @@ function RegulationTable({
                 <Input
                   label="Идентификатор регламента"
                   disabled
-                  value={editedRegulation!.techReg_id!.toString()}
+                  value={editedRegulation?.techReg_id?.toString()}
                   onChange={(e) =>
                     setEditedRegulation({
                       ...editedRegulation,
@@ -399,11 +406,11 @@ function RegulationTable({
                     label={"Идентификатор устройства"}
                     variant="bordered"
                     disabled
-                    value={editedRegulation!.device_id!.toString()}
+                    value={selectedRegulation?.device_id}
                     onChange={(e) => {
                       setEditedRegulation({
                         ...editedRegulation,
-                        device_id: parseInt(e.target.value),
+                        device_id: e.target.value,
                       });
                     }}
                   />
@@ -449,9 +456,9 @@ function RegulationTable({
                   />
                 </div>
                 <Switch
-                  disabled
+                  // disabled
                   // isSelected={editedRegulation!.sendMsg! === 1 ? true : false}
-                  isSelected={Boolean(editedRegulation!.sendMsg)}
+                  isSelected={editedRegulation?.sendMsg == 1 ? true : false}
                   onValueChange={(value) => {
                     setEditedRegulation((prev) => ({
                       ...prev,

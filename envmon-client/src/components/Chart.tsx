@@ -75,8 +75,14 @@ function Chart({ data }: ChartProps) {
   const options = {
     chart: {
       type: "spline",
+      labels: {
+        align: "right",
+        x: 60,
+      },
+      opposite: false,
       animation: false,
       height: "65%",
+      // width: "100%",
       events: {
         // load: function (this: Highcharts.Chart) {
         //   // Defensive checks
@@ -128,8 +134,8 @@ function Chart({ data }: ChartProps) {
           text: `[${min} - ${max}]`,
           align: "middle",
           rotation: 270,
-          offset: 100,
-          x: -70,
+          offset: 25,
+          x: -5,
           style: {
             color: "#333",
             fontWeight: "bold",
@@ -277,8 +283,8 @@ function Chart({ data }: ChartProps) {
     },
   };
   return (
-    <div className="mb-20">
-      <div className=" hidden gap-2 items-center">
+    <div className="mb-20 w-full overflow-x-hidden">
+      <div className=" hidden gap-2 items-center ">
         <p className="text-[14px] text-gray-500 ml-2">Zoom</p>
         {/* <ButtonGroup>
           <Button size="sm" radius="sm" onPress={() => setWindowSize(10)}>
@@ -295,16 +301,18 @@ function Chart({ data }: ChartProps) {
           </Button>
         </ButtonGroup> */}
       </div>
-      <HighchartsReact
-        highcharts={Highcharts}
-        constructorType={"stockChart"}
-        options={options}
-      />
-      <div className="flex flex-wrap gap-5 w-full justify-center">
+      <div className="w-full h-full overflow-x-hidden">
+        <HighchartsReact
+          highcharts={Highcharts}
+          constructorType={"stockChart"}
+          options={options}
+        />
+      </div>
+      <div className="flex flex-wrap gap-5 w-full">
         {legend.map((item, index) => (
           <div className="flex items-center gap-2" key={item}>
             <div
-              className={" w-5 h-[2px]"}
+              className={"w-5 h-[2px]"}
               style={{ backgroundColor: COLORS[index] }}
             ></div>
             <p key={item} className="text-[14px] text-gray-700 font-extrabold">

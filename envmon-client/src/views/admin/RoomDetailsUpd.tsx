@@ -77,13 +77,13 @@ function RoomDetailsUpd() {
   const [warning, setWarning] = useState<Warning | null>(null);
   const [showWarning, setShowWarning] = useState(false);
   const [warningTime, setWarningTime] = useState<number>(0);
-  // const [dateRange, setDateRange] = useState<DateRange | null>(null);
+  const [isWindowSet, setIsWindowSet] = useState<boolean>(false);
   const [reqInterval, setReqInterval] = useState<number>(0);
   const [roomDetails, setRoomDetails] = useState<Room | null>(null);
   const [device, setDevice] = useState<device | undefined>(undefined);
   const [userInfo, setUserInfo] = useState<User | null>(null);
   const [logs, setLogs] = useState<DataItem[]>([]);
-  const [window, setWindow] = useState<number>(10);
+  const [window, setWindow] = useState<number | null>(null);
   const [logStart, setLogStart] = useState<boolean>(false);
   // const [nextBatch_num, setNextBatch_num] = useState<number>(window);
   const [parameters, setParameters] = useState<TabColumn[]>([
@@ -99,6 +99,13 @@ function RoomDetailsUpd() {
     };
   }
   const chartRefs = useRef<(HTMLDivElement & ChartRef)[]>([]);
+  const windowRef = useRef(Number(window));
+  useEffect(() => {
+    if (window) {
+      setIsWindowSet(true);
+      windowRef.current = Number(window);
+    }
+  }, [window]);
 
   // setting the pagination
   // const [page, setPage] = useState(1);
@@ -122,7 +129,7 @@ function RoomDetailsUpd() {
       .then(({ data }) => {
         // console.log("data", data.data.warning_settings);
         const interval = Number(data.data.warning_settings.interval);
-        setWarningTime(interval);
+        setWarningTime(interval * 1000);
       });
   }, []);
 
@@ -218,6 +225,17 @@ function RoomDetailsUpd() {
           min: param.min,
           max: param.max,
         }));
+        newParameters.sort((a: Params, b: Params) => {
+          // Handle undefined or missing aliases
+          const aliasA = a?.parameter_alias || "";
+          const aliasB = b?.parameter_alias || "";
+          // First, sort by length
+          if (aliasA.length !== aliasB.length) {
+            return aliasA.length - aliasB.length;
+          }
+          // If lengths are equal, sort alphabetically
+          return aliasA.localeCompare(aliasB);
+        });
 
         setParameters(newParameters);
       })
@@ -247,7 +265,7 @@ function RoomDetailsUpd() {
           // console.log("log", log);
           setLogs((prev) => {
             const newLogs = [log, ...prev]; // Add new log at the front
-            return newLogs.slice(0, window); // Keep only the most recent 'window' logs
+            return newLogs.slice(0, Number(windowRef.current)); // Keep only the most recent 'window' logs
           });
           // if (log.logValue < log.min || log.logValue > log.max) {
 
@@ -258,9 +276,11 @@ function RoomDetailsUpd() {
         });
     } else {
       try {
+        setLogs([]);
         let windowSize = window;
+        console.log("windowSize", windowSize);
         if (parameters.length > 2) {
-          windowSize = window * (parameters.length - 2);
+          windowSize = windowRef.current * (parameters.length - 2);
         }
         axiosClient
           .get(
@@ -273,7 +293,13 @@ function RoomDetailsUpd() {
               mdt: convertDateFormat(log.mdt),
             }));
             console.log("data", convertedData);
-            setLogs(transformLogsToRows(convertedData, parameters));
+            setLogs(
+              transformLogsToRows(convertedData, parameters).slice(
+                0,
+                Number(windowRef.current)
+              )
+            );
+
             setLogStart(true);
           })
           .catch((error) => {
@@ -343,7 +369,7 @@ function RoomDetailsUpd() {
           return;
         }
 
-        console.log("log", log);
+        // console.log("log", log);
         // Send warning
         setWarning((prev) => ({
           ...prev,
@@ -394,8 +420,19 @@ function RoomDetailsUpd() {
   // };
   useEffect(() => {
     console.log("logs", logs);
+    const sortedParameters = [
+      ...parameters.slice(0, 2), // Keep the first two as-is
+      ...parameters.slice(2).sort((a, b) => {
+        const aliasA = a?.name || "";
+        const aliasB = b?.name || "";
+        if (aliasA.length !== aliasB.length) {
+          return aliasA.length - aliasB.length;
+        }
+        return aliasA.localeCompare(aliasB);
+      }),
+    ];
     if (logs.length > 0) {
-      setGraphData(buildGraphData(logs, parameters));
+      setGraphData(buildGraphData(logs, sortedParameters));
     }
   }, [logs, parameters]);
 
@@ -570,10 +607,9 @@ function RoomDetailsUpd() {
     <div>
       <div>
         <div className="flex flex-col align-center gap-5 mb-5 w-full ">
-          <h1 className="font-bold text-center">
-            Журнал мониторинга параметров помещения номер{" "}
-            {roomDetails?.roomNumber} ({roomDetails?.location} - Зон:{" "}
-            {device?.zoneNum})
+          <h1 className="font-bold text-center text">
+            Мониторинг параметров помещения № {roomDetails?.roomNumber} (
+            {roomDetails?.location}, зона {device?.zoneNum})
           </h1>
           <div className="flex flex-row gap-5 justify-center">
             {/* <CustomDateRangePicker onChange={handleDateRangeChange} /> */}
@@ -585,11 +621,11 @@ function RoomDetailsUpd() {
               className="w-44 h-12"
               label="Количество строк"
               variant="bordered"
-              value={window.toString()}
+              value={window?.toString()}
               onChange={(e) => setWindow(Number(e.target.value))}
             />
             <Button
-              // isDisabled={!dateRange}
+              isDisabled={!isWindowSet}
               variant="solid"
               color="primary"
               className="w-24 h-11"
@@ -598,10 +634,11 @@ function RoomDetailsUpd() {
               Показать
             </Button>
           </div>
-          <>
+          <div className="overflow-x-hidden">
             <Table
               aria-label="Table with log data"
               className="mb-5 "
+
               // bottomContent={
               //   <div className="flex w-full justify-center">
               //     <Pagination
@@ -617,12 +654,22 @@ function RoomDetailsUpd() {
               // }
             >
               <TableHeader>
-                {parameters.map((column) => (
+                {[
+                  ...parameters.slice(0, 2), // Keep the first two as-is
+                  ...parameters.slice(2).sort((a, b) => {
+                    const aliasA = a?.name || "";
+                    const aliasB = b?.name || "";
+                    if (aliasA.length !== aliasB.length) {
+                      return aliasA.length - aliasB.length;
+                    }
+                    return aliasA.localeCompare(aliasB);
+                  }),
+                ].map((column) => (
                   <TableColumn key={column.uid}>{column.name}</TableColumn>
                 ))}
               </TableHeader>
               <TableBody emptyContent="Нет данных">
-                {logs.map((item) => (
+                {logs.slice(0, Number(windowRef.current)).map((item) => (
                   <TableRow key={item.batch_num}>
                     {parameters.map((column) => (
                       <TableCell key={column.uid}>{item[column.uid]}</TableCell>
@@ -632,9 +679,8 @@ function RoomDetailsUpd() {
               </TableBody>
             </Table>
 
-            <h1 className="text-center font-bold mb-5">
-              Графики измерения параметров помещения номер{" "}
-              {roomDetails?.roomNumber} ({roomDetails?.location})
+            <h1 className="text-center font-bold mb-5 ">
+              Графики измерения параметров микроклимата
             </h1>
 
             <div
@@ -643,13 +689,13 @@ function RoomDetailsUpd() {
                   chartRefs.current[0] = el;
                 }
               }}
-              className="w-[75vw] h-[800px] cursor-pointer mb-10"
+              className="cursor-pointer mb-10 overflow-x-hidden h-full"
               // onClick={() => toggleFullScreen(chartRefs.current[0])}
               onDoubleClick={() => toggleFullScreen(chartRefs.current[0])}
             >
               <Chart data={graphData} />
             </div>
-          </>
+          </div>
         </div>
       </div>
       {showWarning && (

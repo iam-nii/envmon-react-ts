@@ -80,8 +80,9 @@ function ParamsTable({ isAdmin }: ParamsPropsType) {
       switch (columnKey) {
         case "parameter_name":
           return (
-            <p className="font-bold text-small capitalize">
-              {param.parameter_name}
+            <p className="font-bold text-small ">
+              {/* capitalize only the first letter of the parameter name */}
+              {param.parameter_name?.trim()}
             </p>
           );
         case "unitOfMeasure":

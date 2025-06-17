@@ -70,7 +70,7 @@ function SystemSettings() {
         onChange={(e) =>
           setWarningTime(() => {
             setIsAltered(true);
-            return Number(e.target.value) * 1000;
+            return Number(e.target.value);
           })
         }
       />

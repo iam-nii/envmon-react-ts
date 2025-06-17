@@ -40,7 +40,7 @@ function AdminLayout() {
     };
     return (
       <div className="flex">
-        <aside className="min-w-72 h-screen flex flex-col gap-4 bg-blue-50">
+        <aside className="min-w-72 h-300dvh] flex flex-col gap-4 bg-blue-50">
           <img src={Logo} alt="University Logo" className="w-40 mx-4 mt-2" />
           <Link
             to="/admin"

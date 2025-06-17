@@ -76,8 +76,9 @@ interface Regulation {
   parameter_name?: string;
   minValue?: number;
   maxValue?: number;
-  device_id?: number | Set<string>;
-  sendMsg?: boolean;
+  device_id?: string;
+  // device_id?: string | Set<string>;
+  sendMsg?: number | boolean;
 }
 
 interface Report {

@@ -138,19 +138,31 @@ function DeviceParamCard({ room, role }: DeviceParamCardTypes) {
               </div>
               <div key={deviceID}>
                 {deviceParams ? (
-                  deviceParams.map((param: recievedData | undefined) => (
-                    <div
-                      key={param?.param_id}
-                      className="flex flex-row gap-2 mb-0"
-                    >
-                      <p className="w-28 text-right">
-                        {param?.parameter_alias}, {param?.unitOfMeasure}:
-                      </p>
-                      <div>
-                        <ParameterReading techReg_id={param?.techReg_id} />
+                  [...deviceParams]
+                    .sort((a, b) => {
+                      // Handle undefined or missing aliases
+                      const aliasA = a?.parameter_alias || "";
+                      const aliasB = b?.parameter_alias || "";
+                      // First, sort by length
+                      if (aliasA.length !== aliasB.length) {
+                        return aliasA.length - aliasB.length;
+                      }
+                      // If lengths are equal, sort alphabetically
+                      return aliasA.localeCompare(aliasB);
+                    })
+                    .map((param: recievedData | undefined) => (
+                      <div
+                        key={param?.param_id}
+                        className="flex flex-row gap-2 mb-0"
+                      >
+                        <p className="w-28 text-right">
+                          {param?.parameter_alias}, {param?.unitOfMeasure}:
+                        </p>
+                        <div>
+                          <ParameterReading techReg_id={param?.techReg_id} />
+                        </div>
                       </div>
-                    </div>
-                  ))
+                    ))
                 ) : (
                   <div>
                     <p>Нет отслеживаемых параметров</p>

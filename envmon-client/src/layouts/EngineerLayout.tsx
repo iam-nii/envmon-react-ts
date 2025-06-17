@@ -154,7 +154,7 @@ const EngineerLayout = () => {
           return {
             reading: reading.logValue,
             color:
-              reading.logValue < maxReading! && reading.logValue >= minReading!
+              reading.logValue < maxReading! && reading.logValue > minReading!
                 ? "text-green-700"
                 : "text-red-700",
           };

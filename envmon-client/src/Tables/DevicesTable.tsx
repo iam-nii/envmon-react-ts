@@ -33,7 +33,7 @@ const COLUMNS = [
   { name: "Название устройства", uid: "deviceName" },
   { name: "Номер зоны", uid: "zoneNum" },
   { name: "Интервал опроса, с", uid: "reqInterval" },
-  { name: "Номер помещения", uid: "roomNumber" },
+  { name: "Помещение", uid: "roomNumber" },
   { name: "Статус", uid: "status" },
   { name: "Действия", uid: "actions" },
 ];
@@ -78,10 +78,12 @@ function DevicesTable() {
     device: device,
     columnKey: keyof device | "actions"
   ): React.ReactNode => {
-    const room = rooms?.find((room) => room.room_id === Number(device.room_id));
+    console.log(device.room_id);
+    const room = rooms?.find((room) => room.room_id == device.room_id);
     const roomNumber = room?.roomNumber;
     const location = room?.location;
     const status = device.status == 1 ? "активно" : "не активно";
+    console.log(room);
     switch (columnKey) {
       case "device_id":
         return <p className="text-small">{device.device_id}</p>;
