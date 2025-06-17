@@ -1,0 +1,2 @@
+method=GET&query=getDevices 2025-05-20 12:34:57
+method=GET&query=getDevices 2025-05-20 12:34:57
