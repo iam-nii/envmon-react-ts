@@ -639,33 +639,6 @@ function RoomDetailsUpd() {
               </Table>
             )}
 
-            {/* <Table aria-label="Table with log data" className="mb-5 ">
-              <TableHeader>
-                {[
-                  ...parameters.slice(0, 2), // Keep the first two as-is
-                  ...parameters.slice(2).sort((a, b) => {
-                    const aliasA = a?.name || "";
-                    const aliasB = b?.name || "";
-                    if (aliasA.length !== aliasB.length) {
-                      return aliasA.length - aliasB.length;
-                    }
-                    return aliasA.localeCompare(aliasB);
-                  }),
-                ].map((column) => (
-                  <TableColumn key={column.uid}>{column.name}</TableColumn>
-                ))}
-              </TableHeader>
-              <TableBody emptyContent="Нет данных">
-                {logs.slice(0, Number(windowRef.current)).map((item) => (
-                  <TableRow key={item.batch_num}>
-                    {parameters.map((column) => (
-                      <TableCell key={column.uid}>{item[column.uid]}</TableCell>
-                    ))}
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table> */}
-
             <h1 className="text-center font-bold mb-5 ">
               Графики измерения параметров микроклимата
             </h1>

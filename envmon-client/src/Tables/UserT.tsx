@@ -21,7 +21,7 @@ import {
 } from "@heroui/react";
 import { useUserContext } from "../context/UserContextProvider";
 import { User, userRole } from "../Types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Eye, EyeClosed, EyeIcon, Pencil, Trash2 } from "lucide-react";
 import axiosClient from "../axiosClient";
 
@@ -41,6 +41,10 @@ function UserT() {
   const [success, setSuccess] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<User | null>(null);
   const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
+
+  useEffect(() => {
+    console.log("editUser", editUser);
+  }, [editUser]);
 
   const toggleVisibility = () => setPasswordVisible(!passwordVisible);
 
@@ -78,7 +82,7 @@ function UserT() {
       case "uPhone":
         return <p className="text-small">{user?.uPhone ?? "-"}</p>;
       case "uRole": {
-        console.log(user.uRole);
+        // console.log(user.uRole);
         return (
           <Chip
             className="capitalize"
@@ -117,7 +121,8 @@ function UserT() {
                 className="text-lg text-default-400 cursor-pointer active:opacity-50"
                 onClick={() => {
                   setSelectedItem(user);
-                  setEditUser(user);
+                  // set everything except uPassword
+                  setEditUser({ ...user, uPassword: undefined });
                   onEditOpen();
                 }}
               >
@@ -163,14 +168,14 @@ function UserT() {
       <>
         <Input
           label="ФИО пользователя"
-          value={user?.userName ?? ""}
+          value={user?.userName?.trim() ?? ""}
           onChange={(e) =>
             setEditUser({ ...editUser, userName: e.target.value })
           }
         ></Input>
         <Input
           label="Почта"
-          value={user?.uEmail ?? ""}
+          value={user?.uEmail?.trim() ?? ""}
           onChange={(e) =>
             setEditUser((prev) => ({ ...prev, uEmail: e.target.value }))
           }
@@ -192,9 +197,10 @@ function UserT() {
               )}
             </button>
           }
-          onChange={(e) =>
-            setEditUser((prev) => ({ ...prev, uPassword: e.target.value }))
-          }
+          onChange={(e) => {
+            // console.log("e.target.value", e.target.value);
+            setEditUser((prev) => ({ ...prev, uPassword: e.target.value }));
+          }}
         ></Input>
         <Input
           label="Телефон"
@@ -274,27 +280,56 @@ function UserT() {
     if (!editUser) return;
     // console.log(editUser);
     try {
-      axiosClient
-        .get(
-          `/api/users/?method=PATCH&id=${editUser.user_id}&userName=${editUser.userName}
-          &uPassword=${editUser.uPassword}&uEmail=${editUser.uEmail}&uPhone=${editUser.uPhone}
+      if (editUser.uPassword && editUser.uPassword.length > 0) {
+        console.log("editUser.uPassword", editUser.uPassword);
+        axiosClient
+          .get(
+            `/api/users/?method=PATCH&id=${editUser.user_id
+              ?.toString()
+              .trim()}&userName=${editUser.userName?.trim()}
+          &uPassword=${editUser.uPassword}&uEmail=${editUser.uEmail?.trim()}
+          &uPhone=${editUser.uPhone?.trim()}&uRole=${
+              editUser.uRole
+            }&uPosition=${editUser.uPosition?.trim()}`
+          )
+          .then(({ data }) => {
+            // console.log(data.data);
+            const index = users.findIndex(
+              (user) => user.user_id === editUser.user_id
+            );
+            users[index] = data.data;
+            setUsers(users);
+            setSuccess("Пользователь успешно обновлен");
+            setTimeout(() => setSuccess(null), 3000);
+            onEditClose();
+          })
+          .catch((err) => {
+            setError(err instanceof Error ? err.message : "Произошла ошибка");
+            setTimeout(() => setError(null), 3000);
+          });
+      } else {
+        axiosClient
+          .get(
+            `/api/users/?method=PATCH&id=${editUser.user_id}&userName=${editUser.userName}
+          &uEmail=${editUser.uEmail}&uPhone=${editUser.uPhone}
           &uRole=${editUser.uRole}&uPosition=${editUser.uPosition}`
-        )
-        .then(({ data }) => {
-          console.log(data.data);
-          const index = users.findIndex(
-            (user) => user.user_id === editUser.user_id
-          );
-          users[index] = data.data;
-          setUsers(users);
-          setSuccess("Пользователь успешно обновлен");
-          setTimeout(() => setSuccess(null), 3000);
-          onEditClose();
-        })
-        .catch((err) => {
-          setError(err instanceof Error ? err.message : "Произошла ошибка");
-          setTimeout(() => setError(null), 3000);
-        });
+          )
+          .then(({ data }) => {
+            console.log(data.data);
+            const index = users.findIndex(
+              (user) => user.user_id === editUser.user_id
+            );
+            users[index] = data.data;
+            setUsers(users);
+            setSuccess("Пользователь успешно обновлен");
+            setTimeout(() => setSuccess(null), 3000);
+            onEditClose();
+          })
+          .catch((err) => {
+            setError(err instanceof Error ? err.message : "Произошла ошибка");
+            setTimeout(() => setError(null), 3000);
+          });
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Произошла ошибка");
       setTimeout(() => setError(null), 3000);

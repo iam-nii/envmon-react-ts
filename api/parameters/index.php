@@ -1,0 +1,17 @@
+<?php
+// echo "Rooms";
+require_once './../../database.php';
+require_once './../controllers/GetController.php';
+global $connection;
+
+if(checkConnection()){
+    $request_uri = parse_url($_SERVER['REQUEST_URI'],PHP_URL_PATH);
+    $request_method = $_SERVER['REQUEST_METHOD'];
+
+    if($request_method == "GET"){
+        echo handleGetRequest($request_uri);
+    }else{
+        http_response_code(405);
+        echo json_encode(["error"=>"Method not allowed"]);
+    }
+}

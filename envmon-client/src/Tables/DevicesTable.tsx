@@ -320,9 +320,10 @@ function DevicesTable() {
   };
   const handleEdit = async () => {
     if (!editDevice) return;
+    console.log("editDevice.status", editDevice.status);
     // console.log(editDevice);
     try {
-      if (editDevice.status === true) {
+      if (editDevice.status === true || editDevice.status == 1) {
         editDevice.status = 1;
       } else {
         editDevice.status = 0;

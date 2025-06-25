@@ -101,7 +101,7 @@ const Users = () => {
                   onChange={(e) => {
                     setUserData((prev) => ({
                       ...prev,
-                      userName: e.target.value,
+                      userName: e.target.value.trim(),
                     }));
                   }}
                 />
@@ -114,7 +114,7 @@ const Users = () => {
                   onChange={(e) => {
                     setUserData((prev) => ({
                       ...prev,
-                      uEmail: e.target.value,
+                      uEmail: e.target.value.trim(),
                     }));
                   }}
                 />
@@ -125,7 +125,7 @@ const Users = () => {
                   onChange={(e) =>
                     setUserData((prev) => ({
                       ...prev,
-                      uRole: e.target.value,
+                      uRole: e.target.value.trim(),
                     }))
                   }
                 >
@@ -142,7 +142,7 @@ const Users = () => {
                   onChange={(e) => {
                     setUserData((prev) => ({
                       ...prev,
-                      uPosition: e.target.value,
+                      uPosition: e.target.value.trim(),
                     }));
                   }}
                 />
@@ -156,7 +156,7 @@ const Users = () => {
                   onChange={(e) => {
                     setUserData((prev) => ({
                       ...prev,
-                      uPassword: e.target.value,
+                      uPassword: e.target.value.trim(),
                     }));
                   }}
                   endContent={
