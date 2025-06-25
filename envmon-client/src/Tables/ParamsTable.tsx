@@ -24,6 +24,7 @@ import { useParameterContext } from "../context/ParameterContextProvider";
 import { Params } from "../Types";
 const COLUMNS = [
   { name: "Наименование параметра", uid: "parameter_name" },
+  { name: "Алиас", uid: "parameter_alias" },
   { name: "Ед. измерения", uid: "unitOfMeasure" },
   { name: "Мин. значение", uid: "pminValue" },
   { name: "Макс. значение", uid: "pmaxValue" },
@@ -85,10 +86,18 @@ function ParamsTable({ isAdmin }: ParamsPropsType) {
               {param.parameter_name?.trim()}
             </p>
           );
+        case "parameter_alias":
+          return (
+            <p className="font-bold text-small ">
+              {/* capitalize only the first letter of the parameter name */}
+              {param.parameter_alias?.trim()}
+            </p>
+          );
         case "unitOfMeasure":
           return (
             <p className="text-small text-center">{param.unitOfMeasure}</p>
           );
+
         case "pmaxValue":
           return <p className="text-small text-center">{param.pmaxValue}</p>;
         case "pminValue":
@@ -178,7 +187,9 @@ function ParamsTable({ isAdmin }: ParamsPropsType) {
       .get(
         `/api/parameters/?method=PATCH&id=${
           editedParam!.param_id
-        }&parameter_name=${editedParam!.parameter_name}
+        }&parameter_name=${
+          editedParam!.parameter_name
+        }&parameter_alias=${editedParam!.parameter_alias!.trim()}
         &unitOfMeasure=${editedParam!.unitOfMeasure}&pminValue=${
           editedParam!.pminValue
         }&pmaxValue=${editedParam!.pmaxValue}`
@@ -301,6 +312,11 @@ function ParamsTable({ isAdmin }: ParamsPropsType) {
                   disabled
                 />
                 <Input
+                  label="Наименование параметра"
+                  value={selectedParam!.parameter_alias}
+                  disabled
+                />
+                <Input
                   label="Ед. измерения"
                   value={selectedParam!.unitOfMeasure}
                   disabled
@@ -337,7 +353,7 @@ function ParamsTable({ isAdmin }: ParamsPropsType) {
               <ModalBody>
                 <Input
                   label="Наименование параметра"
-                  value={editedParam!.parameter_name}
+                  value={editedParam!.parameter_name!.trim()}
                   onChange={(e) =>
                     setEditedParam({
                       ...editedParam,
@@ -345,10 +361,20 @@ function ParamsTable({ isAdmin }: ParamsPropsType) {
                     })
                   }
                 />
+                <Input
+                  label="Алиас"
+                  value={editedParam!.parameter_alias!.trim()}
+                  onChange={(e) =>
+                    setEditedParam({
+                      ...editedParam,
+                      parameter_alias: e.target.value,
+                    })
+                  }
+                />
 
                 <Input
                   label="Ед. измерения"
-                  value={editedParam!.unitOfMeasure}
+                  value={editedParam!.unitOfMeasure!.trim()}
                   onChange={(e) =>
                     setEditedParam({
                       ...editedParam,
@@ -359,7 +385,7 @@ function ParamsTable({ isAdmin }: ParamsPropsType) {
                 <div className="flex flex-row gap-2">
                   <Input
                     label="Минимальное значение"
-                    value={editedParam!.pminValue!.toString()}
+                    value={editedParam!.pminValue!.toString()!.trim()}
                     type="number"
                     onChange={(e) => {
                       const minValue = parseFloat(e.target.value) || 0;
@@ -376,7 +402,7 @@ function ParamsTable({ isAdmin }: ParamsPropsType) {
                 <div className="flex flex-row gap-2">
                   <Input
                     label="Максимальное значение"
-                    value={editedParam!.pmaxValue!.toString()}
+                    value={editedParam!.pmaxValue!.toString()!.trim()}
                     type="number"
                     onChange={(e) => {
                       const maxValue = parseFloat(e.target.value) || 0;
