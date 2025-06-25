@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
-    base: env.VITE_IS_PRODUCTION
+    base: env.VITE_IS_PRODUCTIONg
       ? env.VITE_PRODUCTION_BASE
       : env.VITE_DEVELOPMENT_BASE,
     plugins: [react()],

@@ -539,39 +539,22 @@ function RoomDetailsUpd() {
     return Object.values(grouped);
   };
 
-  // Set the date
-  // const handleDateRangeChange = (range: {
-  //   start: Date | null;
-  //   end: Date | null;
-  // }) => {
-  //   // 2025-05-20 20:01:43
-  //   let startDate = "";
-  //   let startTime = "";
-  //   if (range.start) {
-  //     startDate = `${range.start?.getFullYear()}-${
-  //       range.start.getMonth() + 1
-  //     }-${range.start.getDate()}`;
-  //     startTime = `${range.start.getHours()}:${range.start.getMinutes()}:${range.start.getSeconds()}`;
-  //     // console.log(`From: ${startDate} ${startTime}`);
-  //   }
+  const [sortedParams, setSortedParams] = useState<TabColumn[]>();
+  useEffect(() => {
+    const sortedParameters = [
+      ...parameters.slice(0, 2),
+      ...parameters.slice(2).sort((a, b) => {
+        const aliasA = a?.name || "";
+        const aliasB = b?.name || "";
+        if (aliasA.length !== aliasB.length) {
+          return aliasA.length - aliasB.length;
+        }
+        return aliasA.localeCompare(aliasB);
+      }),
+    ];
+    setSortedParams(sortedParameters);
+  }, [parameters]);
 
-  //   let endDate = "";
-  //   let endTime = "";
-  //   if (range.end) {
-  //     endDate = `${range.end.getFullYear()}-${
-  //       range.end.getMonth() + 1
-  //     }-${range.end.getDate()}`;
-  //     endTime = `${range.end.getHours()}:${range.end.getMinutes()}:${range.end.getSeconds()}`;
-  //     // console.log(`To: ${endDate} ${endTime}`);
-  //   }
-
-  //   // &query=getFilteredReports&minDate=2025-05-19 00:15:33&maxDate=2025-5-20 20:01:43
-  //   if (range.start && range.end)
-  //     setDateRange({
-  //       startDate: `${startDate} ${startTime}`,
-  //       endData: `${endDate} ${endTime}`,
-  //     });
-  // };
   const toggleFullScreen = (current: HTMLDivElement | null) => {
     if (current) {
       if (!document.fullscreenElement) {
@@ -635,24 +618,28 @@ function RoomDetailsUpd() {
             </Button>
           </div>
           <div className="overflow-x-hidden">
-            <Table
-              aria-label="Table with log data"
-              className="mb-5 "
+            {Array.isArray(sortedParams) && sortedParams.length > 0 && (
+              <Table aria-label="Table with log data" className="mb-5">
+                <TableHeader>
+                  {sortedParams.map((column) => (
+                    <TableColumn key={column.uid}>{column.name}</TableColumn>
+                  ))}
+                </TableHeader>
+                <TableBody emptyContent="Нет данных">
+                  {logs.slice(0, Number(windowRef.current)).map((item) => (
+                    <TableRow key={item.batch_num}>
+                      {sortedParams.map((column) => (
+                        <TableCell key={column.uid}>
+                          {item[column.uid]}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
 
-              // bottomContent={
-              //   <div className="flex w-full justify-center">
-              //     <Pagination
-              //       isCompact
-              //       showControls
-              //       showShadow
-              //       color="primary"
-              //       page={page}
-              //       total={pages}
-              //       onChange={(page) => setPage(page)}
-              //     />
-              //   </div>
-              // }
-            >
+            {/* <Table aria-label="Table with log data" className="mb-5 ">
               <TableHeader>
                 {[
                   ...parameters.slice(0, 2), // Keep the first two as-is
@@ -677,7 +664,7 @@ function RoomDetailsUpd() {
                   </TableRow>
                 ))}
               </TableBody>
-            </Table>
+            </Table> */}
 
             <h1 className="text-center font-bold mb-5 ">
               Графики измерения параметров микроклимата
